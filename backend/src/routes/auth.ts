@@ -8,6 +8,7 @@ import {
   validateResetPassword 
 } from '../middleware/validation';
 import { authLimiter, passwordResetLimiter } from '../middleware/rateLimiter';
+import googleAuthRoutes from './googleAuth';
 
 const router = Router();
 
@@ -30,5 +31,8 @@ router.post('/reset-password', validateResetPassword, AuthController.resetPasswo
 // Protected routes
 router.get('/me', authenticateToken, AuthController.getCurrentUser);
 router.post('/logout', authenticateToken, AuthController.logout);
+
+// Google OAuth routes
+router.use('/', googleAuthRoutes);
 
 export default router;

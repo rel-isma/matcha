@@ -173,4 +173,36 @@ export class UserModel {
     
     await pool.query(query, [verificationToken, userId]);
   }
+
+  static async createGoogleUser(userData: CreateUserInput): Promise<User> {
+    const query = `
+      INSERT INTO users (email, username, first_name, last_name, password, is_verified, verification_token)
+      VALUES ($1, $2, $3, $4, $5, true, NULL)
+      RETURNING id, email, username, first_name as "firstName", last_name as "lastName", 
+                is_verified as "isVerified", created_at as "createdAt", updated_at as "updatedAt"
+    `;
+    
+    const values = [
+      userData.email,
+      userData.username,
+      userData.firstName,
+      userData.lastName,
+      'GOOGLE_OAUTH_USER' // Placeholder password for Google users
+    ];
+
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  }
+
+  static async verifyGoogleUser(email: string): Promise<boolean> {
+    const query = `
+      UPDATE users 
+      SET is_verified = true, verification_token = NULL, updated_at = CURRENT_TIMESTAMP
+      WHERE email = $1
+      RETURNING id
+    `;
+    
+    const result = await pool.query(query, [email]);
+    return result.rows.length > 0;
+  }
 }
