@@ -81,3 +81,28 @@ fclean: ## Complete cleanup - remove everything
 status: ## Show status of all containers
 	@echo "📊 Container Status:"
 	@$(DOCKER_COMPOSE) ps
+
+restart: ## Restart all containers
+	@echo "🔄 Restarting Matcha application..."
+	@$(DOCKER_COMPOSE) restart
+	@echo "✅ Application restarted!"
+
+restart-backend: ## Restart only backend container
+	@echo "🔄 Restarting backend container..."
+	@$(DOCKER_COMPOSE) restart backend
+	@echo "✅ Backend restarted!"
+
+restart-frontend: ## Restart only frontend container
+	@echo "🔄 Restarting frontend container..."
+	@$(DOCKER_COMPOSE) restart frontend
+	@echo "✅ Frontend restarted!"
+
+restart-adminer: ## Restart only adminer container
+	@echo "🔄 Restarting adminer container..."
+	@$(DOCKER_COMPOSE) restart adminer
+	@echo "✅ Adminer restarted!"
+
+restart-db: ## Restart only database container
+	@echo "🔄 Restarting database container..."
+	@$(DOCKER_COMPOSE) restart postgres
+	@echo "✅ Database restarted!"
