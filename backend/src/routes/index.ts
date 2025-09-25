@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authRoutes from './auth';
+import profileRoutes from './profile';
 import { generalLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
@@ -9,6 +10,7 @@ router.use(generalLimiter);
 
 // API routes
 router.use('/auth', authRoutes);
+router.use('/profile', profileRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

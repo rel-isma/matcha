@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import path from 'path';
 import passport from './config/passport';
 import routes from './routes';
 import { specs, swaggerUi } from './config/swagger';
@@ -30,6 +31,9 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Serve static files (uploaded images)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Initialize Passport
 app.use(passport.initialize());
@@ -60,6 +64,20 @@ app.get('/', (req, res) => {
         resetPassword: 'POST /api/auth/reset-password',
         me: 'GET /api/auth/me',
         logout: 'POST /api/auth/logout'
+      },
+      profile: {
+        getMyProfile: 'GET /api/profile/me',
+        updateMyProfile: 'PUT /api/profile/me',
+        uploadPicture: 'POST /api/profile/me/pictures',
+        deletePicture: 'DELETE /api/profile/me/pictures/:pictureId',
+        addInterests: 'POST /api/profile/me/interests',
+        removeInterest: 'DELETE /api/profile/me/interests/:interestId',
+        getPublicProfile: 'GET /api/profile/user/:username',
+        browseProfiles: 'GET /api/profile/browse',
+        likeUser: 'POST /api/profile/like/:userId',
+        unlikeUser: 'DELETE /api/profile/like/:userId',
+        blockUser: 'POST /api/profile/block/:userId',
+        reportUser: 'POST /api/profile/report/:userId'
       }
     }
   });

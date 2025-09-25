@@ -1,0 +1,92 @@
+import { Router } from 'express';
+import { ProfileController } from '../controllers/ProfileController';
+import { authenticateToken } from '../middleware/auth';
+import { handleValidationErrors } from '../middleware/validation';
+import { 
+  updateProfileValidation, 
+  addInterestsValidation,
+  browseValidation,
+  reportUserValidation,
+  userIdParamValidation,
+  usernameParamValidation,
+  pictureIdParamValidation,
+  interestIdParamValidation
+} from '../utils/validation-extended';
+import { 
+  uploadSingle, 
+  processImage, 
+  handleUploadError 
+} from '../middleware/upload';
+
+const router = Router();
+
+// All profile routes require authentication
+router.use(authenticateToken);
+
+// Profile management
+router.get('/me', ProfileController.getMyProfile);
+router.put('/me', updateProfileValidation, handleValidationErrors, ProfileController.updateMyProfile);
+
+// Picture management
+router.post('/me/pictures', 
+  uploadSingle, 
+  handleUploadError, 
+  processImage, 
+  ProfileController.uploadPicture
+);
+router.delete('/me/pictures/:pictureId', 
+  pictureIdParamValidation, 
+  handleValidationErrors, 
+  ProfileController.deletePicture
+);
+
+// Interest management
+router.post('/me/interests', 
+  addInterestsValidation, 
+  handleValidationErrors, 
+  ProfileController.addInterests
+);
+router.delete('/me/interests/:interestId', 
+  interestIdParamValidation, 
+  handleValidationErrors, 
+  ProfileController.removeInterest
+);
+
+// Public profiles
+router.get('/user/:username', 
+  usernameParamValidation, 
+  handleValidationErrors, 
+  ProfileController.getPublicProfile
+);
+
+// Browse profiles
+router.get('/browse', 
+  browseValidation, 
+  handleValidationErrors, 
+  ProfileController.browseProfiles
+);
+
+// Social actions
+router.post('/like/:targetUserId', 
+  userIdParamValidation, 
+  handleValidationErrors, 
+  ProfileController.likeUser
+);
+router.delete('/like/:targetUserId', 
+  userIdParamValidation, 
+  handleValidationErrors, 
+  ProfileController.unlikeUser
+);
+router.post('/block/:targetUserId', 
+  userIdParamValidation, 
+  handleValidationErrors, 
+  ProfileController.blockUser
+);
+router.post('/report/:targetUserId', 
+  userIdParamValidation, 
+  reportUserValidation, 
+  handleValidationErrors, 
+  ProfileController.reportUser
+);
+
+export default router;

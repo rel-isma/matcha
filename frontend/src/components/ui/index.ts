@@ -5,5 +5,7 @@ export { Modal } from './Modal';
 export { Card, CardHeader, CardTitle, CardContent, CardFooter } from './Card';
 export { Avatar } from './Avatar';
 export { Badge } from './Badge';
+export { Select } from './Select';
+export { ImageUpload } from './ImageUpload';
 export { Spinner, Loading } from './Spinner';
 export { default as GoogleSignInButton } from './GoogleSignInButton';

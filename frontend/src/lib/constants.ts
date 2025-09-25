@@ -17,6 +17,19 @@ export const API_ENDPOINTS = {
     RESEND_VERIFICATION: '/auth/resend-verification',
     ME: '/auth/me',
   },
+  PROFILE: {
+    ME: '/profile/me',
+    PICTURES: '/profile/me/pictures',
+    PICTURE_DELETE: (id: string) => `/profile/me/pictures/${id}`,
+    INTERESTS: '/profile/me/interests',
+    INTEREST_DELETE: (id: string) => `/profile/me/interests/${id}`,
+    USER: (username: string) => `/profile/user/${username}`,
+    BROWSE: '/profile/browse',
+    LIKE: (userId: string) => `/profile/like/${userId}`,
+    UNLIKE: (userId: string) => `/profile/like/${userId}`,
+    BLOCK: (userId: string) => `/profile/block/${userId}`,
+    REPORT: (userId: string) => `/profile/report/${userId}`,
+  },
 } as const;
 
 // Gender options
@@ -29,9 +42,38 @@ export const GENDER_OPTIONS = [
 
 // Sexual preference options
 export const SEXUAL_PREFERENCE_OPTIONS = [
-  { value: 'men', label: 'Men' },
-  { value: 'women', label: 'Women' },
-  { value: 'everyone', label: 'Everyone' },
+  { value: 'male', label: 'Men' },
+  { value: 'female', label: 'Women' },
+  { value: 'both', label: 'Everyone' },
+] as const;
+
+// Interest options
+export const INTEREST_OPTIONS = [
+  { value: 'photography', label: 'Photography' },
+  { value: 'travel', label: 'Travel' },
+  { value: 'music', label: 'Music' },
+  { value: 'cooking', label: 'Cooking' },
+  { value: 'fitness', label: 'Fitness' },
+  { value: 'reading', label: 'Reading' },
+  { value: 'art', label: 'Art' },
+  { value: 'movies', label: 'Movies' },
+  { value: 'gaming', label: 'Gaming' },
+  { value: 'dancing', label: 'Dancing' },
+  { value: 'hiking', label: 'Hiking' },
+  { value: 'sports', label: 'Sports' },
+  { value: 'technology', label: 'Technology' },
+  { value: 'fashion', label: 'Fashion' },
+  { value: 'nature', label: 'Nature' },
+  { value: 'yoga', label: 'Yoga' },
+  { value: 'writing', label: 'Writing' },
+  { value: 'meditation', label: 'Meditation' },
+  { value: 'wine', label: 'Wine' },
+  { value: 'coffee', label: 'Coffee' },
+  { value: 'beach', label: 'Beach' },
+  { value: 'camping', label: 'Camping' },
+  { value: 'motorcycles', label: 'Motorcycles' },
+  { value: 'cats', label: 'Cats' },
+  { value: 'dogs', label: 'Dogs' },
 ] as const;
 
 // Age limits
@@ -189,6 +231,7 @@ export const ROUTES = {
   VERIFY: '/verify',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
+  COMPLETE_PROFILE: '/complete-profile',
   BROWSE: '/browse',
   SEARCH: '/search',
   PROFILE: '/profile',

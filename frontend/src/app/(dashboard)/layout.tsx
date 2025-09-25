@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Header, NavBar } from '@/components/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { Spinner } from '@/components/ui';
+import { useRouter, usePathname } from 'next/navigation';
+import { Header, NavBar } from '../../components/navigation';
+import { ProfileCompletionChecker } from '../../components/ProfileCompletionChecker';
+import { useAuth } from '../../context/AuthContext';
+import { Spinner } from '../../components/ui';
 
 export default function DashboardLayout({
   children,
@@ -13,6 +14,11 @@ export default function DashboardLayout({
 }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Routes that don't require profile completion
+  const noProfileCheckRoutes = ['/complete-profile'];
+  const requiresProfileCompletion = !noProfileCheckRoutes.includes(pathname);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -49,9 +55,11 @@ export default function DashboardLayout({
       {/* Header - Desktop and Mobile */}
       <Header />
       
-      {/* Main Content */}
+      {/* Main Content with Profile Completion Check */}
       <main className="pb-20 md:pb-0">
-        {children}
+        <ProfileCompletionChecker requireCompleteProfile={requiresProfileCompletion}>
+          {children}
+        </ProfileCompletionChecker>
       </main>
       
       {/* Mobile Bottom Navigation */}

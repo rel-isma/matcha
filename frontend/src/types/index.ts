@@ -12,6 +12,82 @@ export interface User {
   updatedAt: string;
 }
 
+// Profile types
+export interface Profile {
+  id: string;
+  userId: string;
+  gender?: string;
+  sexualPreference?: string;
+  bio?: string;
+  fameRating: number;
+  latitude?: number;
+  longitude?: number;
+  locationSource: 'gps' | 'ip' | 'manual';
+  neighborhood?: string;
+  completeness: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Interest {
+  id: number;
+  name: string;
+}
+
+export interface ProfilePicture {
+  id: string;
+  profileId: string;
+  url: string;
+  isProfilePic: boolean;
+  position: number;
+  createdAt: string;
+}
+
+export interface ProfileView {
+  id: string;
+  viewerId?: string;
+  viewedUser: string;
+  createdAt: string;
+}
+
+export interface Like {
+  id: string;
+  fromUser: string;
+  toUser: string;
+  createdAt: string;
+}
+
+export interface ProfileWithDetails extends Profile {
+  interests: Interest[];
+  pictures: ProfilePicture[];
+}
+
+export interface PublicProfile {
+  id: string;
+  userId: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  gender?: string;
+  bio?: string;
+  fameRating: number;
+  neighborhood?: string;
+  completeness: number;
+  interests: Interest[];
+  pictures: ProfilePicture[];
+  createdAt: string;
+}
+
+export interface UpdateProfileInput {
+  gender?: string;
+  sexualPreference?: string;
+  bio?: string;
+  latitude?: number;
+  longitude?: number;
+  locationSource?: 'gps' | 'ip' | 'manual';
+  neighborhood?: string;
+}
+
 // API Response structure
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -66,26 +142,36 @@ export interface ResetPasswordData {
 }
 
 // Component prop types for UI components
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps {
   variant?: 'default' | 'primary' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   size?: 'sm' | 'default' | 'lg' | 'icon';
   loading?: boolean;
   className?: string;
-  children?: React.ReactNode;
+  children?: any;
+  onClick?: () => void;
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
 }
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps {
   label?: string;
   error?: string;
-  icon?: React.ReactNode;
+  icon?: any;
   className?: string;
+  type?: string;
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: any) => void;
+  onBlur?: (e: any) => void;
+  disabled?: boolean;
+  required?: boolean;
 }
 
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
-  children: React.ReactNode;
+  children: any;
   size?: 'sm' | 'default' | 'lg' | 'xl' | 'full';
   showCloseButton?: boolean;
 }

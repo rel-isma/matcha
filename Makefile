@@ -4,7 +4,7 @@
 .PHONY: help all build up down logs shell-backend shell-frontend shell-db db-init fclean
 
 # Docker Compose file
-DOCKER_COMPOSE = docker-compose -f docker-compose.dev.yml
+DOCKER_COMPOSE = docker compose -f docker-compose.dev.yml
 
 # Default target
 help: ## Show available commands
@@ -65,7 +65,14 @@ shell-db: ## Access database container shell
 
 db-init: ## Initialize database with schema
 	@echo "🗄️  Initializing database..."
-	@$(DOCKER_COMPOSE) exec postgres psql -U $${POSTGRES_USER} -d $${POSTGRES_DB} -f /docker-entrypoint-initdb.d/init.sql
+	@echo "🔄 Starting PostgreSQL container..."
+	@$(DOCKER_COMPOSE) up -d postgres
+	@echo "⏳ Waiting for PostgreSQL to be ready..."
+	@sleep 10
+	@echo "📊 Initializing database schema..."
+	@$(DOCKER_COMPOSE) exec postgres psql -U matcha_user -d matcha_db -f /docker-entrypoint-initdb.d/init.sql
+	@echo "🛑 Stopping PostgreSQL container..."
+	@$(DOCKER_COMPOSE) stop postgres
 	@echo "✅ Database initialized successfully!"
 
 fclean: ## Complete cleanup - remove everything
