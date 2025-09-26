@@ -122,7 +122,7 @@ export const Select: React.FC<SelectProps> = ({
     <div className={`relative ${className}`} ref={selectRef}>
       {/* Label */}
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           {label}
         </label>
       )}
@@ -133,33 +133,33 @@ export const Select: React.FC<SelectProps> = ({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={`
-          relative w-full bg-white dark:bg-gray-800 border rounded-lg px-3 py-2
-          text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-500
-          focus:border-pink-500 transition-colors duration-200
+          relative w-full bg-white border rounded-lg px-4 py-3
+          text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500
+          focus:border-orange-500 transition-all duration-200 shadow-sm hover:shadow-md
           ${error 
             ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+            : 'border-gray-300 hover:border-orange-400'
           }
-          ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-          ${isOpen ? 'ring-2 ring-pink-500 border-pink-500' : ''}
+          ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-50' : ''}
+          ${isOpen ? 'ring-2 ring-orange-500 border-orange-500 shadow-md' : ''}
         `}
       >
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
             {/* Selected values display */}
             {multiSelect && Array.isArray(value) && value.length > 1 ? (
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-2">
                 {value.slice(0, 3).map((selectedValue) => {
                   const option = options.find((opt) => opt.value === selectedValue);
                   return (
                     <span
                       key={selectedValue}
-                      className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-200"
+                      className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-200"
                     >
                       {option?.label}
                       <button
                         onClick={(e) => removeOption(selectedValue, e)}
-                        className="ml-1 hover:text-pink-600 dark:hover:text-pink-300"
+                        className="ml-2 hover:text-orange-600 transition-colors duration-150"
                       >
                         <X size={12} />
                       </button>
@@ -167,13 +167,13 @@ export const Select: React.FC<SelectProps> = ({
                   );
                 })}
                 {value.length > 3 && (
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="text-sm text-gray-500 font-medium">
                     +{value.length - 3} more
                   </span>
                 )}
               </div>
             ) : (
-              <span className={`block truncate ${!value ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
+              <span className={`block truncate font-medium ${!value ? 'text-gray-500' : 'text-gray-900'}`}>
                 {getDisplayText()}
               </span>
             )}
@@ -183,9 +183,9 @@ export const Select: React.FC<SelectProps> = ({
           <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.2 }}
-            className="ml-2 flex-shrink-0"
+            className="ml-3 flex-shrink-0"
           >
-            <ChevronDown className="h-4 w-4 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-400" />
           </motion.div>
         </div>
       </button>
@@ -198,11 +198,11 @@ export const Select: React.FC<SelectProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -5 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg"
+            className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl ring-1 ring-black ring-opacity-5"
           >
             {/* Search input */}
             {searchable && (
-              <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="p-3 border-b border-gray-100">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
@@ -211,7 +211,7 @@ export const Select: React.FC<SelectProps> = ({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search options..."
-                    className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                    className="w-full pl-10 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
                   />
                 </div>
               </div>
@@ -223,28 +223,31 @@ export const Select: React.FC<SelectProps> = ({
               style={{ maxHeight: `${maxHeight}px` }}
             >
               {filteredOptions.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                <div className="px-4 py-8 text-center text-sm text-gray-500">
+                  <Search className="mx-auto h-8 w-8 text-gray-300 mb-2" />
                   No options found
                 </div>
               ) : (
-                filteredOptions.map((option) => (
+                filteredOptions.map((option, index) => (
                   <button
                     key={option.value}
                     type="button"
                     onClick={() => handleOptionClick(option.value)}
                     className={`
-                      w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700
-                      focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700
-                      flex items-center justify-between transition-colors duration-150
+                      w-full text-left px-4 py-3 text-sm hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50
+                      focus:outline-none focus:bg-gradient-to-r focus:from-orange-50 focus:to-amber-50
+                      flex items-center justify-between transition-all duration-200 font-medium
+                      ${index === 0 ? 'rounded-t-xl' : ''}
+                      ${index === filteredOptions.length - 1 ? 'rounded-b-xl' : ''}
                       ${isSelected(option.value) 
-                        ? 'bg-pink-50 dark:bg-pink-900/20 text-pink-900 dark:text-pink-100' 
-                        : 'text-gray-900 dark:text-white'
+                        ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-900 border-l-4 border-orange-500' 
+                        : 'text-gray-700 hover:text-orange-800'
                       }
                     `}
                   >
-                    <span>{option.label}</span>
+                    <span className="flex-1">{option.label}</span>
                     {isSelected(option.value) && (
-                      <Check className="h-4 w-4 text-pink-600 dark:text-pink-400" />
+                      <Check className="h-4 w-4 text-orange-600 ml-2" />
                     )}
                   </button>
                 ))
@@ -259,7 +262,7 @@ export const Select: React.FC<SelectProps> = ({
         <motion.p
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-1 text-sm text-red-600 dark:text-red-400"
+          className="mt-2 text-sm text-red-600"
         >
           {error}
         </motion.p>
