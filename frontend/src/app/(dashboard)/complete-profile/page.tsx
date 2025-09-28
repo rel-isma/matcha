@@ -11,6 +11,7 @@ import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, INTEREST_OPTIONS, PHOTO_LIMITS, ROUTES } from '@/lib/constants';
 import toast from 'react-hot-toast';
 
@@ -173,16 +174,29 @@ export default function CompleteProfilePage() {
   const progress = (currentStep / STEPS.length) * 100;
 
   return (
-      <div className="py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Complete Your Profile
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Let's set up your profile to help you find perfect matches
-          </p>
-        </div>
+    <div className="py-4 sm:py-8">
+      {/* Enhanced Header */}
+      <div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-6"
+        >
+          <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600">
+            <CardContent className="p-3 sm:p-4 text-white">
+              <div className="text-center">
+                <h1 className="text-xl sm:text-2xl font-bold mb-2">
+                  Complete Your Profile
+                </h1>
+                <p className="text-orange-50">
+                  Let's set up your profile to help you find perfect matches
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
 
         {/* Progress Bar */}
         <div className="max-w-md mx-auto mb-8">
@@ -192,15 +206,15 @@ export default function CompleteProfilePage() {
                 key={step.id}
                 className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
                   step.id <= currentStep
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
+                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
+                    : 'bg-gray-200 text-gray-400'
                 }`}
               >
                 {step.id < currentStep ? <Check size={16} /> : step.id}
               </div>
             ))}
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <motion.div
               className="bg-gradient-to-r from-orange-500 to-amber-500 h-2 rounded-full"
               initial={{ width: 0 }}
@@ -209,323 +223,375 @@ export default function CompleteProfilePage() {
             />
           </div>
           <div className="text-center mt-2">
-            <span className="text-sm text-gray-600 dark:text-gray-300">
+            <span className="text-sm text-gray-600">
               Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].title}
             </span>
           </div>
         </div>
 
         {/* Form Steps */}
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                {/* Step 1: Basic Info */}
-                {currentStep === 1 && (
-                  <div className="space-y-6">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                        Basic Information
-                      </h2>
-                      <p className="text-gray-600 dark:text-gray-300">
-                        Tell us about yourself to help us find your perfect matches.
-                      </p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <Select
-                        label="Gender"
-                        options={GENDER_OPTIONS}
-                        value={formData.gender}
-                        onChange={(value) => setFormData(prev => ({ ...prev, gender: value as string }))}
-                        placeholder="Select your gender"
-                        error={errors.gender}
-                      />
-
-                      <Select
-                        label="Sexual Preference"
-                        options={SEXUAL_PREFERENCE_OPTIONS}
-                        value={formData.sexualPreference}
-                        onChange={(value) => setFormData(prev => ({ ...prev, sexualPreference: value as string }))}
-                        placeholder="Who are you interested in?"
-                        error={errors.sexualPreference}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Bio
-                      </label>
-                      <textarea
-                        value={formData.bio}
-                        onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                        placeholder="Tell us about yourself, your interests, and what you're looking for..."
-                        rows={4}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                          errors.bio ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                      />
-                      {errors.bio && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.bio}</p>
-                      )}
-                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        {formData.bio.length}/500 characters
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 2: Interests */}
-                {currentStep === 2 && (
-                  <div className="space-y-6">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                        Your Interests
-                      </h2>
-                      <p className="text-gray-600 dark:text-gray-300">
-                        Select interests that describe you. This helps us find people with common interests.
-                      </p>
-                    </div>
-
-                    <Select
-                      label="Select Interests"
-                      options={INTEREST_OPTIONS}
-                      value={formData.interests}
-                      onChange={(value) => setFormData(prev => ({ ...prev, interests: value as string[] }))}
-                      placeholder="Search and select interests"
-                      searchable
-                      multiSelect
-                      error={errors.interests}
-                      maxHeight={300}
-                    />
-
-                    {/* Selected Interests Display */}
-                    {formData.interests.length > 0 && (
+        <div className="space-y-6 sm:space-y-8">
+          <Card className="shadow-xl border-0 bg-white/70 backdrop-blur-sm">
+            <CardContent className="p-6 sm:p-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentStep}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {/* Step 1: Basic Info */}
+                  {currentStep === 1 && (
+                    <div className="space-y-6">
                       <div>
-                        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                          Selected Interests ({formData.interests.length})
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {formData.interests.map((interest) => {
-                            const interestOption = INTEREST_OPTIONS.find(opt => opt.value === interest);
-                            return (
-                              <Badge
-                                key={interest}
-                                variant="secondary"
-                                className="flex items-center gap-1"
-                              >
-                                {interestOption?.label}
-                                <button
-                                  onClick={() => setFormData(prev => ({
-                                    ...prev,
-                                    interests: prev.interests.filter(i => i !== interest)
-                                  }))}
-                                  className="hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full p-1"
-                                >
-                                  <X size={12} />
-                                </button>
-                              </Badge>
-                            );
-                          })}
+                        <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">
+                          Basic Information
+                        </h2>
+                        <p className="text-gray-600">
+                          Tell us about yourself to help us find your perfect matches.
+                        </p>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <Select
+                          label="Gender"
+                          options={GENDER_OPTIONS}
+                          value={formData.gender}
+                          onChange={(value) => setFormData(prev => ({ ...prev, gender: value as string }))}
+                          placeholder="Select your gender"
+                          error={errors.gender}
+                        />
+
+                        <Select
+                          label="Sexual Preference"
+                          options={SEXUAL_PREFERENCE_OPTIONS}
+                          value={formData.sexualPreference}
+                          onChange={(value) => setFormData(prev => ({ ...prev, sexualPreference: value as string }))}
+                          placeholder="Who are you interested in?"
+                          error={errors.sexualPreference}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                          Bio
+                        </label>
+                        <textarea
+                          value={formData.bio}
+                          onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+                          placeholder="Tell us about yourself, your interests, and what you're looking for..."
+                          rows={5}
+                          maxLength={500}
+                          className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 resize-none ${
+                            errors.bio ? 'border-red-500' : 'border-gray-200 hover:border-orange-300'
+                          }`}
+                        />
+                        {errors.bio && (
+                          <p className="mt-2 text-sm text-red-600 font-medium">{errors.bio}</p>
+                        )}
+                        <div className="flex justify-between items-center mt-2">
+                          <p className="text-sm text-gray-500">
+                            Share what makes you unique
+                          </p>
+                          <p className={`text-sm font-medium ${
+                            formData.bio.length > 450 ? 'text-orange-600' : 'text-gray-500'
+                          }`}>
+                            {formData.bio.length}/500
+                          </p>
                         </div>
                       </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Step 3: Photos */}
-                {currentStep === 3 && (
-                  <div className="space-y-6">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                        Add Photos
-                      </h2>
-                      <p className="text-gray-600 dark:text-gray-300">
-                        Upload at least one photo. You can add up to {PHOTO_LIMITS.MAX_PHOTOS} photos.
-                      </p>
                     </div>
+                  )}
 
-                    {/* Upload Area */}
-                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
-                      <input
-                        type="file"
-                        multiple
-                        accept={PHOTO_LIMITS.ALLOWED_TYPES.join(',')}
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        id="photo-upload"
-                        disabled={formData.pictures.length >= PHOTO_LIMITS.MAX_PHOTOS}
-                      />
-                      <label
-                        htmlFor="photo-upload"
-                        className="cursor-pointer flex flex-col items-center"
-                      >
-                        <Upload className="h-12 w-12 text-gray-400 mb-4" />
-                        <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Click to upload photos
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          JPG, PNG, WEBP up to 5MB each
-                        </p>
-                      </label>
-                    </div>
-
-                    {errors.pictures && (
-                      <p className="text-sm text-red-600 dark:text-red-400">{errors.pictures}</p>
-                    )}
-
-                    {/* Photo Preview */}
-                    {formData.pictures.length > 0 && (
+                  {/* Step 2: Interests */}
+                  {currentStep === 2 && (
+                    <div className="space-y-6">
                       <div>
-                        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                          Uploaded Photos ({formData.pictures.length}/{PHOTO_LIMITS.MAX_PHOTOS})
-                        </h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                          {formData.pictures.map((file, index) => (
-                            <div key={index} className="relative group">
-                              <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+                        <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">
+                          Your Interests
+                        </h2>
+                        <p className="text-gray-600">
+                          Select interests that describe you. This helps us find people with common interests.
+                        </p>
+                      </div>
+
+                      {/* Selected Interests Display - Moved above the select */}
+                      {formData.interests.length > 0 && (
+                        <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100">
+                          <h3 className="text-base font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            Selected Interests 
+                            <span className="px-2 py-1 text-xs font-medium bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 rounded-full">
+                              {formData.interests.length}
+                            </span>
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            {formData.interests.map((interest) => {
+                              const interestOption = INTEREST_OPTIONS.find(opt => opt.value === interest);
+                              return (
+                                <Badge
+                                  key={interest}
+                                  className="flex items-center gap-1 bg-white text-orange-800 border-orange-200 hover:bg-orange-50 transition-colors shadow-sm"
+                                >
+                                  {interestOption?.label}
+                                  <button
+                                    onClick={() => setFormData(prev => ({
+                                      ...prev,
+                                      interests: prev.interests.filter(i => i !== interest)
+                                    }))}
+                                    className="hover:bg-red-200 rounded-full p-1 transition-colors ml-1"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </Badge>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      <Select
+                        label="Add More Interests"
+                        options={INTEREST_OPTIONS.filter(option => !formData.interests.includes(option.value))}
+                        value={[]}
+                        onChange={(value) => {
+                          const newInterests = value as string[];
+                          if (newInterests.length > 0) {
+                            setFormData(prev => ({
+                              ...prev,
+                              interests: [...prev.interests, ...newInterests]
+                            }));
+                          }
+                        }}
+                        placeholder={formData.interests.length > 0 ? "Add more interests..." : "Search and select interests"}
+                        searchable
+                        multiSelect
+                        error={errors.interests}
+                        maxHeight={300}
+                      />
+
+                      {formData.interests.length === 0 && (
+                        <div className="text-center py-8 text-gray-500">
+                          <div className="w-16 h-16 bg-gradient-to-r from-orange-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <Plus className="w-8 h-8 text-orange-600" />
+                          </div>
+                          <p className="text-sm">Select interests to get started</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Step 3: Photos */}
+                  {currentStep === 3 && (
+                    <div className="space-y-6">
+                      <div>
+                        <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">
+                          Add Photos
+                        </h2>
+                        <p className="text-gray-600">
+                          Upload at least one photo. You can add up to {PHOTO_LIMITS.MAX_PHOTOS} photos.
+                        </p>
+                      </div>
+
+                      {/* Upload Area */}
+                      <div className="border-2 border-dashed border-orange-200 rounded-xl p-6 text-center bg-gradient-to-br from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 transition-colors duration-200">
+                        <input
+                          type="file"
+                          multiple
+                          accept={PHOTO_LIMITS.ALLOWED_TYPES.join(',')}
+                          onChange={handleFileUpload}
+                          className="hidden"
+                          id="photo-upload"
+                          disabled={formData.pictures.length >= PHOTO_LIMITS.MAX_PHOTOS}
+                        />
+                        <label
+                          htmlFor="photo-upload"
+                          className="cursor-pointer flex flex-col items-center group"
+                        >
+                          <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
+                            <Upload className="h-6 w-6 text-white" />
+                          </div>
+                          <p className="text-sm font-semibold text-gray-700 mb-1">
+                            Click to upload photos
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            JPG, PNG, WEBP up to 5MB each
+                          </p>
+                        </label>
+                      </div>
+
+                      {errors.pictures && (
+                        <p className="text-sm text-red-600 font-medium">{errors.pictures}</p>
+                      )}
+
+                      {/* Photo Preview */}
+                      {formData.pictures.length > 0 && (
+                        <div>
+                          <h3 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                            Uploaded Photos
+                            <span className="px-2 py-1 text-xs font-medium bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 rounded-full">
+                              {formData.pictures.length}/{PHOTO_LIMITS.MAX_PHOTOS}
+                            </span>
+                          </h3>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {formData.pictures.map((file, index) => (
+                              <div key={index} className="relative group">
+                                <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 shadow-md group-hover:shadow-lg transition-shadow duration-200">
+                                  <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={`Preview ${index + 1}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <button
+                                  onClick={() => removePicture(index)}
+                                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                >
+                                  <X size={16} />
+                                </button>
+                                {index === 0 && (
+                                  <div className="absolute top-2 left-2">
+                                    <Badge className="text-xs bg-gradient-to-r from-orange-500 to-amber-500 text-white border-0 shadow-md">
+                                      Main Photo
+                                    </Badge>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Step 4: Review */}
+                  {currentStep === 4 && (
+                    <div className="space-y-6">
+                      <div>
+                        <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">
+                          Review & Complete
+                        </h2>
+                        <p className="text-gray-600">
+                          Review your profile information before completing.
+                        </p>
+                      </div>
+
+                      {/* Review Content */}
+                      <div className="space-y-6">
+                        {/* Basic Info */}
+                        <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-100">
+                          <h3 className="font-semibold text-gray-800 mb-4 text-lg">Basic Information</h3>
+                          <div className="grid md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-gray-600 font-medium">Gender:</span>
+                              <span className="ml-2 text-gray-800 font-semibold">
+                                {GENDER_OPTIONS.find(g => g.value === formData.gender)?.label}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600 font-medium">Preference:</span>
+                              <span className="ml-2 text-gray-800 font-semibold">
+                                {SEXUAL_PREFERENCE_OPTIONS.find(p => p.value === formData.sexualPreference)?.label}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="mt-4">
+                            <span className="text-gray-600 font-medium">Bio:</span>
+                            <p className="mt-2 text-gray-800 bg-white/50 rounded-lg p-3 border border-orange-200">{formData.bio}</p>
+                          </div>
+                        </div>
+
+                        {/* Interests */}
+                        <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-100">
+                          <h3 className="font-semibold text-gray-800 mb-4 text-lg flex items-center gap-2">
+                            Interests 
+                            <span className="px-2 py-1 text-xs font-medium bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 rounded-full">
+                              {formData.interests.length}
+                            </span>
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            {formData.interests.map((interest) => {
+                              const interestOption = INTEREST_OPTIONS.find(opt => opt.value === interest);
+                              return (
+                                <Badge 
+                                  key={interest} 
+                                  className="bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border-orange-200"
+                                >
+                                  {interestOption?.label}
+                                </Badge>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Photos */}
+                        <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-100">
+                          <h3 className="font-semibold text-gray-800 mb-4 text-lg flex items-center gap-2">
+                            Photos 
+                            <span className="px-2 py-1 text-xs font-medium bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 rounded-full">
+                              {formData.pictures.length}
+                            </span>
+                          </h3>
+                          <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+                            {formData.pictures.map((file, index) => (
+                              <div key={index} className="aspect-square rounded-lg overflow-hidden shadow-md">
                                 <img
                                   src={URL.createObjectURL(file)}
                                   alt={`Preview ${index + 1}`}
                                   className="w-full h-full object-cover"
                                 />
                               </div>
-                              <button
-                                onClick={() => removePicture(index)}
-                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <X size={16} />
-                              </button>
-                              {index === 0 && (
-                                <div className="absolute bottom-2 left-2">
-                                  <Badge variant="secondary" className="text-xs">
-                                    Profile Photo
-                                  </Badge>
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
                       </div>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Navigation Buttons */}
+              <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8 pt-6 border-t border-orange-200">
+                <Button
+                  variant="outline"
+                  onClick={handlePrevious}
+                  disabled={currentStep === 1}
+                  className="w-full sm:w-auto px-8 py-3 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-xl transition-all duration-200"
+                >
+                  <ArrowLeft size={16} />
+                  Previous
+                </Button>
+
+                {currentStep < STEPS.length ? (
+                  <Button
+                    onClick={handleNext}
+                    className="w-full sm:w-auto bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:via-amber-600 hover:to-orange-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                  >
+                    Next
+                    <ArrowRight size={16} />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                    className="w-full sm:w-auto bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:via-amber-600 hover:to-orange-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        Complete Account
+                        <Check size={16} />
+                      </>
                     )}
-                  </div>
+                  </Button>
                 )}
-
-                {/* Step 4: Review */}
-                {currentStep === 4 && (
-                  <div className="space-y-6">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                        Review & Complete
-                      </h2>
-                      <p className="text-gray-600 dark:text-gray-300">
-                        Review your profile information before completing.
-                      </p>
-                    </div>
-
-                    {/* Review Content */}
-                    <div className="space-y-6">
-                      {/* Basic Info */}
-                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                        <h3 className="font-medium text-gray-900 dark:text-white mb-3">Basic Information</h3>
-                        <div className="grid md:grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="text-gray-500 dark:text-gray-400">Gender:</span>
-                            <span className="ml-2 text-gray-900 dark:text-white">
-                              {GENDER_OPTIONS.find(g => g.value === formData.gender)?.label}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-gray-500 dark:text-gray-400">Preference:</span>
-                            <span className="ml-2 text-gray-900 dark:text-white">
-                              {SEXUAL_PREFERENCE_OPTIONS.find(p => p.value === formData.sexualPreference)?.label}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="mt-3">
-                          <span className="text-gray-500 dark:text-gray-400">Bio:</span>
-                          <p className="mt-1 text-gray-900 dark:text-white">{formData.bio}</p>
-                        </div>
-                      </div>
-
-                      {/* Interests */}
-                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                        <h3 className="font-medium text-gray-900 dark:text-white mb-3">
-                          Interests ({formData.interests.length})
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {formData.interests.map((interest) => {
-                            const interestOption = INTEREST_OPTIONS.find(opt => opt.value === interest);
-                            return (
-                              <Badge key={interest} variant="secondary">
-                                {interestOption?.label}
-                              </Badge>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Photos */}
-                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                        <h3 className="font-medium text-gray-900 dark:text-white mb-3">
-                          Photos ({formData.pictures.length})
-                        </h3>
-                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                          {formData.pictures.map((file, index) => (
-                            <div key={index} className="aspect-square rounded-lg overflow-hidden">
-                              <img
-                                src={URL.createObjectURL(file)}
-                                alt={`Preview ${index + 1}`}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <Button
-                variant="outline"
-                onClick={handlePrevious}
-                disabled={currentStep === 1}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft size={16} />
-                Previous
-              </Button>
-
-              {currentStep < STEPS.length ? (
-                <Button
-                  onClick={handleNext}
-                  className="flex items-center gap-2"
-                >
-                  Next
-                  <ArrowRight size={16} />
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleSubmit}
-                  loading={isLoading}
-                  className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
-                >
-                  Complete Account
-                  <Check size={16} />
-                </Button>
-              )}
-            </div>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
     </div>
   );
