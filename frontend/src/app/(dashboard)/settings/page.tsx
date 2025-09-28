@@ -4,9 +4,8 @@ import React from 'react';
 
 export default function SettingsPage() {
   return (
-    <div className="p-4 md:p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
+    <div className="py-4 md:py-6">
+      <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-secondary-800">Settings</h1>
           <p className="text-secondary-600 mt-2">Manage your account settings and preferences</p>
         </div>

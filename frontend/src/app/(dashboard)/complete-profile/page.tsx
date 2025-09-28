@@ -173,8 +173,7 @@ export default function CompleteProfilePage() {
   const progress = (currentStep / STEPS.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
+      <div className="py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -528,7 +527,6 @@ export default function CompleteProfilePage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

@@ -51,7 +51,7 @@ export default function EditProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <Loading />
       </div>
     );
@@ -59,7 +59,7 @@ export default function EditProfilePage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Profile Not Found
@@ -196,10 +196,9 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
-      <div className="container mx-auto px-4 py-4 sm:py-8">
+    <div className="py-4 sm:py-8">
         {/* Enhanced Header */}
-        <div className="max-w-6xl mx-auto">
+        <div>
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -248,7 +247,7 @@ export default function EditProfilePage() {
           </motion.div>
         </div>
 
-        <div className="max-w-6xl mx-auto">
+        <div>
           <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
             {/* Basic Information */}
             <motion.div
@@ -539,6 +538,5 @@ export default function EditProfilePage() {
           </form>
         </div>
       </div>
-    </div>
   );
 }

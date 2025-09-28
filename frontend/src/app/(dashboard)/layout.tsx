@@ -31,10 +31,10 @@ export default function DashboardLayout({
   // Show loading spinner while checking authentication
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-secondary-600">Loading...</p>
+          <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -51,15 +51,17 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
       {/* Header - Desktop and Mobile */}
       <Header />
       
       {/* Main Content with Profile Completion Check */}
       <main className="pb-20 md:pb-0">
-        <ProfileCompletionChecker requireCompleteProfile={requiresProfileCompletion}>
-          {children}
-        </ProfileCompletionChecker>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ProfileCompletionChecker requireCompleteProfile={requiresProfileCompletion}>
+            {children}
+          </ProfileCompletionChecker>
+        </div>
       </main>
       
       {/* Mobile Bottom Navigation */}
