@@ -60,8 +60,12 @@ const LoginForm = () => {
     try {
       const result = await login(formData);
       if (result.success) {
-        // Redirect to dashboard - ProfileCompletionChecker will handle profile completion
-        router.push('/');
+        // Check if profile is completed and redirect accordingly
+        if (result.data?.user?.isProfileCompleted) {
+          router.push('/browse');
+        } else {
+          router.push('/complete-profile');
+        }
       } else {
         // Check if error is related to email verification
         const errorMessage = result.message || 'Login failed';

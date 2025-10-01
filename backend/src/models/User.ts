@@ -8,7 +8,8 @@ export class UserModel {
       INSERT INTO users (email, username, first_name, last_name, password, verification_token)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING id, email, username, first_name as "firstName", last_name as "lastName", 
-                is_verified as "isVerified", created_at as "createdAt", updated_at as "updatedAt"
+                is_verified as "isVerified", is_profile_completed as "isProfileCompleted",
+                created_at as "createdAt", updated_at as "updatedAt"
     `;
     
     const values = [
@@ -27,7 +28,8 @@ export class UserModel {
   static async findByEmail(email: string): Promise<User | null> {
     const query = `
       SELECT id, email, username, first_name as "firstName", last_name as "lastName", 
-             password, is_verified as "isVerified", verification_token as "verificationToken",
+             password, is_verified as "isVerified", is_profile_completed as "isProfileCompleted",
+             verification_token as "verificationToken",
              reset_password_token as "resetPasswordToken", reset_password_expires as "resetPasswordExpires",
              created_at as "createdAt", updated_at as "updatedAt"
       FROM users WHERE email = $1
@@ -40,7 +42,8 @@ export class UserModel {
   static async findByUsername(username: string): Promise<User | null> {
     const query = `
       SELECT id, email, username, first_name as "firstName", last_name as "lastName", 
-             password, is_verified as "isVerified", verification_token as "verificationToken",
+             password, is_verified as "isVerified", is_profile_completed as "isProfileCompleted",
+             verification_token as "verificationToken",
              reset_password_token as "resetPasswordToken", reset_password_expires as "resetPasswordExpires",
              created_at as "createdAt", updated_at as "updatedAt"
       FROM users WHERE username = $1
@@ -53,7 +56,8 @@ export class UserModel {
   static async findById(id: string): Promise<User | null> {
     const query = `
       SELECT id, email, username, first_name as "firstName", last_name as "lastName", 
-             password, is_verified as "isVerified", verification_token as "verificationToken",
+             password, is_verified as "isVerified", is_profile_completed as "isProfileCompleted",
+             verification_token as "verificationToken",
              reset_password_token as "resetPasswordToken", reset_password_expires as "resetPasswordExpires",
              created_at as "createdAt", updated_at as "updatedAt"
       FROM users WHERE id = $1
@@ -179,7 +183,8 @@ export class UserModel {
       INSERT INTO users (email, username, first_name, last_name, password, is_verified, verification_token)
       VALUES ($1, $2, $3, $4, $5, true, NULL)
       RETURNING id, email, username, first_name as "firstName", last_name as "lastName", 
-                is_verified as "isVerified", created_at as "createdAt", updated_at as "updatedAt"
+                is_verified as "isVerified", is_profile_completed as "isProfileCompleted",
+                created_at as "createdAt", updated_at as "updatedAt"
     `;
     
     const values = [
@@ -203,6 +208,18 @@ export class UserModel {
     `;
     
     const result = await pool.query(query, [email]);
+    return result.rows.length > 0;
+  }
+
+  static async setProfileCompleted(userId: string, isCompleted: boolean = true): Promise<boolean> {
+    const query = `
+      UPDATE users 
+      SET is_profile_completed = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING id
+    `;
+    
+    const result = await pool.query(query, [isCompleted, userId]);
     return result.rows.length > 0;
   }
 }

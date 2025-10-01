@@ -125,3 +125,6 @@ Thumbs.db
 
 # Coverage
 coverage/
+
+# Ignore user uploads
+backend/uploads/

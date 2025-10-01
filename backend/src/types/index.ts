@@ -6,6 +6,7 @@ export interface User {
   lastName: string;
   password: string;
   isVerified: boolean;
+  isProfileCompleted: boolean;
   verificationToken?: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;

@@ -3,7 +3,6 @@
 import React, { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Header, NavBar } from '../../components/navigation';
-import { ProfileCompletionChecker } from '../../components/ProfileCompletionChecker';
 import { useAuth } from '../../context/AuthContext';
 import { Spinner } from '../../components/ui';
 
@@ -15,10 +14,6 @@ export default function DashboardLayout({
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-
-  // Routes that don't require profile completion
-  const noProfileCheckRoutes = ['/complete-profile'];
-  const requiresProfileCompletion = !noProfileCheckRoutes.includes(pathname);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -58,9 +53,7 @@ export default function DashboardLayout({
       {/* Main Content with Profile Completion Check */}
       <main className="pb-20 md:pb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ProfileCompletionChecker requireCompleteProfile={requiresProfileCompletion}>
-            {children}
-          </ProfileCompletionChecker>
+          {children}
         </div>
       </main>
       

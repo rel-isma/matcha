@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { ProfileController } from '../controllers/ProfileController';
 import { authenticateToken } from '../middleware/auth';
+import { requireProfileCompletion } from '../middleware/profileCompletion';
 import { handleValidationErrors } from '../middleware/validation';
 import { 
   updateProfileValidation, 
@@ -23,11 +24,11 @@ const router = Router();
 // All profile routes require authentication
 router.use(authenticateToken);
 
-// Profile management
+// Profile management (these routes don't require completed profile for initial setup)
 router.get('/me', ProfileController.getMyProfile);
 router.put('/me', updateProfileValidation, handleValidationErrors, ProfileController.updateMyProfile);
 
-// Picture management
+// Picture management (needed for profile completion)
 router.post('/me/pictures', 
   uploadSingle, 
   handleUploadError, 
@@ -40,7 +41,7 @@ router.delete('/me/pictures/:pictureId',
   ProfileController.deletePicture
 );
 
-// Interest management
+// Interest management (needed for profile completion)
 router.post('/me/interests', 
   addInterestsValidation, 
   handleValidationErrors, 
@@ -51,6 +52,9 @@ router.delete('/me/interests/:interestId',
   handleValidationErrors, 
   ProfileController.removeInterest
 );
+
+// All routes below require completed profile
+router.use(requireProfileCompletion);
 
 // Public profiles
 router.get('/user/:username', 

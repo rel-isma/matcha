@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import passport from '../config/passport';
+import { ProfileModel } from '../models/Profile';
 
 const router = Router();
 
@@ -43,7 +44,7 @@ router.get('/google/callback',
     session: false,
     failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed`
   }),
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const authResult = req.user as any;
       
@@ -71,8 +72,14 @@ router.get('/google/callback',
 
       console.log('Google OAuth success for user:', user.email);
 
-      // Redirect to frontend browse page (same as regular login)
-      res.redirect(`${process.env.FRONTEND_URL}/browse`);
+      // Check if profile is completed and redirect accordingly
+      if (!user.isProfileCompleted) {
+        console.log('Profile not completed, redirecting to complete-profile');
+        res.redirect(`${process.env.FRONTEND_URL}/complete-profile`);
+      } else {
+        console.log('Profile completed, redirecting to browse');
+        res.redirect(`${process.env.FRONTEND_URL}/browse`);
+      }
     } catch (error) {
       console.error('Google OAuth callback error:', error);
       res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_error`);

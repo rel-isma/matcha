@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_name VARCHAR(50) NOT NULL,
     password VARCHAR(255) NOT NULL,
     is_verified BOOLEAN DEFAULT FALSE,
+    is_profile_completed BOOLEAN DEFAULT FALSE,
     verification_token VARCHAR(255),
     reset_password_token VARCHAR(255),
     reset_password_expires TIMESTAMP,
@@ -17,6 +18,8 @@ CREATE TABLE IF NOT EXISTS users (
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_is_verified ON users(is_verified);
+CREATE INDEX IF NOT EXISTS idx_users_is_profile_completed ON users(is_profile_completed);
 CREATE INDEX IF NOT EXISTS idx_users_verification_token ON users(verification_token);
 CREATE INDEX IF NOT EXISTS idx_users_reset_password_token ON users(reset_password_token);
 

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { ProfileModel } from '../models/Profile';
+import { UserModel } from '../models/User';
 import { ApiResponse, CreateProfileInput, UpdateProfileInput, BrowseFilters } from '../types';
 
 /**
@@ -293,6 +294,9 @@ export class ProfileController {
       // Update fame rating
       await ProfileModel.updateFameRating(userId);
 
+      // Check and update profile completion status
+      await ProfileController.checkAndUpdateProfileCompletion(userId);
+
       return res.json({
         success: true,
         message: existingProfile ? 'Profile updated successfully' : 'Profile created successfully',
@@ -378,6 +382,9 @@ export class ProfileController {
         isProfilePic
       );
 
+      // Check and update profile completion status
+      await ProfileController.checkAndUpdateProfileCompletion(userId);
+
       return res.json({
         success: true,
         message: 'Picture uploaded successfully',
@@ -461,6 +468,9 @@ export class ProfileController {
       }
 
       await ProfileModel.addInterestsToProfile(profile.id, interests);
+
+      // Check and update profile completion status
+      await ProfileController.checkAndUpdateProfileCompletion(userId);
 
       const updatedProfile = await ProfileModel.getProfileByUserId(userId);
 
@@ -917,6 +927,32 @@ export class ProfileController {
         message: 'Internal server error',
         error: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
+    }
+  }
+
+  /**
+   * Helper method to check and update profile completion status
+   */
+  static async checkAndUpdateProfileCompletion(userId: string): Promise<void> {
+    try {
+      const profile = await ProfileModel.getProfileByUserId(userId);
+      
+      if (profile) {
+        // Check if profile is complete
+        const hasGender = !!profile.gender;
+        const hasSexualPreference = !!profile.sexualPreference;
+        const hasBio = !!profile.bio && profile.bio.trim().length > 0;
+        const hasAtLeastOnePicture = profile.pictures && profile.pictures.length > 0;
+        const hasInterests = profile.interests && profile.interests.length > 0;
+        
+        const isComplete = hasGender && hasSexualPreference && hasBio && hasAtLeastOnePicture && hasInterests;
+        
+        // Update user's profile completion status
+        await UserModel.setProfileCompleted(userId, isComplete);
+      }
+    } catch (error) {
+      console.error('Error checking profile completion:', error);
+      // Don't throw error, just log it
     }
   }
 }

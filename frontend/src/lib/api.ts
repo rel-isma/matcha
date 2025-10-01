@@ -17,10 +17,21 @@ const api = axios.create({
   },
 });
 
-// Response interceptor to handle common response format
+// Response interceptor to handle common response format and profile completion
 api.interceptors.response.use(
   (response) => response.data, // Return data directly
   (error) => {
+    // Handle 403 with profile completion redirect
+    if (error.response?.status === 403 && error.response?.data?.redirect) {
+      // Redirect to complete profile page
+      window.location.href = error.response.data.redirect;
+      return Promise.reject({
+        success: false,
+        message: error.response.data.message || 'Profile completion required',
+        redirect: error.response.data.redirect
+      });
+    }
+    
     if (error.response?.data) {
       return Promise.reject(error.response.data);
     }
