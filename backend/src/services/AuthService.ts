@@ -338,4 +338,89 @@ export class AuthService {
       };
     }
   }
+
+  static async updateUser(userId: string, userData: { firstName: string; lastName: string; email: string }): Promise<ApiResponse<{ user: Partial<User> }>> {
+    try {
+      // Check if email is already taken by another user
+      const existingUser = await UserModel.findByEmail(userData.email);
+      if (existingUser && existingUser.id !== userId) {
+        return {
+          success: false,
+          message: 'Email is already taken by another user',
+        };
+      }
+
+      // Update user information
+      const updatedUser = await UserModel.updateUser(userId, userData);
+      if (!updatedUser) {
+        return {
+          success: false,
+          message: 'User not found',
+        };
+      }
+
+      // Return user data without password
+      const { password, verificationToken, resetPasswordToken, resetPasswordExpires, ...userWithoutSensitiveData } = updatedUser;
+
+      return {
+        success: true,
+        message: 'User information updated successfully',
+        data: {
+          user: userWithoutSensitiveData,
+        },
+      };
+    } catch (error) {
+      console.error('Update user error:', error);
+      return {
+        success: false,
+        message: 'Failed to update user information. Please try again.',
+      };
+    }
+  }
+
+  static async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<ApiResponse<{ message: string }>> {
+    try {
+      // Get user with password
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        return {
+          success: false,
+          message: 'User not found',
+        };
+      }
+
+      // Verify current password
+      const isCurrentPasswordValid = await comparePassword(currentPassword, user.password);
+      if (!isCurrentPasswordValid) {
+        return {
+          success: false,
+          message: 'Current password is incorrect',
+        };
+      }
+
+      // Hash new password
+      const hashedNewPassword = await hashPassword(newPassword);
+
+      // Update password in database
+      const success = await UserModel.updatePassword(userId, hashedNewPassword);
+      if (!success) {
+        return {
+          success: false,
+          message: 'Failed to update password',
+        };
+      }
+
+      return {
+        success: true,
+        message: 'Password changed successfully',
+        data: { message: 'Password changed successfully' }
+      };
+    } catch (error) {
+      console.error('Change password error:', error);
+      return {
+        success: false,
+        message: 'Failed to change password. Please try again.',
+      };
+    }
+  }
 }

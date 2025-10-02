@@ -120,10 +120,11 @@ export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginFormData) => Promise<{ success: boolean; message?: string }>;
+  login: (credentials: LoginFormData) => Promise<{ success: boolean; message?: string; data?: any }>;
   register: (userData: RegisterFormData) => Promise<{ success: boolean; message?: string }>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
+  updateUser: () => Promise<void>;
 }
 
 // Email verification types

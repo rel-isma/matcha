@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const result = await authApi.login(credentials);
       if (result.success && result.data) {
         setUser(result.data.user);
-        return { success: true };
+        return { success: true, data: result.data };
       } else {
         return { success: false, message: result.message || 'Login failed' };
       }
@@ -89,6 +89,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const updateUser = async () => {
+    try {
+      const result = await authApi.getCurrentUser();
+      if (result.success && result.data) {
+        setUser(result.data.user);
+      }
+    } catch (error) {
+      console.error('Failed to update user:', error);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -97,6 +108,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     register,
     logout,
     refreshAuth,
+    updateUser,
   };
 
   return (

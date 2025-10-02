@@ -173,6 +173,34 @@ class AuthApiClient {
       };
     }
   }
+
+  // Update user information
+  async updateUser(userData: { firstName: string; lastName: string; email: string }): Promise<ApiResponse<{ user: User }>> {
+    try {
+      const response = await api.put(API_ENDPOINTS.AUTH.ME, userData);
+      return response as ApiResponse<{ user: User }>;
+    } catch (error: unknown) {
+      const authError = error as AuthApiError;
+      return {
+        success: false,
+        message: authError.message || 'Failed to update user information'
+      };
+    }
+  }
+
+  // Change password
+  async changePassword(passwordData: { currentPassword: string; newPassword: string }): Promise<ApiResponse<{ message: string }>> {
+    try {
+      const response = await api.put(`${API_ENDPOINTS.AUTH.ME}/password`, passwordData);
+      return response as ApiResponse<{ message: string }>;
+    } catch (error: unknown) {
+      const authError = error as AuthApiError;
+      return {
+        success: false,
+        message: authError.message || 'Failed to change password'
+      };
+    }
+  }
 }
 
 // Create and export a singleton instance

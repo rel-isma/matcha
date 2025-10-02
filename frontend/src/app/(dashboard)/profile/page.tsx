@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Edit, MapPin, Heart, Eye, Star, Calendar, User, Camera, Share2 } from 'lucide-react';
+import { Edit, MapPin, Heart, Eye, Star, Calendar, User, Camera, Share2, Mail } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +16,8 @@ export default function ProfilePage() {
   const { user } = useAuth();
   const { profile, loading, error } = useProfile();
   const [activeTab, setActiveTab] = useState('Information');
+
+  console.log('Profile data:', profile);
 
   if (loading) {
     return (
@@ -87,13 +90,15 @@ export default function ProfilePage() {
                 >
                   <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden ring-4 ring-orange-200 shadow-2xl bg-gradient-to-br from-orange-100 to-amber-50">
                     {profile.pictures.length > 0 ? (
-                      <img
+                      <Image
                         src={`http://localhost:5000${profile.pictures[0].url}`}
                         alt="Profile"
+                        width={160}
+                        height={160}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
+                        unoptimized
+                        onError={() => {
                           console.error('Image load error:', profile.pictures[0].url);
-                          e.currentTarget.src = '/placeholder.svg';
                         }}
                       />
                     ) : (
@@ -115,7 +120,7 @@ export default function ProfilePage() {
                 >
                   {/* Username */}
                   <div className="text-orange-500 font-medium text-sm md:text-base mb-1">
-                    @{user?.firstName?.toLowerCase()}{user?.lastName?.toLowerCase()}
+                    @{user?.username}
                   </div>
                   
                   {/* Full Name */}
@@ -150,7 +155,7 @@ export default function ProfilePage() {
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                     <Button
-                      onClick={() => router.push(ROUTES.EDIT_PROFILE)}
+                      onClick={() => router.push('/settings')}
                       className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-2.5 rounded-full shadow-lg flex items-center justify-center gap-2 font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105"
                     >
                       <Edit size={18} />
@@ -200,7 +205,7 @@ export default function ProfilePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.8 }}
-                className="md:hidden mt-6 grid grid-cols-3 gap-4"
+                className="md:hidden mt-6 grid grid-cols-2 gap-4"
               >
                 <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-3 text-center">
                   <div className="text-xl font-bold text-orange-600">{profile.completeness}%</div>
@@ -222,7 +227,8 @@ export default function ProfilePage() {
             className="mb-8"
           >
             <div className="border-b border-orange-200">
-              <nav className="flex space-x-8 overflow-x-auto">
+              {/* Desktop Navigation */}
+              <nav className="hidden md:flex space-x-8 overflow-x-auto">
                 {tabs.map((tab) => (
                   <button
                     key={tab}
@@ -237,6 +243,25 @@ export default function ProfilePage() {
                   </button>
                 ))}
               </nav>
+
+              {/* Mobile Tab Navigation */}
+              <div className="md:hidden mb-4">
+                <div className="flex flex-wrap gap-2">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => scrollToSection(tab)}
+                      className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        activeTab === tab
+                          ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      <span className="whitespace-nowrap">{tab}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </motion.div>
 
@@ -266,6 +291,14 @@ export default function ProfilePage() {
                     
                     <div className="flex items-center justify-between py-4 border-b border-orange-200">
                       <div className="flex items-center gap-3">
+                        <Mail size={16} className="text-orange-500" />
+                        <dt className="text-gray-700 font-medium">Email</dt>
+                      </div>
+                      <dd className="text-gray-800 font-medium">{user?.email}</dd>
+                    </div>
+                    
+                    <div className="flex items-center justify-between py-4 border-b border-orange-200">
+                      <div className="flex items-center gap-3">
                         <MapPin size={16} className="text-orange-500" />
                         <dt className="text-gray-700 font-medium">Location</dt>
                       </div>
@@ -280,6 +313,10 @@ export default function ProfilePage() {
                       <dd className="text-gray-800 font-medium">{genderLabel || 'Not specified'}</dd>
                     </div>
                     
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-1">
                     <div className="flex items-center justify-between py-4 border-b border-orange-200">
                       <div className="flex items-center gap-3">
                         <Star size={16} className="text-orange-500" />
@@ -287,10 +324,6 @@ export default function ProfilePage() {
                       </div>
                       <dd className="text-gray-800 font-medium">{profile.fameRating} ({fameInfo.level})</dd>
                     </div>
-                  </div>
-
-                  {/* Right Column */}
-                  <div className="space-y-1">
                     <div className="flex items-center justify-between py-4 border-b border-orange-200">
                       <div className="flex items-center gap-3">
                         <Heart size={16} className="text-orange-500" />
@@ -349,29 +382,32 @@ export default function ProfilePage() {
                 {profile.pictures.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {profile.pictures.map((picture, index) => (
-                      <motion.div
-                        key={picture.id}
-                        className="aspect-[3/4] rounded-lg overflow-hidden border border-orange-200 hover:border-orange-400 transition-colors cursor-pointer"
-                        whileHover={{ scale: 1.02 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <img
-                          src={`http://localhost:5000${picture.url}`}
-                          alt={`Photo ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            console.error('Image load error:', picture.url);
-                            e.currentTarget.src = '/placeholder.svg';
-                          }}
-                        />
+                      <div key={picture.id} className="relative">
+                        <motion.div
+                          className="aspect-[3/4] rounded-lg overflow-hidden border border-orange-200 hover:border-orange-400 transition-colors cursor-pointer"
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Image
+                            src={`http://localhost:5000${picture.url}`}
+                            alt={`Photo ${index + 1}`}
+                            width={400}
+                            height={533}
+                            className="w-full h-full object-cover"
+                            unoptimized
+                            onError={() => {
+                              console.error('Image load error:', picture.url);
+                            }}
+                          />
+                        </motion.div>
                         {picture.isProfilePic && (
-                          <div className="absolute top-2 left-2">
-                            <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded">
+                          <div className="absolute top-2 left-2 z-10">
+                            <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded shadow-md">
                               Main
                             </span>
                           </div>
                         )}
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -380,7 +416,7 @@ export default function ProfilePage() {
                     <h3 className="text-xl font-semibold text-gray-600 mb-2">No photos uploaded yet</h3>
                     <p className="text-gray-500 mb-6">Add some photos to make your profile more attractive</p>
                     <Button
-                      onClick={() => router.push(ROUTES.EDIT_PROFILE)}
+                      onClick={() => router.push('/settings')}
                       className="bg-orange-500 hover:bg-orange-600"
                     >
                       <Edit size={16} className="mr-2" />
@@ -437,7 +473,7 @@ export default function ProfilePage() {
                   <h3 className="text-xl font-semibold text-gray-600 mb-2">No likes yet</h3>
                   <p className="text-gray-500 mb-6">Likes will appear here when people like your profile</p>
                   <Button
-                    onClick={() => router.push(ROUTES.EDIT_PROFILE)}
+                    onClick={() => router.push('/settings')}
                     className="bg-orange-500 hover:bg-orange-600"
                   >
                     <Edit size={16} className="mr-2" />

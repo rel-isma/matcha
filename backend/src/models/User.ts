@@ -222,4 +222,33 @@ export class UserModel {
     const result = await pool.query(query, [isCompleted, userId]);
     return result.rows.length > 0;
   }
+
+  static async updateUser(userId: string, userData: { firstName: string; lastName: string; email: string }): Promise<User | null> {
+    const query = `
+      UPDATE users 
+      SET first_name = $1, last_name = $2, email = $3, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $4
+      RETURNING id, email, username, first_name as "firstName", last_name as "lastName", 
+                is_verified as "isVerified", is_profile_completed as "isProfileCompleted",
+                verification_token as "verificationToken",
+                reset_password_token as "resetPasswordToken", reset_password_expires as "resetPasswordExpires",
+                created_at as "createdAt", updated_at as "updatedAt"
+    `;
+    
+    const values = [userData.firstName, userData.lastName, userData.email, userId];
+    const result = await pool.query(query, values);
+    return result.rows[0] || null;
+  }
+
+  static async updatePassword(userId: string, hashedPassword: string): Promise<boolean> {
+    const query = `
+      UPDATE users 
+      SET password = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING id
+    `;
+    
+    const result = await pool.query(query, [hashedPassword, userId]);
+    return result.rows.length > 0;
+  }
 }

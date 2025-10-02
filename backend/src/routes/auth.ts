@@ -30,6 +30,8 @@ router.post('/reset-password', validateResetPassword, AuthController.resetPasswo
 
 // Protected routes
 router.get('/me', authenticateToken, AuthController.getCurrentUser);
+router.put('/me', authenticateToken, AuthController.updateUser);
+router.put('/me/password', authenticateToken, AuthController.changePassword);
 router.post('/logout', authenticateToken, AuthController.logout);
 
 // Google OAuth routes

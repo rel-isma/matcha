@@ -569,4 +569,172 @@ export class AuthController {
       });
     }
   }
+
+  /**
+   * @swagger
+   * /auth/me:
+   *   put:
+   *     summary: Update user information
+   *     tags: [Authentication]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - firstName
+   *               - lastName
+   *               - email
+   *             properties:
+   *               firstName:
+   *                 type: string
+   *               lastName:
+   *                 type: string
+   *               email:
+   *                 type: string
+   *                 format: email
+   *     responses:
+   *       200:
+   *         description: User information updated successfully
+   *       400:
+   *         description: Invalid input data
+   *       401:
+   *         description: Unauthorized
+   */
+  static async updateUser(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req.user as any)?.userId;
+      const { firstName, lastName, email } = req.body;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'Unauthorized'
+        });
+        return;
+      }
+
+      // Validate input
+      if (!firstName || !lastName || !email) {
+        res.status(400).json({
+          success: false,
+          message: 'First name, last name, and email are required'
+        });
+        return;
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
+        });
+        return;
+      }
+
+      const result = await AuthService.updateUser(userId, { firstName, lastName, email });
+
+      if (result.success) {
+        res.status(200).json({
+          success: true,
+          message: result.message,
+          data: {
+            user: result.data?.user,
+          },
+        });
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error) {
+      console.error('Update user controller error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+      });
+    }
+  }
+
+  /**
+   * @swagger
+   * /auth/me/password:
+   *   put:
+   *     summary: Change user password
+   *     tags: [Authentication]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - currentPassword
+   *               - newPassword
+   *             properties:
+   *               currentPassword:
+   *                 type: string
+   *               newPassword:
+   *                 type: string
+   *                 minLength: 8
+   *     responses:
+   *       200:
+   *         description: Password changed successfully
+   *       400:
+   *         description: Invalid input data or incorrect current password
+   *       401:
+   *         description: Unauthorized
+   */
+  static async changePassword(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req.user as any)?.userId;
+      const { currentPassword, newPassword } = req.body;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'Unauthorized'
+        });
+        return;
+      }
+
+      // Validate input
+      if (!currentPassword || !newPassword) {
+        res.status(400).json({
+          success: false,
+          message: 'Current password and new password are required'
+        });
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        res.status(400).json({
+          success: false,
+          message: 'New password must be at least 8 characters long'
+        });
+        return;
+      }
+
+      const result = await AuthService.changePassword(userId, currentPassword, newPassword);
+
+      if (result.success) {
+        res.status(200).json({
+          success: true,
+          message: result.message,
+        });
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error) {
+      console.error('Change password controller error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+      });
+    }
+  }
 }
