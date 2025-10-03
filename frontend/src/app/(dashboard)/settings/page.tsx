@@ -303,12 +303,141 @@ export default function SettingsPage() {
 
   return (
     <div className="py-4 md:py-6">
-      <div className="mb-4">
-        <p className="text-sm text-gray-500">Manage your account settings</p>
-      </div>
+      {/* Modern Settings Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="relative mb-8"
+      >
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 rounded-2xl opacity-10"></div>
+        
+        <div className="relative p-6 md:p-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            
+            {/* Header Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="flex-1"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                  <User className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                    Account Settings
+                  </h1>
+                  {user && (
+                    <p className="text-sm md:text-base text-orange-600 font-medium">
+                      Welcome back, {user.firstName}!
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              <p className="text-gray-600 text-sm md:text-base max-w-2xl">
+                Manage your personal information, profile details, photos, and security preferences to keep your account up to date.
+              </p>
+            </motion.div>
+
+            {/* Stats Cards - Desktop */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="hidden md:flex gap-4"
+            >
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 text-center min-w-[100px] border border-orange-100">
+                <div className="text-xl font-bold text-orange-600">
+                  {profile?.completeness || 0}%
+                </div>
+                <div className="text-xs text-gray-600 font-medium">
+                  Complete
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 text-center min-w-[100px] border border-orange-100">
+                <div className="text-xl font-bold text-orange-600">
+                  {profile?.pictures?.length || 0}
+                </div>
+                <div className="text-xs text-gray-600 font-medium">
+                  Photos
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 text-center min-w-[100px] border border-orange-100">
+                <div className="text-xl font-bold text-orange-600">
+                  {profile?.interests?.length || 0}
+                </div>
+                <div className="text-xs text-gray-600 font-medium">
+                  Interests
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Stats Cards - Mobile */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="md:hidden grid grid-cols-3 gap-3"
+            >
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-3 text-center border border-orange-100">
+                <div className="text-lg font-bold text-orange-600">
+                  {profile?.completeness || 0}%
+                </div>
+                <div className="text-xs text-gray-600 font-medium">
+                  Complete
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-3 text-center border border-orange-100">
+                <div className="text-lg font-bold text-orange-600">
+                  {profile?.pictures?.length || 0}
+                </div>
+                <div className="text-xs text-gray-600 font-medium">
+                  Photos
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-3 text-center border border-orange-100">
+                <div className="text-lg font-bold text-orange-600">
+                  {profile?.interests?.length || 0}
+                </div>
+                <div className="text-xs text-gray-600 font-medium">
+                  Interests
+                </div>
+              </div>
+            </motion.div>
+          </div>
+          
+          {/* Progress Bar */}
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="mt-6"
+          >
+            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+              <span>Profile Completion</span>
+              <span className="font-semibold">{profile?.completeness || 0}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-orange-500 to-amber-500 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${profile?.completeness || 0}%` }}
+              ></div>
+            </div>
+          </motion.div>
+        </div>
+      </motion.div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 mb-4">
+      <div className="border-b border-orange-200 mb-6">
         {/* Desktop Navigation */}
         <nav className="hidden md:flex -mb-px space-x-8">
           {tabs.map((tab) => {
@@ -317,13 +446,13 @@ export default function SettingsPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                className={`py-3 px-1 border-b-2 font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
                   activeTab === tab.id
-                    ? 'border-orange-500 text-orange-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-orange-500 text-orange-600 bg-orange-50/50'
+                    : 'border-transparent text-gray-500 hover:text-orange-600 hover:border-orange-300 hover:bg-orange-50/30'
                 }`}
               >
-                <Icon size={16} />
+                <Icon size={18} />
                 {tab.label}
               </button>
             );
@@ -339,10 +468,10 @@ export default function SettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 shadow-sm ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg transform scale-105'
+                      : 'bg-white/70 backdrop-blur-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 border border-orange-100'
                   }`}
                 >
                   <Icon size={16} />
