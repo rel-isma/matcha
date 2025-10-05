@@ -21,11 +21,11 @@ export class ProfileModel {
   // Profile CRUD operations
   static async createProfile(userId: string, profileData: CreateProfileInput): Promise<Profile> {
     const query = `
-      INSERT INTO profiles (user_id, gender, sexual_preference, bio, latitude, longitude, 
+      INSERT INTO profiles (user_id, gender, sexual_preference, bio, date_of_birth, latitude, longitude, 
                            location_source, neighborhood, completeness)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING id, user_id as "userId", gender, sexual_preference as "sexualPreference", 
-                bio, fame_rating as "fameRating", latitude, longitude, 
+                bio, date_of_birth as "dateOfBirth", fame_rating as "fameRating", latitude, longitude, 
                 location_source as "locationSource", neighborhood, completeness,
                 created_at as "createdAt", updated_at as "updatedAt"
     `;
@@ -36,6 +36,7 @@ export class ProfileModel {
       profileData.gender,
       profileData.sexualPreference,
       profileData.bio,
+      profileData.dateOfBirth,
       profileData.latitude,
       profileData.longitude,
       profileData.locationSource || 'manual',
@@ -53,7 +54,7 @@ export class ProfileModel {
       // Get basic profile
       const profileQuery = `
         SELECT id, user_id as "userId", gender, sexual_preference as "sexualPreference", 
-               bio, fame_rating as "fameRating", latitude, longitude, 
+               bio, date_of_birth as "dateOfBirth", fame_rating as "fameRating", latitude, longitude, 
                location_source as "locationSource", neighborhood, completeness,
                created_at as "createdAt", updated_at as "updatedAt"
         FROM profiles WHERE user_id = $1
@@ -115,6 +116,11 @@ export class ProfileModel {
       values.push(profileData.bio);
       paramCount++;
     }
+    if (profileData.dateOfBirth !== undefined) {
+      setClause.push(`date_of_birth = $${paramCount}`);
+      values.push(profileData.dateOfBirth);
+      paramCount++;
+    }
     if (profileData.latitude !== undefined) {
       setClause.push(`latitude = $${paramCount}`);
       values.push(profileData.latitude);
@@ -149,7 +155,7 @@ export class ProfileModel {
       SET ${setClause.join(', ')}
       WHERE user_id = $1
       RETURNING id, user_id as "userId", gender, sexual_preference as "sexualPreference", 
-                bio, fame_rating as "fameRating", latitude, longitude, 
+                bio, date_of_birth as "dateOfBirth", fame_rating as "fameRating", latitude, longitude, 
                 location_source as "locationSource", neighborhood, completeness,
                 created_at as "createdAt", updated_at as "updatedAt"
     `;
@@ -254,8 +260,8 @@ export class ProfileModel {
     try {
       const profileQuery = `
         SELECT p.id, p.user_id as "userId", u.username, u.first_name as "firstName", 
-               u.last_name as "lastName", p.gender, p.bio, p.fame_rating as "fameRating", 
-               p.neighborhood, p.completeness, p.created_at as "createdAt"
+               u.last_name as "lastName", p.gender, p.bio, p.date_of_birth as "dateOfBirth",
+               p.fame_rating as "fameRating", p.neighborhood, p.completeness, p.created_at as "createdAt"
         FROM profiles p
         JOIN users u ON p.user_id = u.id
         WHERE u.username = $1 AND u.is_verified = true
@@ -358,8 +364,8 @@ export class ProfileModel {
 
       const query = `
         SELECT p.id, p.user_id as "userId", u.username, u.first_name as "firstName", 
-               u.last_name as "lastName", p.gender, p.bio, p.fame_rating as "fameRating", 
-               p.neighborhood, p.completeness, p.created_at as "createdAt"
+               u.last_name as "lastName", p.gender, p.bio, p.date_of_birth as "dateOfBirth",
+               p.fame_rating as "fameRating", p.neighborhood, p.completeness, p.created_at as "createdAt"
                ${distanceSelect}
         ${baseQuery}
         ${orderBy}
@@ -541,9 +547,10 @@ export class ProfileModel {
   // Helper methods
   private static calculateCompleteness(profileData: CreateProfileInput): number {
     let score = 0;
-    if (profileData.gender) score += 20;
-    if (profileData.sexualPreference) score += 20;
-    if (profileData.bio && profileData.bio.length > 20) score += 30;
+    if (profileData.gender) score += 15;
+    if (profileData.sexualPreference) score += 15;
+    if (profileData.bio && profileData.bio.length > 20) score += 25;
+    if (profileData.dateOfBirth) score += 15;
     if (profileData.latitude && profileData.longitude) score += 30;
     return score;
   }

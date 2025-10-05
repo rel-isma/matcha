@@ -19,6 +19,7 @@ export interface Profile {
   gender?: string;
   sexualPreference?: string;
   bio?: string;
+  dateOfBirth?: string;
   fameRating: number;
   latitude?: number;
   longitude?: number;
@@ -70,6 +71,7 @@ export interface PublicProfile {
   lastName: string;
   gender?: string;
   bio?: string;
+  dateOfBirth?: string;
   fameRating: number;
   neighborhood?: string;
   completeness: number;
@@ -82,6 +84,7 @@ export interface UpdateProfileInput {
   gender?: string;
   sexualPreference?: string;
   bio?: string;
+  dateOfBirth?: string;
   latitude?: number;
   longitude?: number;
   locationSource?: 'gps' | 'ip' | 'manual';

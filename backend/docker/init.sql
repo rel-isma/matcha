@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   gender VARCHAR(20),
   sexual_preference VARCHAR(20),
   bio TEXT,
+  date_of_birth DATE,
   fame_rating INTEGER DEFAULT 0,
   latitude DOUBLE PRECISION,           -- if no PostGIS. Use geography(Point,4326) with PostGIS
   longitude DOUBLE PRECISION,

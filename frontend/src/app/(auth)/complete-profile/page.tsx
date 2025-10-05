@@ -11,6 +11,8 @@ import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
+import { DateInput } from '@/components/ui/DateInput';
+import { LocationPicker } from '@/components/ui/LocationPicker';
 import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, INTEREST_OPTIONS, PHOTO_LIMITS, ROUTES } from '@/lib/constants';
 import toast from 'react-hot-toast';
 
@@ -18,15 +20,24 @@ interface FormData {
   gender: string;
   sexualPreference: string;
   bio: string;
+  dateOfBirth: Date | undefined;
+  location: {
+    latitude?: number;
+    longitude?: number;
+    locationSource: 'gps' | 'ip' | 'manual';
+    neighborhood?: string;
+  } | undefined;
   interests: string[];
   pictures: File[];
 }
 
 const STEPS = [
   { id: 1, title: 'Basic Info', description: 'Tell us about yourself' },
-  { id: 2, title: 'Interests', description: 'What do you love?' },
-  { id: 3, title: 'Photos', description: 'Show your personality' },
-  { id: 4, title: 'Review', description: 'Complete your profile' },
+  { id: 2, title: 'Birthday', description: 'When were you born?' },
+  { id: 3, title: 'Location', description: 'Where are you located?' },
+  { id: 4, title: 'Interests', description: 'What do you love?' },
+  { id: 5, title: 'Photos', description: 'Show your personality' },
+  { id: 6, title: 'Review', description: 'Complete your profile' },
 ];
 
 export default function CompleteProfilePage() {
@@ -40,6 +51,8 @@ export default function CompleteProfilePage() {
     gender: '',
     sexualPreference: '',
     bio: '',
+    dateOfBirth: undefined,
+    location: undefined,
     interests: [],
     pictures: [],
   });
@@ -58,10 +71,36 @@ export default function CompleteProfilePage() {
     }
 
     if (step === 2) {
-      if (formData.interests.length === 0) newErrors.interests = 'Please select at least one interest';
+      if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
+      if (formData.dateOfBirth) {
+        const birthDate = formData.dateOfBirth;
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+        const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
+        
+        if (actualAge < 18) {
+          newErrors.dateOfBirth = 'You must be at least 18 years old';
+        } else if (actualAge > 120) {
+          newErrors.dateOfBirth = 'Please enter a valid date of birth';
+        }
+      }
     }
 
     if (step === 3) {
+      if (!formData.location) {
+        newErrors.location = 'Location is required';
+      } else if (!formData.location.neighborhood && (!formData.location.latitude || !formData.location.longitude)) {
+        newErrors.location = 'Please set your location using GPS or enter manually';
+      }
+    }
+
+    if (step === 4) {
+      if (formData.interests.length === 0) newErrors.interests = 'Please select at least one interest';
+    }
+
+    if (step === 5) {
       if (formData.pictures.length === 0) newErrors.pictures = 'Please upload at least one photo';
     }
 
@@ -128,16 +167,21 @@ export default function CompleteProfilePage() {
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (!validateStep(3)) return;
+    if (!validateStep(6)) return;
 
     try {
       setIsLoading(true);
 
-      // Step 1: Update profile basic info
+      // Step 1: Update profile basic info including location
       const profileSuccess = await updateProfile({
         gender: formData.gender,
         sexualPreference: formData.sexualPreference,
         bio: formData.bio,
+        dateOfBirth: formData.dateOfBirth ? formData.dateOfBirth.toISOString().split('T')[0] : '',
+        latitude: formData.location?.latitude,
+        longitude: formData.location?.longitude,
+        locationSource: formData.location?.locationSource,
+        neighborhood: formData.location?.neighborhood,
       });
 
       if (!profileSuccess) {
@@ -299,8 +343,83 @@ export default function CompleteProfilePage() {
                     </div>
                   )}
 
-                  {/* Step 2: Interests */}
+                  {/* Step 2: Birthday */}
                   {currentStep === 2 && (
+                    <div className="space-y-6 sm:space-y-8">
+                      <div className="text-center">
+                        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">
+                          When were you born?
+                        </h2>
+                        <p className="text-sm sm:text-base text-gray-600 max-w-md mx-auto">
+                          Your age will be visible on your profile. You must be at least 18 years old to join.
+                        </p>
+                      </div>
+
+                      <div className="max-w-md mx-auto">
+                        <DateInput
+                          label="Date of Birth"
+                          value={formData.dateOfBirth}
+                          onChange={(date) => setFormData(prev => ({ ...prev, dateOfBirth: date }))}
+                          placeholder="Click to select your birthday"
+                          maxDate={new Date(new Date().setFullYear(new Date().getFullYear() - 18))}
+                          minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 120))}
+                          error={errors.dateOfBirth}
+                          className="text-sm sm:text-base"
+                        />
+                      </div>
+
+                      {/* Additional info */}
+                      {formData.dateOfBirth && !errors.dateOfBirth && (
+                        <div className="text-center">
+                          <div className="inline-flex items-center px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span className="text-sm text-green-700 font-medium">
+                              Perfect! You're {Math.floor((new Date().getTime() - formData.dateOfBirth.getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Step 3: Location */}
+                  {currentStep === 3 && (
+                    <div className="space-y-6 sm:space-y-8">
+                      <div className="text-center">
+                        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">
+                          Where are you located?
+                        </h2>
+                        <p className="text-sm sm:text-base text-gray-600 max-w-lg mx-auto">
+                          Your location helps us connect you with people nearby. We use your general area for matching, not your exact address.
+                        </p>
+                      </div>
+
+                      <div className="max-w-lg mx-auto">
+                        <LocationPicker
+                          label="Your Location"
+                          value={formData.location}
+                          onChange={(location) => setFormData(prev => ({ ...prev, location }))}
+                          error={errors.location}
+                          className="text-sm sm:text-base"
+                        />
+                      </div>
+
+                      {/* Location Benefits */}
+                      {formData.location && !errors.location && (
+                        <div className="text-center">
+                          <div className="inline-flex items-center px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span className="text-sm text-green-700 font-medium">
+                              Location set! You'll see matches in your area
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Step 4: Interests */}
+                  {currentStep === 4 && (
                     <div className="space-y-4 sm:space-y-6">
                       <div>
                         <h2 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-1 sm:mb-2">
@@ -369,8 +488,8 @@ export default function CompleteProfilePage() {
                     </div>
                   )}
 
-                  {/* Step 3: Photos */}
-                  {currentStep === 3 && (
+                  {/* Step 5: Photos */}
+                  {currentStep === 5 && (
                     <div className="space-y-4 sm:space-y-6">
                       <div>
                         <h2 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-1 sm:mb-2">
@@ -448,8 +567,8 @@ export default function CompleteProfilePage() {
                     </div>
                   )}
 
-                  {/* Step 4: Review */}
-                  {currentStep === 4 && (
+                  {/* Step 6: Review */}
+                  {currentStep === 6 && (
                     <div className="space-y-4 sm:space-y-6">
                       <div>
                         <h2 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-1 sm:mb-2">
@@ -478,6 +597,17 @@ export default function CompleteProfilePage() {
                             <div>
                               <p className="text-xs sm:text-sm text-gray-600">Bio</p>
                               <p className="text-sm sm:text-base font-medium">{formData.bio}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs sm:text-sm text-gray-600">Date of Birth</p>
+                              <p className="text-sm sm:text-base font-medium">
+                                {formData.dateOfBirth && new Date(formData.dateOfBirth).toLocaleDateString('en-US', { 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })} 
+                                ({Math.floor((new Date().getTime() - new Date(formData.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old)
+                              </p>
                             </div>
                           </div>
                         </div>

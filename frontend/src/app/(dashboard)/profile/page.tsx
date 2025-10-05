@@ -312,6 +312,7 @@ export default function ProfilePage() {
                       </div>
                       <dd className="text-gray-800 font-medium">{genderLabel || 'Not specified'}</dd>
                     </div>
+
                     
                   </div>
 
@@ -334,10 +335,15 @@ export default function ProfilePage() {
                     
                     <div className="flex items-center justify-between py-4 border-b border-orange-200">
                       <div className="flex items-center gap-3">
-                        <Star size={16} className="text-orange-500" />
-                        <dt className="text-gray-700 font-medium">Interests</dt>
+                        <Calendar size={16} className="text-orange-500" />
+                        <dt className="text-gray-700 font-medium">Age</dt>
                       </div>
-                      <dd className="text-gray-800 font-medium">{profile.interests.length} interests</dd>
+                      <dd className="text-gray-800 font-medium">
+                        {profile.dateOfBirth 
+                          ? `${Math.floor((new Date().getTime() - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old`
+                          : 'Not specified'
+                        }
+                      </dd>
                     </div>
                     
                     <div className="flex items-center justify-between py-4 border-b border-orange-200">

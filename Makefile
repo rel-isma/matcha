@@ -26,7 +26,7 @@ up: ## Start all services (without building)
 	@echo "🚀 Starting Matcha application..."
 	@$(DOCKER_COMPOSE) up -d
 	@echo "✅ Application is running!"
-	@echo "🌐 Frontend: http://localhost:3000"
+	@echo "🌐 go to /frontend & run  npm install & npm run dev"
 	@echo "🔥 Backend API: http://localhost:5000"
 	@echo "🗄️  Database Admin: http://localhost:8080"
 
@@ -43,9 +43,9 @@ logs-backend: ## Show backend container logs
 	@echo "📋 Backend logs:"
 	@$(DOCKER_COMPOSE) logs -f backend
 
-logs-frontend: ## Show frontend container logs  
-	@echo "📋 Frontend logs:"
-	@$(DOCKER_COMPOSE) logs -f frontend
+# logs-frontend: ## Show frontend container logs  
+# 	@echo "📋 Frontend logs:"
+# 	@$(DOCKER_COMPOSE) logs -f frontend
 
 logs-db: ## Show database container logs
 	@echo "📋 Database logs:"
@@ -55,9 +55,9 @@ shell-backend: ## Access backend container shell
 	@echo "🐚 Entering backend container..."
 	@$(DOCKER_COMPOSE) exec backend sh
 
-shell-frontend: ## Access frontend container shell
-	@echo "🐚 Entering frontend container..."
-	@$(DOCKER_COMPOSE) exec frontend sh
+# shell-frontend: ## Access frontend container shell
+# 	@echo "🐚 Entering frontend container..."
+# 	@$(DOCKER_COMPOSE) exec frontend sh
 
 shell-db: ## Access database container shell
 	@echo "🐚 Entering database container..."
@@ -99,10 +99,10 @@ restart-backend: ## Restart only backend container
 	@$(DOCKER_COMPOSE) restart backend
 	@echo "✅ Backend restarted!"
 
-restart-frontend: ## Restart only frontend container
-	@echo "🔄 Restarting frontend container..."
-	@$(DOCKER_COMPOSE) restart frontend
-	@echo "✅ Frontend restarted!"
+# restart-frontend: ## Restart only frontend container
+# 	@echo "🔄 Restarting frontend container..."
+# 	@$(DOCKER_COMPOSE) restart frontend
+# 	@echo "✅ Frontend restarted!"
 
 restart-adminer: ## Restart only adminer container
 	@echo "🔄 Restarting adminer container..."

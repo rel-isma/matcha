@@ -24,6 +24,7 @@ interface ProfileFormData {
   gender: string;
   sexualPreference: string;
   bio: string;
+  dateOfBirth: string;
 }
 
 interface PasswordFormData {
@@ -55,7 +56,8 @@ export default function SettingsPage() {
   const [profileFormData, setProfileFormData] = useState<ProfileFormData>({
     gender: '',
     sexualPreference: '',
-    bio: ''
+    bio: '',
+    dateOfBirth: ''
   });
 
   const [passwordFormData, setPasswordFormData] = useState<PasswordFormData>({
@@ -82,7 +84,8 @@ export default function SettingsPage() {
       setProfileFormData({
         gender: profile.gender || '',
         sexualPreference: profile.sexualPreference || '',
-        bio: profile.bio || ''
+        bio: profile.bio || '',
+        dateOfBirth: profile.dateOfBirth || ''
       });
     }
   }, [profile]);
@@ -612,6 +615,25 @@ export default function SettingsPage() {
                         required
                       />
                     </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date of Birth
+                    </label>
+                    <Input
+                      type="date"
+                      value={profileFormData.dateOfBirth}
+                      onChange={(e) => setProfileFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                      max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+                      min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
+                      required
+                    />
+                    {profileFormData.dateOfBirth && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Age: {Math.floor((new Date().getTime() - new Date(profileFormData.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old
+                      </p>
+                    )}
                   </div>
                   
                   <div>
