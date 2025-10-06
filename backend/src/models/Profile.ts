@@ -176,12 +176,22 @@ export class ProfileModel {
     try {
       await client.query('BEGIN');
 
+      // Get user ID for this profile
+      const userQuery = 'SELECT user_id FROM profiles WHERE id = $1';
+      const userResult = await client.query(userQuery, [profileId]);
+      const userId = userResult.rows[0]?.user_id;
+
       for (const name of interestNames) {
         const interest = await this.getOrCreateInterest(name);
         await client.query(
           'INSERT INTO profile_interests (profile_id, interest_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
           [profileId, interest.id]
         );
+      }
+
+      // Update completeness after adding interests
+      if (userId) {
+        await this.updateCompleteness(userId);
       }
 
       await client.query('COMMIT');
@@ -194,8 +204,31 @@ export class ProfileModel {
   }
 
   static async removeInterestFromProfile(profileId: string, interestId: number): Promise<void> {
-    const query = 'DELETE FROM profile_interests WHERE profile_id = $1 AND interest_id = $2';
-    await pool.query(query, [profileId, interestId]);
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Get user ID for this profile
+      const userQuery = 'SELECT user_id FROM profiles WHERE id = $1';
+      const userResult = await client.query(userQuery, [profileId]);
+      const userId = userResult.rows[0]?.user_id;
+
+      // Remove the interest
+      const query = 'DELETE FROM profile_interests WHERE profile_id = $1 AND interest_id = $2';
+      await client.query(query, [profileId, interestId]);
+
+      // Update completeness after removing interest
+      if (userId) {
+        await this.updateCompleteness(userId);
+      }
+
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   // Picture management
@@ -203,6 +236,11 @@ export class ProfileModel {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+
+      // Get user ID for this profile
+      const userQuery = 'SELECT user_id FROM profiles WHERE id = $1';
+      const userResult = await client.query(userQuery, [profileId]);
+      const userId = userResult.rows[0]?.user_id;
 
       // If this is a profile pic, unset any existing profile pic
       if (isProfilePic) {
@@ -227,6 +265,11 @@ export class ProfileModel {
       `;
       const result = await client.query(query, [profileId, url, isProfilePic, position]);
 
+      // Update completeness after adding picture
+      if (userId) {
+        await this.updateCompleteness(userId);
+      }
+
       await client.query('COMMIT');
       return result.rows[0];
     } catch (error) {
@@ -238,8 +281,31 @@ export class ProfileModel {
   }
 
   static async deletePicture(profileId: string, pictureId: string): Promise<void> {
-    const query = 'DELETE FROM profile_pictures WHERE id = $1 AND profile_id = $2';
-    await pool.query(query, [pictureId, profileId]);
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Get user ID for this profile
+      const userQuery = 'SELECT user_id FROM profiles WHERE id = $1';
+      const userResult = await client.query(userQuery, [profileId]);
+      const userId = userResult.rows[0]?.user_id;
+
+      // Delete the picture
+      const query = 'DELETE FROM profile_pictures WHERE id = $1 AND profile_id = $2';
+      await client.query(query, [pictureId, profileId]);
+
+      // Update completeness after deleting picture
+      if (userId) {
+        await this.updateCompleteness(userId);
+      }
+
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   static async getPicturesByProfileId(profileId: string): Promise<ProfilePicture[]> {
@@ -544,23 +610,94 @@ export class ProfileModel {
     return result.rows[0]?.fameRating || 0;
   }
 
+  // Recalculate and update profile completeness
+  static async updateCompleteness(userId: string): Promise<number> {
+    const completeness = await this.calculateCompletenessForUser(userId, {});
+    
+    const query = `
+      UPDATE profiles 
+      SET completeness = $1, updated_at = CURRENT_TIMESTAMP 
+      WHERE user_id = $2
+      RETURNING completeness
+    `;
+    
+    const result = await pool.query(query, [completeness, userId]);
+    return result.rows[0]?.completeness || 0;
+  }
+
   // Helper methods
   private static calculateCompleteness(profileData: CreateProfileInput): number {
     let score = 0;
-    if (profileData.gender) score += 15;
-    if (profileData.sexualPreference) score += 15;
-    if (profileData.bio && profileData.bio.length > 20) score += 25;
-    if (profileData.dateOfBirth) score += 15;
-    if (profileData.latitude && profileData.longitude) score += 30;
+    
+    // Basic profile fields (70 points total) - same as calculateCompletenessForUser
+    if (profileData.gender) score += 10;
+    if (profileData.sexualPreference) score += 10;
+    if (profileData.bio && profileData.bio.length > 20) score += 20;
+    if (profileData.dateOfBirth) score += 10;
+    if ((profileData.latitude && profileData.longitude) || profileData.neighborhood) score += 20;
+    
+    // Note: Pictures and interests start at 0 for new profiles
+    // They will be calculated when added via addPicture() and addInterestsToProfile()
     return score;
   }
 
   private static async calculateCompletenessForUser(userId: string, updates: UpdateProfileInput): Promise<number> {
-    const current = await this.getProfileByUserId(userId);
-    if (!current) return 0;
+    const client = await pool.connect();
+    try {
+      // Get current profile data
+      const current = await this.getProfileByUserId(userId);
+      if (!current) return 0;
 
-    const merged = { ...current, ...updates };
-    return this.calculateCompleteness(merged);
+      // Merge current data with updates
+      const merged = { ...current, ...updates };
+      
+      // Calculate base score from profile fields (70 points)
+      let score = 0;
+      if (merged.gender) score += 10;
+      if (merged.sexualPreference) score += 10;
+      if (merged.bio && merged.bio.length > 20) score += 20;
+      if (merged.dateOfBirth) score += 10;
+      if ((merged.latitude && merged.longitude) || merged.neighborhood) score += 20;
+
+      // Add points for pictures (20 points total)
+      const picturesQuery = `
+        SELECT COUNT(*) as count 
+        FROM profile_pictures 
+        WHERE profile_id = $1
+      `;
+      const picturesResult = await client.query(picturesQuery, [current.id]);
+      const pictureCount = parseInt(picturesResult.rows[0].count);
+      
+      if (pictureCount >= 1) score += 5;   // First picture
+      if (pictureCount >= 2) score += 5;   // Second picture  
+      if (pictureCount >= 3) score += 5;   // Third picture
+      if (pictureCount >= 4) score += 5;   // Fourth+ picture (max 20 points)
+
+      // Add points for interests (10 points total)
+      const interestsQuery = `
+        SELECT COUNT(*) as count 
+        FROM profile_interests pi
+        WHERE pi.profile_id = $1
+      `;
+      const interestsResult = await client.query(interestsQuery, [current.id]);
+      const interestCount = parseInt(interestsResult.rows[0].count);
+      
+      // Interest scoring - tier-based, not cumulative
+      if (interestCount >= 5) {
+        score += 10;   // 5+ interests = 10 points
+      } else if (interestCount >= 3) {
+        score += 7;    // 3-4 interests = 7 points  
+      } else if (interestCount >= 1) {
+        score += 3;    // 1-2 interests = 3 points
+      }
+      // 0 interests = 0 points
+
+      // Cap at 100%
+      return Math.min(score, 100);
+      
+    } finally {
+      client.release();
+    }
   }
 
   private static async getInterestsByProfileId(profileId: string): Promise<Interest[]> {

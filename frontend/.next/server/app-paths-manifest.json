@@ -1,3 +1,7 @@
 {
+  "/(auth)/complete-profile/page": "app/(auth)/complete-profile/page.js",
+  "/(dashboard)/browse/page": "app/(dashboard)/browse/page.js",
+  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
+  "/(dashboard)/profile/page": "app/(dashboard)/profile/page.js",
   "/(auth)/login/page": "app/(auth)/login/page.js"
 }

@@ -949,6 +949,9 @@ export class ProfileController {
         
         // Update user's profile completion status
         await UserModel.setProfileCompleted(userId, isComplete);
+        
+        // Update profile completeness score
+        await ProfileModel.updateCompleteness(userId);
       }
     } catch (error) {
       console.error('Error checking profile completion:', error);
