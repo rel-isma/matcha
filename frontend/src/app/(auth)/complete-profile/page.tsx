@@ -201,13 +201,23 @@ export default function CompleteProfilePage() {
 
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col">
       {/* Mobile Layout */}
       <div className="md:hidden flex-1 flex flex-col">
         <div className="flex-1 flex flex-col justify-center px-6 py-8">
           {/* Main Content Card */}
-          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/60 flex-1 min-h-0 overflow-auto">
-            {renderStepContent()}
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/60 flex-1 min-h-0 overflow-auto relative">
+            {/* Card background glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-blue-50/50 rounded-3xl"></div>
+            
+            {/* Form content */}
+            <div className="relative z-10">
+              {renderStepContent()}
+            </div>
+            
+            {/* Decorative corner elements */}
+            <div className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-br from-pink-300 to-rose-400 rounded-full opacity-30 animate-pulse"></div>
+            <div className="absolute bottom-4 left-4 w-6 h-6 bg-gradient-to-br from-purple-300 to-indigo-400 rounded-full opacity-25 animate-pulse" style={{animationDelay: '1s'}}></div>
           </div>
 
           {/* Navigation with circular progress */}
@@ -216,7 +226,7 @@ export default function CompleteProfilePage() {
               variant="outline"
               onClick={handlePrevious}
               disabled={currentStep === 1}
-              className="px-6 py-3 rounded-full border-2 border-white/40 bg-white/20 backdrop-blur hover:bg-white/30 hover:border-orange-300 disabled:opacity-50 transition-all duration-200 font-medium text-gray-700"
+              className="px-6 py-3 rounded-full border-2 border-orange-300/60 bg-white/80 backdrop-blur hover:bg-white/90 hover:border-orange-400 disabled:opacity-50 disabled:border-gray-300/40 disabled:bg-gray-100/40 transition-all duration-200 font-medium text-gray-800 shadow-lg"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -262,8 +272,18 @@ export default function CompleteProfilePage() {
         <div className="h-full flex items-center justify-center px-8 py-12">
           <div className="w-full max-w-4xl">
             {/* Main Content Card */}
-            <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-12 shadow-2xl border border-white/60 mb-8">
-              {renderStepContent()}
+            <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-12 shadow-2xl border border-white/60 mb-8 relative overflow-hidden">
+              {/* Card background glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-blue-50/50 rounded-3xl"></div>
+              
+              {/* Form content */}
+              <div className="relative z-10">
+                {renderStepContent()}
+              </div>
+              
+              {/* Decorative corner elements */}
+              <div className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-br from-pink-300 to-rose-400 rounded-full opacity-30 animate-pulse"></div>
+              <div className="absolute bottom-4 left-4 w-6 h-6 bg-gradient-to-br from-purple-300 to-indigo-400 rounded-full opacity-25 animate-pulse" style={{animationDelay: '1s'}}></div>
             </div>
 
             {/* Desktop Navigation with circular progress */}
@@ -272,7 +292,7 @@ export default function CompleteProfilePage() {
                 variant="outline"
                 onClick={handlePrevious}
                 disabled={currentStep === 1}
-                className="px-8 py-4 rounded-full border-2 border-white/40 bg-white/20 backdrop-blur hover:bg-white/30 hover:border-orange-300 disabled:opacity-50 transition-all duration-200 font-medium text-gray-700"
+                className="px-8 py-4 rounded-full border-2 border-orange-300/60 bg-white/80 backdrop-blur hover:bg-white/90 hover:border-orange-400 disabled:opacity-50 disabled:border-gray-300/40 disabled:bg-gray-100/40 transition-all duration-200 font-medium text-gray-800 shadow-lg"
               >
                 <ArrowLeft className="w-5 h-5 mr-3" />
                 Previous

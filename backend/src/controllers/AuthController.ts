@@ -177,7 +177,7 @@ export class AuthController {
         res.cookie('accessToken', result.data.token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
+          sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
@@ -186,7 +186,7 @@ export class AuthController {
           res.cookie('refreshToken', result.data.refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
           });
         }
@@ -479,13 +479,13 @@ export class AuthController {
       res.clearCookie('accessToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       });
       
       res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       });
       
       res.status(200).json({
@@ -535,7 +535,7 @@ export class AuthController {
         res.cookie('accessToken', result.data.accessToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
+          sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
@@ -544,7 +544,7 @@ export class AuthController {
           res.cookie('refreshToken', result.data.refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
           });
         }

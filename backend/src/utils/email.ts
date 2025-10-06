@@ -1,5 +1,11 @@
 import nodemailer from 'nodemailer';
 
+// Handle multiple frontend URLs, use the primary one for emails
+const FRONTEND_URLS = process.env.FRONTEND_URL ? 
+  process.env.FRONTEND_URL.split(',').map(url => url.trim()) : 
+  ['http://localhost:3000', 'http://10.30.246.128:3000'];
+const PRIMARY_FRONTEND_URL = FRONTEND_URLS[0];
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: parseInt(process.env.EMAIL_PORT || '587'),
@@ -14,7 +20,7 @@ export const sendVerificationEmail = async (
   email: string,
   verificationToken: string
 ): Promise<void> => {
-  const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
+  const verificationUrl = `${PRIMARY_FRONTEND_URL}/verify?token=${verificationToken}`;
   
   const mailOptions = {
     from: process.env.EMAIL_FROM || 'noreply@matcha.com',
@@ -53,7 +59,7 @@ export const sendPasswordResetEmail = async (
   email: string,
   resetToken: string
 ): Promise<void> => {
-  const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+  const resetUrl = `${PRIMARY_FRONTEND_URL}/reset-password?token=${resetToken}`;
   
   const mailOptions = {
     from: process.env.EMAIL_FROM || 'noreply@matcha.com',

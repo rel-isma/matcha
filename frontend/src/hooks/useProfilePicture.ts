@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { profileApi } from '@/lib/profileApi';
+import { STATIC_BASE_URL } from '@/lib/constants';
 
 export const useProfilePicture = () => {
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
@@ -14,7 +15,8 @@ export const useProfilePicture = () => {
         if (result.success && result.data?.pictures?.length > 0) {
           // Get the main profile picture (first one or the one marked as profile pic)
           const mainPicture = result.data.pictures.find(pic => pic.isProfilePic) || result.data.pictures[0];
-          setProfilePicture(`http://localhost:5000${mainPicture.url}`);
+          // mainPicture.url already contains "/uploads/profile-pictures/filename.webp"
+          setProfilePicture(`${STATIC_BASE_URL}${mainPicture.url}`);
         }
       } catch (error) {
         console.error('Failed to fetch profile picture:', error);

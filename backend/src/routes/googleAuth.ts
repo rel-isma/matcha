@@ -4,6 +4,30 @@ import { ProfileModel } from '../models/Profile';
 
 const router = Router();
 
+// Get frontend URLs from environment
+const FRONTEND_URLS = process.env.FRONTEND_URL ? 
+  process.env.FRONTEND_URL.split(',').map(url => url.trim()) : 
+  ['http://localhost:3000', 'http://10.30.246.128:3000'];
+
+// Function to get the appropriate frontend URL based on the request
+const getFrontendUrl = (req: Request): string => {
+  const host = req.get('host');
+  const referer = req.get('referer');
+  
+  // Check if request came from private IP
+  if (referer && referer.includes('10.30.246.128')) {
+    return 'http://10.30.246.128:3000';
+  }
+  
+  // Check if host suggests private IP
+  if (host && host.includes('10.30.246.128')) {
+    return 'http://10.30.246.128:3000';
+  }
+  
+  // Default to localhost
+  return 'http://localhost:3000';
+};
+
 /**
  * @swagger
  * /auth/google:
@@ -15,11 +39,19 @@ const router = Router();
  *       302:
  *         description: Redirect to Google OAuth
  */
-router.get('/google',
+router.get('/google', (req: Request, res: Response, next: Function) => {
+  // Get the frontend URL and encode it in state parameter
+  const frontendUrl = getFrontendUrl(req);
+  const state = Buffer.from(frontendUrl).toString('base64');
+  
   passport.authenticate('google', {
-    scope: ['profile', 'email']
-  })
-);
+    scope: ['profile', 'email'],
+    state: state
+  })(req, res, next);
+});
+
+// Track processed codes to prevent duplicate processing
+const processedCodes = new Set<string>();
 
 /**
  * @swagger
@@ -38,19 +70,52 @@ router.get('/google/callback',
   (req: Request, res: Response, next: Function) => {
     console.log('Google OAuth callback received');
     console.log('Query params:', req.query);
+    
+    // Check if this code has already been processed
+    const code = req.query.code as string;
+    if (code && processedCodes.has(code)) {
+      console.log('Code already processed, skipping...');
+      // Get frontend URL from state or default
+      let frontendUrl = 'http://localhost:3000';
+      try {
+        if (req.query.state) {
+          frontendUrl = Buffer.from(req.query.state as string, 'base64').toString();
+        }
+      } catch (e) {
+        frontendUrl = getFrontendUrl(req);
+      }
+      return res.redirect(`${frontendUrl}/browse`);
+    }
+    
+    // Mark code as being processed
+    if (code) {
+      processedCodes.add(code);
+      // Clean up old codes after 10 minutes
+      setTimeout(() => processedCodes.delete(code), 10 * 60 * 1000);
+    }
+    
     next();
   },
   passport.authenticate('google', { 
-    session: false,
-    failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed`
+    session: false
   }),
   async (req: Request, res: Response) => {
     try {
+      // Get frontend URL from state parameter or fallback
+      let frontendUrl = 'http://localhost:3000';
+      try {
+        if (req.query.state) {
+          frontendUrl = Buffer.from(req.query.state as string, 'base64').toString();
+        }
+      } catch (e) {
+        frontendUrl = getFrontendUrl(req);
+      }
+      
       const authResult = req.user as any;
       
       if (!authResult || !authResult.user || !authResult.tokens) {
         console.error('Google OAuth failed: No user data received');
-        return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+        return res.redirect(`${frontendUrl}/login?error=oauth_failed`);
       }
 
       const { user, tokens } = authResult;
@@ -59,14 +124,14 @@ router.get('/google/callback',
       res.cookie('accessToken', tokens.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       res.cookie('refreshToken', tokens.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
 
@@ -75,14 +140,25 @@ router.get('/google/callback',
       // Check if profile is completed and redirect accordingly
       if (!user.isProfileCompleted) {
         console.log('Profile not completed, redirecting to complete-profile');
-        res.redirect(`${process.env.FRONTEND_URL}/complete-profile`);
+        res.redirect(`${frontendUrl}/complete-profile`);
       } else {
         console.log('Profile completed, redirecting to browse');
-        res.redirect(`${process.env.FRONTEND_URL}/browse`);
+        res.redirect(`${frontendUrl}/browse`);
       }
     } catch (error) {
       console.error('Google OAuth callback error:', error);
-      res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_error`);
+      
+      // Get frontend URL for error redirect
+      let frontendUrl = 'http://localhost:3000';
+      try {
+        if (req.query.state) {
+          frontendUrl = Buffer.from(req.query.state as string, 'base64').toString();
+        }
+      } catch (e) {
+        frontendUrl = getFrontendUrl(req);
+      }
+      
+      res.redirect(`${frontendUrl}/login?error=oauth_error`);
     }
   }
 );

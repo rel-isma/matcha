@@ -4,18 +4,29 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Edit, MapPin, Heart, Eye, Star, Calendar, User, Camera, Share2, Mail } from 'lucide-react';
+import { Edit, MapPin, Heart, Eye, Star, Calendar, User, Camera, Share2, Mail, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
+import { useProfilePicture } from '@/hooks/useProfilePicture';
 import { Button } from '@/components/ui/Button';
 import { Loading } from '@/components/ui/Spinner';
-import { ROUTES, GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS } from '../../../lib/constants';
+import { ROUTES, GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, STATIC_BASE_URL } from '../../../lib/constants';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { profile, loading, error } = useProfile();
+  const { profilePicture } = useProfilePicture();
   const [activeTab, setActiveTab] = useState('Information');
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   console.log('Profile data:', profile);
 
@@ -89,16 +100,16 @@ export default function ProfilePage() {
                   className="relative"
                 >
                   <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden ring-4 ring-orange-200 shadow-2xl bg-gradient-to-br from-orange-100 to-amber-50">
-                    {profile.pictures.length > 0 ? (
+                    {profilePicture ? (
                       <Image
-                        src={`http://localhost:5000${profile.pictures[0].url}`}
+                        src={profilePicture}
                         alt="Profile"
                         width={160}
                         height={160}
                         className="w-full h-full object-cover"
                         unoptimized
                         onError={() => {
-                          console.error('Image load error:', profile.pictures[0].url);
+                          console.error('Profile picture load error:', profilePicture);
                         }}
                       />
                     ) : (
@@ -160,6 +171,14 @@ export default function ProfilePage() {
                     >
                       <Edit size={18} />
                       Edit Profile
+                    </Button>
+                    <Button
+                      onClick={handleLogout}
+                      variant="outline"
+                      className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-6 py-2.5 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 hover:shadow-lg md:hidden"
+                    >
+                      <LogOut size={18} />
+                      Sign Out
                     </Button>
                     <Button
                       variant="outline"
@@ -395,14 +414,14 @@ export default function ProfilePage() {
                           transition={{ duration: 0.2 }}
                         >
                           <Image
-                            src={`http://localhost:5000${picture.url}`}
+                            src={`${STATIC_BASE_URL}${picture.url}`}
                             alt={`Photo ${index + 1}`}
                             width={400}
                             height={533}
                             className="w-full h-full object-cover"
                             unoptimized
                             onError={() => {
-                              console.error('Image load error:', picture.url);
+                              console.error('Gallery image load error:', picture.url);
                             }}
                           />
                         </motion.div>

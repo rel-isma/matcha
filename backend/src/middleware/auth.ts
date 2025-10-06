@@ -50,7 +50,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
         res.cookie('accessToken', newToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
+          sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
         

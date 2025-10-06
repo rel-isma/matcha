@@ -6,8 +6,13 @@ import { User } from '../types';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const FRONTEND_URLS = process.env.FRONTEND_URL ? 
+  process.env.FRONTEND_URL.split(',').map(url => url.trim()) : 
+  ['http://localhost:3000', 'http://10.30.246.128:3000'];
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
+
+// Get the primary frontend URL (first one in the list)
+const PRIMARY_FRONTEND_URL = FRONTEND_URLS[0];
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
   throw new Error('Google OAuth credentials not provided in environment variables');
