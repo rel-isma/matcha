@@ -34,6 +34,26 @@ export const useProfile = (): UseProfileReturn => {
       
       if (result.success && result.data) {
         setProfile(result.data);
+        
+        // Check if neighborhood needs fixing (contains coordinates)
+        if (result.data.neighborhood && result.data.neighborhood.includes('(') && result.data.neighborhood.includes(',')) {
+          console.log('Detected coordinate-based neighborhood, attempting to fix...');
+          
+          // Attempt to fix neighborhood in the background
+          const fixResult = await profileApi.fixNeighborhoods();
+          
+          if (fixResult.success && fixResult.data?.newNeighborhood) {
+            console.log(`Neighborhood updated from "${fixResult.data.oldNeighborhood}" to "${fixResult.data.newNeighborhood}"`);
+            
+            // Update local state with new neighborhood
+            setProfile(prev => prev ? {
+              ...prev,
+              neighborhood: fixResult.data.newNeighborhood!
+            } : null);
+            
+            toast.success('Location updated to readable city name');
+          }
+        }
       } else {
         setError(result.message || 'Failed to fetch profile');
       }

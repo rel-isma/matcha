@@ -70,6 +70,9 @@ router.get('/browse',
   ProfileController.browseProfiles
 );
 
+// Utility routes
+router.patch('/fix-neighborhoods', ProfileController.fixNeighborhoods);
+
 // Social actions
 router.post('/like/:targetUserId', 
   userIdParamValidation, 

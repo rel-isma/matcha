@@ -3,6 +3,7 @@ import { validationResult } from 'express-validator';
 import { ProfileModel } from '../models/Profile';
 import { UserModel } from '../models/User';
 import { ApiResponse, CreateProfileInput, UpdateProfileInput, BrowseFilters } from '../types';
+import { reverseGeocode, isCoordinateFormat, extractCoordinatesFromString } from '../utils/geocoding';
 
 /**
  * @swagger
@@ -956,6 +957,89 @@ export class ProfileController {
     } catch (error) {
       console.error('Error checking profile completion:', error);
       // Don't throw error, just log it
+    }
+  }
+
+  /**
+   * @swagger
+   * /profile/fix-neighborhoods:
+   *   patch:
+   *     summary: Fix coordinate-based neighborhoods by converting to city names
+   *     tags: [Profile]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Neighborhoods updated successfully
+   *       401:
+   *         description: Unauthorized
+   *       500:
+   *         description: Internal server error
+   */
+  static async fixNeighborhoods(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authenticated',
+        });
+        return;
+      }
+
+      // Get user's profile
+      const profile = await ProfileModel.getProfileByUserId(userId);
+      
+      if (!profile) {
+        res.status(404).json({
+          success: false,
+          message: 'Profile not found',
+        });
+        return;
+      }
+
+      // Check if neighborhood contains coordinates and needs fixing
+      if (profile.neighborhood && isCoordinateFormat(profile.neighborhood)) {
+        const coordinates = extractCoordinatesFromString(profile.neighborhood);
+        
+        if (coordinates) {
+          console.log(`Fixing neighborhood for user ${userId}: ${profile.neighborhood}`);
+          
+          // Convert coordinates to city name
+          const cityName = await reverseGeocode(coordinates.latitude, coordinates.longitude);
+          
+          // Update the profile with the new city name
+          await ProfileModel.updateProfile(userId, { neighborhood: cityName });
+          
+          console.log(`Updated neighborhood to: ${cityName}`);
+          
+          res.status(200).json({
+            success: true,
+            message: 'Neighborhood updated successfully',
+            data: {
+              oldNeighborhood: profile.neighborhood,
+              newNeighborhood: cityName
+            }
+          });
+          return;
+        }
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'No neighborhood fix needed',
+        data: {
+          currentNeighborhood: profile.neighborhood
+        }
+      });
+    } catch (error) {
+      console.error('Error fixing neighborhood:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fix neighborhood',
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+      });
     }
   }
 }

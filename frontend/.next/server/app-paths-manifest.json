@@ -1,7 +1,0 @@
-{
-  "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/(auth)/forgot-password/page": "app/(auth)/forgot-password/page.js",
-  "/(auth)/complete-profile/page": "app/(auth)/complete-profile/page.js",
-  "/(dashboard)/browse/page": "app/(dashboard)/browse/page.js",
-  "/(dashboard)/profile/page": "app/(dashboard)/profile/page.js"
-}

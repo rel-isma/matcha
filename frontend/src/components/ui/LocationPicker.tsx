@@ -108,14 +108,44 @@ export function LocationPicker({
     }
   }
 
-  // Get neighborhood name from coordinates (mock implementation)
+  // Get neighborhood name from coordinates using reverse geocoding
   const getNeighborhoodFromCoords = async (lat: number, lng: number): Promise<string> => {
     try {
-      // This would typically use a reverse geocoding service like Google Maps API
-      // For demo purposes, returning a mock neighborhood
-      return `Neighborhood (${lat.toFixed(4)}, ${lng.toFixed(4)})`
+      // Using OpenStreetMap Nominatim API for reverse geocoding (free alternative to Google Maps)
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Geocoding service unavailable');
+      }
+      
+      const data = await response.json();
+      
+      // Extract city name from the response
+      const address = data.address || {};
+      const city = address.city || address.town || address.village || address.municipality;
+      const state = address.state || address.region;
+      const country = address.country;
+      
+      // Build location string prioritizing city
+      if (city && state) {
+        return `${city}, ${state}`;
+      } else if (city && country) {
+        return `${city}, ${country}`;
+      } else if (state && country) {
+        return `${state}, ${country}`;
+      } else if (city) {
+        return city;
+      } else if (country) {
+        return country;
+      } else {
+        // Fallback if no readable address found
+        return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+      }
     } catch (error) {
-      return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`
+      console.error('Error getting location from coordinates:', error);
+      return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
     }
   }
 

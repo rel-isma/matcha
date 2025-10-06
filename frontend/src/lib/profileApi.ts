@@ -200,6 +200,20 @@ class ProfileApiClient {
       };
     }
   }
+
+  // Fix coordinate-based neighborhoods
+  async fixNeighborhoods(): Promise<ApiResponse<{ oldNeighborhood?: string; newNeighborhood?: string; currentNeighborhood?: string }>> {
+    try {
+      const response = await api.patch('/profile/fix-neighborhoods');
+      return response as ApiResponse<{ oldNeighborhood?: string; newNeighborhood?: string; currentNeighborhood?: string }>;
+    } catch (error: unknown) {
+      const profileError = error as ProfileApiError;
+      return {
+        success: false,
+        message: profileError.message || 'Failed to fix neighborhoods'
+      };
+    }
+  }
 }
 
 // Create and export a singleton instance
