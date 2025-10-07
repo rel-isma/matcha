@@ -241,42 +241,44 @@ export const browseValidation = [
     .optional()
     .isInt({ min: 18, max: 100 })
     .withMessage('Maximum age must be between 18 and 100'),
-  query('gender')
+  query('maxDistance')
     .optional()
-    .isIn(['male', 'female', 'non-binary', 'other'])
-    .withMessage('Gender must be one of: male, female, non-binary, other'),
-  query('fameRating')
+    .isFloat({ min: 1, max: 1000 })
+    .withMessage('Maximum distance must be between 1 and 1000 km'),
+  query('fameMin')
     .optional()
     .isInt({ min: 0, max: 100 })
-    .withMessage('Fame rating must be between 0 and 100'),
-  query('latitude')
+    .withMessage('Minimum fame rating must be between 0 and 100'),
+  query('fameMax')
     .optional()
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Latitude must be a valid coordinate'),
-  query('longitude')
+    .isInt({ min: 0, max: 100 })
+    .withMessage('Maximum fame rating must be between 0 and 100'),
+  query('interests')
     .optional()
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Longitude must be a valid coordinate'),
-  query('radiusKm')
+    .isArray()
+    .withMessage('Interests must be an array'),
+  query('interests.*')
     .optional()
-    .isInt({ min: 1, max: 1000 })
-    .withMessage('Radius must be between 1 and 1000 km'),
+    .isString()
+    .trim()
+    .isLength({ min: 1, max: 50 })
+    .withMessage('Each interest must be between 1 and 50 characters'),
   query('sortBy')
     .optional()
-    .isIn(['age', 'fame', 'distance', 'common_interests'])
-    .withMessage('Sort by must be one of: age, fame, distance, common_interests'),
+    .isIn(['age', 'location', 'fame_rating', 'common_tags'])
+    .withMessage('Sort by must be one of: age, location, fame_rating, common_tags'),
   query('sortOrder')
     .optional()
     .isIn(['asc', 'desc'])
     .withMessage('Sort order must be asc or desc'),
+  query('page')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('Page must be a positive integer'),
   query('limit')
     .optional()
     .isInt({ min: 1, max: 50 })
     .withMessage('Limit must be between 1 and 50'),
-  query('offset')
-    .optional()
-    .isInt({ min: 0 })
-    .withMessage('Offset must be a non-negative integer'),
 ];
 
 export const reportUserValidation = [

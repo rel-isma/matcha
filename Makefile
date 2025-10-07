@@ -126,22 +126,3 @@ db-reset: ## Reset database - clear all data and reinitialize
 	@echo "⏳ Waiting for PostgreSQL to initialize..."
 	@sleep 15
 	@echo "✅ Database reset complete!"
-
-fix-completeness: ## Fix profile completeness for all existing profiles
-	@echo "🔧 Fixing profile completeness..."
-	@$(DOCKER_COMPOSE) exec postgres psql -U matcha_user -d matcha_db -c "\
-		UPDATE profiles SET completeness = ( \
-			(CASE WHEN gender IS NOT NULL AND gender != '' THEN 10 ELSE 0 END) + \
-			(CASE WHEN sexual_preference IS NOT NULL AND sexual_preference != '' THEN 10 ELSE 0 END) + \
-			(CASE WHEN bio IS NOT NULL AND LENGTH(bio) > 20 THEN 20 ELSE 0 END) + \
-			(CASE WHEN date_of_birth IS NOT NULL THEN 10 ELSE 0 END) + \
-			(CASE WHEN (latitude IS NOT NULL AND longitude IS NOT NULL) OR (neighborhood IS NOT NULL AND neighborhood != '') THEN 20 ELSE 0 END) + \
-			LEAST((SELECT COUNT(*) * 5 FROM profile_pictures WHERE profile_id = profiles.id), 20) + \
-			(CASE \
-				WHEN (SELECT COUNT(*) FROM profile_interests WHERE profile_id = profiles.id) >= 5 THEN 10 \
-				WHEN (SELECT COUNT(*) FROM profile_interests WHERE profile_id = profiles.id) >= 3 THEN 7 \
-				WHEN (SELECT COUNT(*) FROM profile_interests WHERE profile_id = profiles.id) >= 1 THEN 3 \
-				ELSE 0 \
-			END) \
-		), updated_at = CURRENT_TIMESTAMP;"
-	@echo "✅ Profile completeness fixed!"

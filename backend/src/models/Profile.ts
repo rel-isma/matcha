@@ -367,72 +367,202 @@ export class ProfileModel {
     }
   }
 
-  // Browse and matching
+  // Browse and matching with intelligent suggestions
   static async browseProfiles(currentUserId: string, filters: BrowseFilters): Promise<UserProfile[]> {
     const client = await pool.connect();
     try {
+      // First get current user's profile for matching logic
+      const currentUserProfile = await this.getProfileByUserId(currentUserId);
+      if (!currentUserProfile) {
+        throw new Error('Current user profile not found');
+      }
+
+      // Determine sexual orientation matching
+      let genderFilter = '';
+      let genderParams: string[] = [];
+      
+      if (currentUserProfile.sexualPreference) {
+        switch (currentUserProfile.sexualPreference) {
+          case 'men':
+          case 'male':  // Support both formats
+            genderFilter = "AND p.gender = 'male'";
+            break;
+          case 'women':
+          case 'female':  // Support both formats
+            genderFilter = "AND p.gender = 'female'";
+            break;
+          case 'both':
+            // No gender filter for bisexual
+            break;
+          default:
+            // Default to bisexual behavior if preference not specified
+            break;
+        }
+      }
+      // Default behavior: show all genders if no preference specified (bisexual)
+
+      // Build base query with intelligent matching
       let baseQuery = `
         FROM profiles p
         JOIN users u ON p.user_id = u.id
+        LEFT JOIN (
+          SELECT 
+            pi.profile_id,
+            COUNT(CASE WHEN current_interests.interest_id IS NOT NULL THEN 1 END) as common_interests_count
+          FROM profile_interests pi
+          LEFT JOIN (
+            SELECT interest_id 
+            FROM profile_interests 
+            WHERE profile_id = $2
+          ) current_interests ON pi.interest_id = current_interests.interest_id
+          GROUP BY pi.profile_id
+        ) interests_match ON p.id = interests_match.profile_id
         WHERE u.is_verified = true 
+          AND u.is_profile_completed = true
           AND p.user_id != $1
+          AND p.completeness >= 50
           AND p.user_id NOT IN (
             SELECT blocked_id FROM blocks WHERE blocker_id = $1
             UNION
             SELECT blocker_id FROM blocks WHERE blocked_id = $1
           )
+          AND p.user_id NOT IN (
+            SELECT to_user FROM likes WHERE from_user = $1
+          )
+          ${genderFilter}
       `;
       
-      const values = [currentUserId];
-      let paramCount = 2;
+      const values = [currentUserId, currentUserProfile.id];
+      let paramCount = 3;
 
-      // Add filters
-      if (filters.gender) {
-        baseQuery += ` AND p.gender = $${paramCount}`;
-        values.push(filters.gender);
-        paramCount++;
+      // Age filters
+      if (filters.minAge || filters.maxAge) {
+        const today = new Date();
+        if (filters.maxAge) {
+          const minBirthDate = new Date(today.getFullYear() - filters.maxAge - 1, today.getMonth(), today.getDate());
+          baseQuery += ` AND p.date_of_birth >= $${paramCount}`;
+          values.push(minBirthDate.toISOString().split('T')[0]);
+          paramCount++;
+        }
+        if (filters.minAge) {
+          const maxBirthDate = new Date(today.getFullYear() - filters.minAge, today.getMonth(), today.getDate());
+          baseQuery += ` AND p.date_of_birth <= $${paramCount}`;
+          values.push(maxBirthDate.toISOString().split('T')[0]);
+          paramCount++;
+        }
       }
 
-      if (filters.fameRating) {
+      // Fame rating filters
+      if (filters.fameMin !== undefined) {
         baseQuery += ` AND p.fame_rating >= $${paramCount}`;
-        values.push(filters.fameRating);
+        values.push(filters.fameMin);
+        paramCount++;
+      }
+      
+      if (filters.fameMax !== undefined) {
+        baseQuery += ` AND p.fame_rating <= $${paramCount}`;
+        values.push(filters.fameMax);
         paramCount++;
       }
 
-      // Location filter (Haversine formula for distance)
+      // Interest filters
+      if (filters.interests && filters.interests.length > 0) {
+        baseQuery += ` AND p.id IN (
+          SELECT DISTINCT pi.profile_id 
+          FROM profile_interests pi 
+          JOIN interests i ON pi.interest_id = i.id 
+          WHERE i.name = ANY($${paramCount})
+        )`;
+        values.push(filters.interests);
+        paramCount++;
+      }
+
+      // Distance calculation and filter
       let distanceSelect = '';
-      if (filters.location) {
+      let distanceOrderPriority = '';
+      
+      if (currentUserProfile.latitude && currentUserProfile.longitude) {
         distanceSelect = `, 
-          6371 * acos(
+          CASE 
+            WHEN p.latitude IS NOT NULL AND p.longitude IS NOT NULL THEN
+              6371 * acos(
+                cos(radians($${paramCount})) * cos(radians(p.latitude)) * 
+                cos(radians(p.longitude) - radians($${paramCount + 1})) + 
+                sin(radians($${paramCount})) * sin(radians(p.latitude))
+              )
+            ELSE 999999
+          END as distance`;
+        
+        values.push(currentUserProfile.latitude, currentUserProfile.longitude);
+        paramCount += 2;
+
+        // Apply distance filter if specified
+        if (filters.location?.radiusKm) {
+          baseQuery += ` AND p.latitude IS NOT NULL AND p.longitude IS NOT NULL`;
+          baseQuery += ` AND 6371 * acos(
             cos(radians($${paramCount})) * cos(radians(p.latitude)) * 
             cos(radians(p.longitude) - radians($${paramCount + 1})) + 
             sin(radians($${paramCount})) * sin(radians(p.latitude))
-          ) as distance`;
-        
-        baseQuery += ` AND p.latitude IS NOT NULL AND p.longitude IS NOT NULL`;
-        values.push(filters.location.latitude, filters.location.longitude);
-        paramCount += 2;
+          ) <= $${paramCount + 2}`;
+          values.push(currentUserProfile.latitude, currentUserProfile.longitude, filters.location.radiusKm);
+          paramCount += 3;
+        }
 
-        baseQuery += ` AND 6371 * acos(
-          cos(radians($${paramCount})) * cos(radians(p.latitude)) * 
-          cos(radians(p.longitude) - radians($${paramCount + 1})) + 
-          sin(radians($${paramCount})) * sin(radians(p.latitude))
-        ) <= $${paramCount + 2}`;
-        values.push(filters.location.latitude, filters.location.longitude, filters.location.radiusKm);
-        paramCount += 3;
+        // Priority for same geographical area (within 25km)
+        distanceOrderPriority = `, 
+          CASE 
+            WHEN p.latitude IS NOT NULL AND p.longitude IS NOT NULL 
+              AND 6371 * acos(
+                cos(radians(${currentUserProfile.latitude})) * cos(radians(p.latitude)) * 
+                cos(radians(p.longitude) - radians(${currentUserProfile.longitude})) + 
+                sin(radians(${currentUserProfile.latitude})) * sin(radians(p.latitude))
+              ) <= 25 
+            THEN 1 
+            ELSE 2 
+          END as geo_priority`;
       }
 
-      // Build the full query
-      let orderBy = 'ORDER BY p.fame_rating DESC';
-      if (filters.sortBy === 'distance' && filters.location) {
-        orderBy = 'ORDER BY distance ASC';
+      // Build ORDER BY clause based on sortBy parameter or intelligent default
+      let orderBy = '';
+      if (filters.sortBy) {
+        switch (filters.sortBy) {
+          case 'age':
+            orderBy = `ORDER BY p.date_of_birth ${filters.sortOrder === 'asc' ? 'DESC' : 'ASC'}`;
+            break;
+          case 'distance':
+            if (distanceSelect) {
+              orderBy = `ORDER BY distance ${filters.sortOrder || 'ASC'}`;
+            } else {
+              orderBy = 'ORDER BY p.fame_rating DESC';
+            }
+            break;
+          case 'fame_rating':
+            orderBy = `ORDER BY p.fame_rating ${filters.sortOrder || 'DESC'}`;
+            break;
+          case 'common_interests':
+            orderBy = `ORDER BY COALESCE(interests_match.common_interests_count, 0) ${filters.sortOrder || 'DESC'}, p.fame_rating DESC`;
+            break;
+          default:
+            // Intelligent default sorting
+            orderBy = distanceOrderPriority ? 
+              `ORDER BY geo_priority ASC, COALESCE(interests_match.common_interests_count, 0) DESC, p.fame_rating DESC` :
+              `ORDER BY COALESCE(interests_match.common_interests_count, 0) DESC, p.fame_rating DESC`;
+        }
+      } else {
+        // Intelligent default sorting: geography > common interests > fame rating
+        orderBy = distanceOrderPriority ? 
+          `ORDER BY geo_priority ASC, COALESCE(interests_match.common_interests_count, 0) DESC, p.fame_rating DESC` :
+          `ORDER BY COALESCE(interests_match.common_interests_count, 0) DESC, p.fame_rating DESC`;
       }
 
+      // Build the complete query
       const query = `
         SELECT p.id, p.user_id as "userId", u.username, u.first_name as "firstName", 
                u.last_name as "lastName", p.gender, p.bio, p.date_of_birth as "dateOfBirth",
-               p.fame_rating as "fameRating", p.neighborhood, p.completeness, p.created_at as "createdAt"
+               p.fame_rating as "fameRating", p.neighborhood, p.completeness, p.created_at as "createdAt",
+               COALESCE(interests_match.common_interests_count, 0) as common_interests
                ${distanceSelect}
+               ${distanceOrderPriority}
         ${baseQuery}
         ${orderBy}
         LIMIT ${filters.limit || 20} OFFSET ${filters.offset || 0}
@@ -442,16 +572,28 @@ export class ProfileModel {
       
       // Get interests and pictures for each profile
       const profiles = await Promise.all(result.rows.map(async (profile) => {
-        const [interests, pictures] = await Promise.all([
+        const [interests, pictures, isLiked, hasLikedBack] = await Promise.all([
           this.getInterestsByProfileId(profile.id),
-          this.getPicturesByProfileId(profile.id)
+          this.getPicturesByProfileId(profile.id),
+          this.checkIfLiked(currentUserId, profile.userId),
+          this.checkIfLiked(profile.userId, currentUserId)
         ]);
+
+        // Calculate age from date of birth
+        const age = profile.dateOfBirth ? 
+          Math.floor((Date.now() - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : 
+          null;
 
         return {
           ...profile,
+          age,
           interests,
           pictures,
-          distance: profile.distance || undefined
+          distance: profile.distance !== 999999 ? profile.distance : undefined,
+          commonInterests: profile.common_interests || 0,
+          isLiked,
+          hasLikedBack,
+          isBlocked: false // Already filtered out in query
         };
       }));
 
@@ -459,6 +601,13 @@ export class ProfileModel {
     } finally {
       client.release();
     }
+  }
+
+  // Helper method to check if user has liked another user
+  static async checkIfLiked(fromUserId: string, toUserId: string): Promise<boolean> {
+    const query = 'SELECT id FROM likes WHERE from_user = $1 AND to_user = $2';
+    const result = await pool.query(query, [fromUserId, toUserId]);
+    return result.rows.length > 0;
   }
 
   // Social features

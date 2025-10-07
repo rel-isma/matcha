@@ -8,6 +8,7 @@ export interface User {
   lastName: string;
   email: string;
   isVerified: boolean;
+  isProfileCompleted: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -42,6 +43,29 @@ export interface ProfilePicture {
   isProfilePic: boolean;
   position: number;
   createdAt: string;
+}
+
+// Simplified ProfileCardData for browse page
+export interface ProfileCardData {
+  id: string;
+  userId: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  age?: number;
+  fameRating: number;
+  neighborhood?: string;
+  distance?: number;
+  commonInterests?: number;
+  interests: Array<{ id: number; name: string }>;
+  pictures: Array<{ 
+    id: string; 
+    url: string; 
+    isProfilePic: boolean; 
+    position: number 
+  }>;
+  isLiked?: boolean;
+  hasLikedBack?: boolean;
 }
 
 export interface ProfileView {

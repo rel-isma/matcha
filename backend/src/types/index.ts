@@ -164,22 +164,24 @@ export interface PublicProfile {
 export interface BrowseFilters {
   minAge?: number;
   maxAge?: number;
-  gender?: string;
-  sexualPreference?: string;
-  fameRating?: number;
+  maxDistance?: number; // in kilometers
+  fameMin?: number;
+  fameMax?: number;
   location?: {
     latitude: number;
     longitude: number;
     radiusKm: number;
   };
   interests?: string[];
-  sortBy?: 'age' | 'fame' | 'distance' | 'common_interests';
+  sortBy?: 'age' | 'location' | 'fame_rating' | 'common_tags';
   sortOrder?: 'asc' | 'desc';
+  page?: number;
   limit?: number;
   offset?: number;
 }
 
 export interface UserProfile extends PublicProfile {
+  age?: number;
   distance?: number; // in kilometers
   commonInterests?: number;
   isLiked?: boolean;

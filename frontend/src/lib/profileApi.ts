@@ -214,6 +214,76 @@ class ProfileApiClient {
       };
     }
   }
+
+  // Browse profiles with filters
+  async browseProfiles(filters: {
+    minAge?: number;
+    maxAge?: number;
+    maxDistance?: number;
+    fameMin?: number;
+    fameMax?: number;
+    interests?: string[];
+    sortBy?: 'age' | 'location' | 'fame_rating' | 'common_tags';
+    sortOrder?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+  }): Promise<ApiResponse<{
+    profiles: Array<{
+      id: string;
+      userId: string;
+      username: string;
+      firstName: string;
+      lastName: string;
+      age?: number;
+      gender?: string;
+      bio?: string;
+      fameRating: number;
+      neighborhood?: string;
+      distance?: number;
+      commonInterests?: number;
+      interests: Array<{ id: number; name: string }>;
+      pictures: Array<{ 
+        id: string; 
+        url: string; 
+        isProfilePic: boolean; 
+        position: number 
+      }>;
+      isLiked?: boolean;
+      hasLikedBack?: boolean;
+    }>;
+    pagination: {
+      page: number;
+      limit: number;
+      hasMore: boolean;
+    };
+  }>> {
+    try {
+      const params = new URLSearchParams();
+      
+      // Add filters to params
+      if (filters.minAge) params.append('minAge', filters.minAge.toString());
+      if (filters.maxAge) params.append('maxAge', filters.maxAge.toString());
+      if (filters.maxDistance) params.append('maxDistance', filters.maxDistance.toString());
+      if (filters.fameMin) params.append('fameMin', filters.fameMin.toString());
+      if (filters.fameMax) params.append('fameMax', filters.fameMax.toString());
+      if (filters.interests?.length) {
+        filters.interests.forEach(interest => params.append('interests', interest));
+      }
+      if (filters.sortBy) params.append('sortBy', filters.sortBy);
+      if (filters.sortOrder) params.append('sortOrder', filters.sortOrder);
+      if (filters.page) params.append('page', filters.page.toString());
+      if (filters.limit) params.append('limit', filters.limit.toString());
+
+      const response = await api.get(`${API_ENDPOINTS.PROFILE.BROWSE}?${params.toString()}`);
+      return response;
+    } catch (error: unknown) {
+      const profileError = error as ProfileApiError;
+      return {
+        success: false,
+        message: profileError.message || 'Failed to browse profiles'
+      };
+    }
+  }
 }
 
 // Create and export a singleton instance

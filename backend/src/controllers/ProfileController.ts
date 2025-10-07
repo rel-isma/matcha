@@ -683,28 +683,55 @@ export class ProfileController {
         });
       }
 
+      // Parse query parameters into filters
       const filters: BrowseFilters = {
-        ...req.query,
-        location: req.query.latitude && req.query.longitude ? {
-          latitude: parseFloat(req.query.latitude as string),
-          longitude: parseFloat(req.query.longitude as string),
-          radiusKm: req.query.radiusKm ? parseInt(req.query.radiusKm as string) : 50
-        } : undefined
+        minAge: req.query.minAge ? parseInt(req.query.minAge as string) : undefined,
+        maxAge: req.query.maxAge ? parseInt(req.query.maxAge as string) : undefined,
+        maxDistance: req.query.maxDistance ? parseFloat(req.query.maxDistance as string) : undefined,
+        fameMin: req.query.fameMin ? parseInt(req.query.fameMin as string) : undefined,
+        fameMax: req.query.fameMax ? parseInt(req.query.fameMax as string) : undefined,
+        interests: req.query.interests ? (Array.isArray(req.query.interests) ? req.query.interests : [req.query.interests]) as string[] : undefined,
+        sortBy: req.query.sortBy as any,
+        sortOrder: req.query.sortOrder as 'asc' | 'desc',
+        page: req.query.page ? parseInt(req.query.page as string) : 1,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
       };
+
+      // Calculate offset from page
+      filters.offset = ((filters.page || 1) - 1) * (filters.limit || 20);
+
+      // Add location filter if maxDistance is specified and we can get user's location
+      if (filters.maxDistance) {
+        const currentUserProfile = await ProfileModel.getProfileByUserId(userId);
+        if (currentUserProfile?.latitude && currentUserProfile?.longitude) {
+          filters.location = {
+            latitude: currentUserProfile.latitude,
+            longitude: currentUserProfile.longitude,
+            radiusKm: filters.maxDistance
+          };
+        }
+      }
 
       const profiles = await ProfileModel.browseProfiles(userId, filters);
 
       return res.json({
         success: true,
         message: 'Profiles retrieved successfully',
-        data: profiles
+        data: {
+          profiles,
+          pagination: {
+            page: filters.page || 1,
+            limit: filters.limit || 20,
+            hasMore: profiles.length === (filters.limit || 20)
+          }
+        }
       });
     } catch (error) {
       console.error('Browse profiles error:', error);
       return res.status(500).json({
         success: false,
         message: 'Internal server error',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
       });
     }
   }

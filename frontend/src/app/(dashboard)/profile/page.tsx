@@ -154,8 +154,6 @@ export default function ProfilePage() {
                         </div>
                       </>
                     )}
-                    <span>•</span>
-                    <span>{profile.fameRating} Fame</span>
                   </div>
 
                   {/* Bio */}
@@ -213,8 +211,8 @@ export default function ProfilePage() {
                     <div className="text-xs text-gray-600 font-medium">Complete</div>
                   </div>
                   <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4">
-                    <div className="text-2xl font-bold text-orange-600">{profile.pictures.length}</div>
-                    <div className="text-xs text-gray-600 font-medium">Photos</div>
+                    <div className="text-2xl font-bold text-orange-600">{profile.fameRating}</div>
+                    <div className="text-xs text-gray-600 font-medium">Fame</div>
                   </div>
                 </motion.div>
               </div>
