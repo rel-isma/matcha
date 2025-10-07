@@ -50,7 +50,11 @@ export const useGeolocation = (): GeolocationState => {
       });
     };
 
-    navigator.geolocation.getCurrentPosition(onSuccess, onError);
+    navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000
+    });
   }, []);
 
   return state;

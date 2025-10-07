@@ -173,7 +173,7 @@ export interface BrowseFilters {
     radiusKm: number;
   };
   interests?: string[];
-  sortBy?: 'age' | 'location' | 'fame_rating' | 'common_tags';
+  sortBy?: 'age' | 'location' | 'distance' | 'fame_rating' | 'common_tags' | 'common_interests';
   sortOrder?: 'asc' | 'desc';
   page?: number;
   limit?: number;

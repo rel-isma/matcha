@@ -20,7 +20,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   onViewProfile
 }) => {
   const profilePicture = profile.pictures.find(p => p.isProfilePic) || profile.pictures[0];
-  
+  console.log('profile:', profile); 
   return (
     <div className="relative w-full h-full max-w-sm mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden aspect-[3/4] group">
       {/* Photo Container - Full card */}
@@ -37,7 +37,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             sizes="400px"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-primary-200 to-primary-200 flex items-center justify-center">
             <svg className="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
@@ -49,14 +49,14 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         
         {/* Match indicator - top right */}
         {profile.hasLikedBack && (
-          <div className="absolute top-6 right-6 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-xl border-2 border-white/30">
+          <div className="absolute top-6 right-6 bg-gradient-to-r from-primary-400 to-primary-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-xl border-2 border-white/30">
             ✨ MATCH
           </div>
         )}
 
         {/* Distance indicator - top left */}
         <div className="absolute top-6 left-6 bg-black/30 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full border border-white/20">
-          📍 1.6 km
+          📍 {profile.distance ? `${profile.distance.toFixed(1)} km` : 'Location unknown'}
         </div>
 
         {/* Profile Info - Bottom left */}
@@ -116,11 +116,11 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
                 onLike(profile.userId);
               }
             }}
-            className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-pink-500/80 transition-all duration-300 shadow-lg"
+            className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-primary-500/80 transition-all duration-300 shadow-lg"
           >
             <Heart
-              className={`w-5 h-5 text-white transition-all duration-300 ${
-                profile.isLiked ? 'fill-current' : 'fill-none'
+              className={`w-5 h-5 transition-all duration-300 ${
+                profile.isLiked ? 'text-orange-500 fill-current' : 'text-white fill-none'
               }`}
             />
           </button>

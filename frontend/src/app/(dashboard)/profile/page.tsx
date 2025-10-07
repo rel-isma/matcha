@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -11,6 +11,8 @@ import { useProfilePicture } from '@/hooks/useProfilePicture';
 import { Button } from '@/components/ui/Button';
 import { Loading } from '@/components/ui/Spinner';
 import { ROUTES, GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, STATIC_BASE_URL } from '../../../lib/constants';
+import { profileApi } from '@/lib/profileApi';
+import { LikeWithUser } from '@/types';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -18,6 +20,28 @@ export default function ProfilePage() {
   const { profile, loading, error } = useProfile();
   const { profilePicture } = useProfilePicture();
   const [activeTab, setActiveTab] = useState('Information');
+  const [likesReceived, setLikesReceived] = useState<LikeWithUser[]>([]);
+  const [likesLoading, setLikesLoading] = useState(false);
+
+  // Fetch likes received when component mounts
+  useEffect(() => {
+    const fetchLikesReceived = async () => {
+      setLikesLoading(true);
+      try {
+        const response = await profileApi.getLikesReceived();
+        if (response.success && response.data) {
+          setLikesReceived(response.data);
+        }
+        console.log('Likes received:', response);
+      } catch (error) {
+        console.error('Failed to fetch likes received:', error);
+      } finally {
+        setLikesLoading(false);
+      }
+    };
+
+    fetchLikesReceived();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -488,21 +512,81 @@ export default function ProfilePage() {
               >
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-bold text-orange-600">Likes Received</h2>
-                  <div className="text-3xl font-bold text-orange-500">0</div>
+                  <div className="text-3xl font-bold text-orange-500">{likesReceived.length}</div>
                 </div>
                 
-                <div className="text-center py-16">
-                  <Heart size={64} className="mx-auto text-orange-400 mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No likes yet</h3>
-                  <p className="text-gray-500 mb-6">Likes will appear here when people like your profile</p>
-                  <Button
-                    onClick={() => router.push('/settings')}
-                    className="bg-orange-500 hover:bg-orange-600"
-                  >
-                    <Edit size={16} className="mr-2" />
-                    Improve Profile
-                  </Button>
-                </div>
+                {likesLoading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <Loading />
+                  </div>
+                ) : likesReceived.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {likesReceived.map((like) => (
+                      <motion.div
+                        key={like.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className=" rounded-xl border border-orange-200 p-2 hover:shadow-lg transition-all duration-200 hover:border-orange-300 cursor-pointer"
+                        onClick={() => router.push(`/profile/${like.username}`)}
+                      >
+                        <div className="flex items-center gap-4">
+                          {/* Profile Picture */}
+                          <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-orange-100 to-amber-50 flex-shrink-0">
+                            {like.profilePicture ? (
+                              <Image
+                                src={`${STATIC_BASE_URL}${like.profilePicture}`}
+                                alt={`${like.firstName} ${like.lastName}`}
+                                width={64}
+                                height={64}
+                                className="w-full h-full object-cover"
+                                unoptimized
+                              />
+                            ) : (
+                              <div className="flex items-center justify-center h-full">
+                                <User size={24} className="text-orange-400" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* User Info */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-gray-900 truncate">
+                              {like.firstName} {like.lastName}
+                            </h3>
+                            <p className="text-sm text-gray-600 truncate">@{like.username}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(like.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+
+                          {/* Like Icon */}
+                          <div className="flex-shrink-0">
+                            <Heart size={20} className="text-red-500 fill-current" />
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16">
+                    <Heart size={64} className="mx-auto text-orange-400 mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-600 mb-2">No likes yet</h3>
+                    <p className="text-gray-500 mb-6">Likes will appear here when people like your profile</p>
+                    <Button
+                      onClick={() => router.push('/settings')}
+                      className="bg-orange-500 hover:bg-orange-600"
+                    >
+                      <Edit size={16} className="mr-2" />
+                      Improve Profile
+                    </Button>
+                  </div>
+                )}
               </motion.div>
             )}
             

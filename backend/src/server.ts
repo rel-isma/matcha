@@ -87,6 +87,7 @@ app.get('/', (req, res) => {
         removeInterest: 'DELETE /api/profile/me/interests/:interestId',
         getPublicProfile: 'GET /api/profile/user/:username',
         browseProfiles: 'GET /api/profile/browse',
+        getLikesReceived: 'GET /api/profile/likes/received',
         likeUser: 'POST /api/profile/like/:userId',
         unlikeUser: 'DELETE /api/profile/like/:userId',
         blockUser: 'POST /api/profile/block/:userId',

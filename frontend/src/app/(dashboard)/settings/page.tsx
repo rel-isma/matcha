@@ -372,15 +372,12 @@ export default function SettingsPage() {
       const state = address.state || address.region;
       const country = address.country;
       
+      // Use just the city name for cleaner display
       let neighborhood = '';
-      if (city && state) {
-        neighborhood = `${city}, ${state}`;
-      } else if (city && country) {
-        neighborhood = `${city}, ${country}`;
-      } else if (state && country) {
-        neighborhood = `${state}, ${country}`;
-      } else if (city) {
+      if (city) {
         neighborhood = city;
+      } else if (state) {
+        neighborhood = state;
       } else if (country) {
         neighborhood = country;
       } else {

@@ -8,7 +8,8 @@ import type {
   PublicProfile,
   UpdateProfileInput,
   ProfilePicture,
-  Interest
+  Interest,
+  LikeWithUser
 } from '../types';
 
 // Create axios instance with default config
@@ -169,6 +170,20 @@ class ProfileApiClient {
       return {
         success: false,
         message: profileError.message || 'Failed to unlike user'
+      };
+    }
+  }
+
+  // Get likes received
+  async getLikesReceived(): Promise<ApiResponse<LikeWithUser[]>> {
+    try {
+      const response = await api.get(API_ENDPOINTS.PROFILE.LIKES_RECEIVED);
+      return response as ApiResponse<LikeWithUser[]>;
+    } catch (error: unknown) {
+      const profileError = error as ProfileApiError;
+      return {
+        success: false,
+        message: profileError.message || 'Failed to get likes received'
       };
     }
   }

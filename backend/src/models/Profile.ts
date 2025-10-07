@@ -16,10 +16,33 @@ import {
   Block,
   Report
 } from '../types';
+import { forwardGeocode } from '../utils/geocoding';
 
 export class ProfileModel {
   // Profile CRUD operations
   static async createProfile(userId: string, profileData: CreateProfileInput): Promise<Profile> {
+    // Handle geocoding for manual locations
+    let finalLatitude = profileData.latitude;
+    let finalLongitude = profileData.longitude;
+
+    // If it's a manual location entry and no coordinates provided, try to geocode
+    if (profileData.locationSource === 'manual' && 
+        profileData.neighborhood && 
+        !profileData.latitude && 
+        !profileData.longitude) {
+      try {
+        const coords = await forwardGeocode(profileData.neighborhood);
+        if (coords) {
+          finalLatitude = coords.latitude;
+          finalLongitude = coords.longitude;
+          console.log(`Geocoded "${profileData.neighborhood}" to coordinates: ${coords.latitude}, ${coords.longitude}`);
+        }
+      } catch (error) {
+        console.error('Error geocoding manual location during profile creation:', error);
+        // Continue without coordinates if geocoding fails
+      }
+    }
+
     const query = `
       INSERT INTO profiles (user_id, gender, sexual_preference, bio, date_of_birth, latitude, longitude, 
                            location_source, neighborhood, completeness)
@@ -30,15 +53,22 @@ export class ProfileModel {
                 created_at as "createdAt", updated_at as "updatedAt"
     `;
     
-    const completeness = this.calculateCompleteness(profileData);
+    // Calculate completeness manually with the final coordinates
+    let completeness = 0;
+    if (profileData.gender) completeness += 10;
+    if (profileData.sexualPreference) completeness += 10;
+    if (profileData.bio && profileData.bio.length > 20) completeness += 20;
+    if (profileData.dateOfBirth) completeness += 10;
+    if ((finalLatitude && finalLongitude) || profileData.neighborhood) completeness += 20;
+    
     const values = [
       userId,
       profileData.gender,
       profileData.sexualPreference,
       profileData.bio,
       profileData.dateOfBirth,
-      profileData.latitude,
-      profileData.longitude,
+      finalLatitude,
+      finalLongitude,
       profileData.locationSource || 'manual',
       profileData.neighborhood,
       completeness
@@ -121,6 +151,8 @@ export class ProfileModel {
       values.push(profileData.dateOfBirth);
       paramCount++;
     }
+
+    // Handle location updates with automatic geocoding for manual entries
     if (profileData.latitude !== undefined) {
       setClause.push(`latitude = $${paramCount}`);
       values.push(profileData.latitude);
@@ -140,6 +172,24 @@ export class ProfileModel {
       setClause.push(`neighborhood = $${paramCount}`);
       values.push(profileData.neighborhood);
       paramCount++;
+
+      // If it's a manual location entry and no coordinates provided, try to geocode
+      if (profileData.locationSource === 'manual' && 
+          profileData.latitude === undefined && 
+          profileData.longitude === undefined) {
+        try {
+          const coords = await forwardGeocode(profileData.neighborhood);
+          if (coords) {
+            setClause.push(`latitude = $${paramCount}`, `longitude = $${paramCount + 1}`);
+            values.push(coords.latitude, coords.longitude);
+            paramCount += 2;
+            console.log(`Geocoded "${profileData.neighborhood}" to coordinates: ${coords.latitude}, ${coords.longitude}`);
+          }
+        } catch (error) {
+          console.error('Error geocoding manual location during profile update:', error);
+          // Continue without coordinates if geocoding fails
+        }
+      }
     }
 
     // Recalculate completeness
@@ -477,11 +527,12 @@ export class ProfileModel {
         paramCount++;
       }
 
-      // Distance calculation and filter
+      // Distance calculation - always include distance field
       let distanceSelect = '';
       let distanceOrderPriority = '';
       
       if (currentUserProfile.latitude && currentUserProfile.longitude) {
+        // Current user has GPS coordinates - can calculate distance to GPS users
         distanceSelect = `, 
           CASE 
             WHEN p.latitude IS NOT NULL AND p.longitude IS NOT NULL THEN
@@ -490,13 +541,13 @@ export class ProfileModel {
                 cos(radians(p.longitude) - radians($${paramCount + 1})) + 
                 sin(radians($${paramCount})) * sin(radians(p.latitude))
               )
-            ELSE 999999
+            ELSE NULL
           END as distance`;
         
         values.push(currentUserProfile.latitude, currentUserProfile.longitude);
         paramCount += 2;
 
-        // Apply distance filter if specified
+        // Apply distance filter if specified (only for GPS users)
         if (filters.location?.radiusKm) {
           baseQuery += ` AND p.latitude IS NOT NULL AND p.longitude IS NOT NULL`;
           baseQuery += ` AND 6371 * acos(
@@ -508,7 +559,7 @@ export class ProfileModel {
           paramCount += 3;
         }
 
-        // Priority for same geographical area (within 25km)
+        // Geographic priority: GPS users within 25km get priority 1, same city gets priority 2, others get priority 3
         distanceOrderPriority = `, 
           CASE 
             WHEN p.latitude IS NOT NULL AND p.longitude IS NOT NULL 
@@ -517,8 +568,19 @@ export class ProfileModel {
                 cos(radians(p.longitude) - radians(${currentUserProfile.longitude})) + 
                 sin(radians(${currentUserProfile.latitude})) * sin(radians(p.latitude))
               ) <= 25 
-            THEN 1 
-            ELSE 2 
+            THEN 1
+            WHEN p.neighborhood IS NOT NULL AND p.neighborhood ILIKE '%${currentUserProfile.neighborhood?.split(',')[0] || ''}%'
+            THEN 2
+            ELSE 3
+          END as geo_priority`;
+      } else {
+        // Current user doesn't have GPS - use city-based matching only
+        distanceSelect = `, NULL as distance`;
+        distanceOrderPriority = `, 
+          CASE 
+            WHEN p.neighborhood IS NOT NULL AND p.neighborhood ILIKE '%${currentUserProfile.neighborhood?.split(',')[0] || ''}%'
+            THEN 1
+            ELSE 2
           END as geo_priority`;
       }
 
@@ -589,7 +651,7 @@ export class ProfileModel {
           age,
           interests,
           pictures,
-          distance: profile.distance !== 999999 ? profile.distance : undefined,
+          distance: profile.distance,
           commonInterests: profile.common_interests || 0,
           isLiked,
           hasLikedBack,
@@ -618,6 +680,29 @@ export class ProfileModel {
       ON CONFLICT DO NOTHING
     `;
     await pool.query(query, [viewerId, viewedUserId]);
+  }
+
+  static async getLikesReceived(userId: string): Promise<Like[]> {
+    const query = `
+      SELECT 
+        l.id,
+        l.from_user as "fromUser",
+        l.to_user as "toUser",
+        l.created_at as "createdAt",
+        u.username,
+        u.first_name as "firstName", 
+        u.last_name as "lastName",
+        pp.url as "profilePicture"
+      FROM likes l
+      JOIN users u ON l.from_user = u.id
+      LEFT JOIN profiles p ON u.id = p.user_id
+      LEFT JOIN profile_pictures pp ON p.id = pp.profile_id AND pp.is_profile_pic = true
+      WHERE l.to_user = $1
+      ORDER BY l.created_at DESC
+    `;
+    
+    const result = await pool.query(query, [userId]);
+    return result.rows;
   }
 
   static async likeUser(fromUserId: string, toUserId: string): Promise<{ like: Like; connection?: Connection }> {

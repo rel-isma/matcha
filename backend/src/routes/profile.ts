@@ -74,6 +74,7 @@ router.get('/browse',
 router.patch('/fix-neighborhoods', ProfileController.fixNeighborhoods);
 
 // Social actions
+router.get('/likes/received', ProfileController.getLikesReceived);
 router.post('/like/:targetUserId', 
   userIdParamValidation, 
   handleValidationErrors, 

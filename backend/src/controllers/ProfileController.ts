@@ -776,6 +776,84 @@ export class ProfileController {
    *       401:
    *         description: Unauthorized
    */
+  
+  /**
+   * @swagger
+   * /profile/likes/received:
+   *   get:
+   *     summary: Get likes received by the current user
+   *     tags: [Profile]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Likes received successfully retrieved
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 message:
+   *                   type: string
+   *                 data:
+   *                   type: array
+   *                   items:
+   *                     type: object
+   *                     properties:
+   *                       id:
+   *                         type: string
+   *                       fromUser:
+   *                         type: string
+   *                       createdAt:
+   *                         type: string
+   *                         format: date-time
+   *                       user:
+   *                         type: object
+   *                         properties:
+   *                           id:
+   *                             type: string
+   *                           username:
+   *                             type: string
+   *                           firstName:
+   *                             type: string
+   *                           lastName:
+   *                             type: string
+   *                           profilePicture:
+   *                             type: string
+   *       401:
+   *         description: Unauthorized
+   */
+  // Get likes received by the current user
+  static async getLikesReceived(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Unauthorized'
+        });
+      }
+
+      const likes = await ProfileModel.getLikesReceived(userId);
+
+      return res.json({
+        success: true,
+        message: 'Likes received retrieved successfully',
+        data: likes
+      });
+    } catch (error) {
+      console.error('Get likes received error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+  }
+
   // Like a user
   static async likeUser(req: Request, res: Response) {
     try {
@@ -1005,7 +1083,7 @@ export class ProfileController {
    */
   static async fixNeighborhoods(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?.userId;
       
       if (!userId) {
         res.status(401).json({

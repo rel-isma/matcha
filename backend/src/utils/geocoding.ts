@@ -34,15 +34,11 @@ export const reverseGeocode = async (latitude: number, longitude: number): Promi
     const state = address.state || address.region;
     const country = address.country;
     
-    // Build location string prioritizing city
-    if (city && state) {
-      return `${city}, ${state}`;
-    } else if (city && country) {
-      return `${city}, ${country}`;
-    } else if (state && country) {
-      return `${state}, ${country}`;
-    } else if (city) {
+    // Build location string prioritizing just city name for cleaner display
+    if (city) {
       return city;
+    } else if (state) {
+      return state;
     } else if (country) {
       return country;
     } else {
@@ -65,6 +61,50 @@ export const isCoordinateFormat = (neighborhood: string): boolean => {
   // Check for patterns like "Neighborhood (33.5922, -7.6184)" or "Location (33.5922, -7.6184)"
   const coordinatePattern = /\((-?\d+\.\d+),\s*(-?\d+\.\d+)\)/;
   return coordinatePattern.test(neighborhood);
+};
+
+/**
+ * Convert a city name to GPS coordinates using forward geocoding
+ * @param cityName - Name of the city (e.g., "Fes", "Casablanca")
+ * @returns Promise<{latitude: number, longitude: number} | null>
+ */
+export const forwardGeocode = async (cityName: string): Promise<{ latitude: number; longitude: number } | null> => {
+  try {
+    // Clean and encode the city name
+    const cleanCityName = cityName.trim().split(',')[0] || cityName.trim(); // Take only first part if comma-separated
+    const encodedCity = encodeURIComponent(cleanCityName);
+    
+    // Using OpenStreetMap Nominatim API for forward geocoding
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodedCity}&limit=1&addressdetails=1`,
+      {
+        headers: {
+          'User-Agent': 'Matcha-Dating-App/1.0'
+        }
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Geocoding service returned ${response.status}`);
+    }
+    
+    const data = await response.json() as any[];
+    
+    if (data && data.length > 0) {
+      const result = data[0];
+      const latitude = parseFloat(result.lat);
+      const longitude = parseFloat(result.lon);
+      
+      if (!isNaN(latitude) && !isNaN(longitude)) {
+        return { latitude, longitude };
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error in forward geocoding:', error);
+    return null;
+  }
 };
 
 /**

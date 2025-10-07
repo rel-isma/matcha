@@ -56,13 +56,14 @@ export function LocationPicker({
           },
           (error) => {
             console.error('GPS location error:', error)
+            setIsGettingLocation(false)
             // Fallback to IP-based location
             handleGetIPLocation()
           },
           {
             enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 300000 // 5 minutes
+            timeout: 15000,
+            maximumAge: 60000
           }
         )
       } else {
@@ -88,7 +89,7 @@ export function LocationPicker({
         latitude: data.latitude,
         longitude: data.longitude,
         locationSource: 'ip',
-        neighborhood: `${data.city}, ${data.region}`
+        neighborhood: data.city || data.region || data.country || 'Unknown Location'
       })
       setIsGettingLocation(false)
     } catch (error) {
@@ -128,19 +129,14 @@ export function LocationPicker({
       const state = address.state || address.region;
       const country = address.country;
       
-      // Build location string prioritizing city
-      if (city && state) {
-        return `${city}, ${state}`;
-      } else if (city && country) {
-        return `${city}, ${country}`;
-      } else if (state && country) {
-        return `${state}, ${country}`;
-      } else if (city) {
+      // Return just the city name for cleaner display
+      if (city) {
         return city;
+      } else if (state) {
+        return state;
       } else if (country) {
         return country;
       } else {
-        // Fallback if no readable address found
         return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
       }
     } catch (error) {

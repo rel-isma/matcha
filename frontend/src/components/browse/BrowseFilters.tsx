@@ -83,187 +83,219 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border border-cream-200">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
-        <h2 className="text-lg md:text-xl font-bold text-secondary-800 bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
-          Discover & Filter
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="px-3 py-2 text-xs md:text-sm font-medium text-secondary-700 bg-cream-100 hover:bg-cream-200 rounded-xl transition-colors"
-          >
-            {isExpanded ? 'Hide Filters' : 'Show Filters'}
-          </button>
-          <button
-            onClick={resetFilters}
-            className="px-3 py-2 text-xs md:text-sm font-medium text-secondary-600 border border-secondary-300 hover:bg-secondary-50 rounded-xl transition-colors"
-          >
-            Reset
-          </button>
+    <div className="bg-white rounded-2xl shadow-lg border border-orange-100 relative z-10">
+      {/* Header with Sort Controls - Always Visible */}
+      <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-4 border-b border-orange-100">
+        {/* Title and Filter Button */}
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+            Browse Profiles
+          </h2>
+          
+          <div className="flex items-center gap-2">
+            {/* Active filters indicator */}
+            {(localFilters.minAge || localFilters.maxAge || localFilters.maxDistance || localFilters.interests?.length) && (
+              <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+            )}
+            
+            {/* Filter Button */}
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-xl transition-all duration-200 shadow-md font-medium text-sm"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              {isExpanded ? 'Hide Filters' : 'Filters'}
+            </button>
+          </div>
+        </div>
+
+        {/* Sort Controls - Always Visible */}
+        <div className="space-y-2 relative">
+          <h3 className="text-sm font-semibold text-orange-800">Sort & Order</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="relative z-50">
+              <Select
+                label=""
+                value={filters.sortBy || ''}
+                onChange={(value) => updateLocalFilter('sortBy', value)}
+                options={sortOptions}
+                placeholder="Sort by..."
+                className="text-sm bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400"
+              />
+            </div>
+            <div className="relative z-40">
+              <Select
+                label=""
+                value={filters.sortOrder || ''}
+                onChange={(value) => updateLocalFilter('sortOrder', value)}
+                options={sortOrderOptions}
+                placeholder="Order..."
+                className="text-sm bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
-        <Select
-          label="Sort by"
-          value={filters.sortBy || ''}
-          onChange={(value) => updateLocalFilter('sortBy', value)}
-          options={sortOptions}
-          placeholder="Choose sorting"
-          className="text-sm"
-        />
-        <Select
-          label="Sort order"
-          value={filters.sortOrder || ''}
-          onChange={(value) => updateLocalFilter('sortOrder', value)}
-          options={sortOrderOptions}
-          placeholder="Choose order"
-          className="text-sm"
-        />
-      </div>
-
+      {/* Expandable Filter Menu */}
       {isExpanded && (
-        <div className="border-t border-cream-300 pt-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-4 bg-gradient-to-b from-orange-25 to-white">
+          <div className="space-y-4">
+
+            {/* Age Filter */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-secondary-700">Age Range</label>
-              <div className="grid grid-cols-2 gap-2">
+              <label className="block text-sm font-semibold text-orange-800">Age Range</label>
+              <div className="grid grid-cols-2 gap-3">
                 <Input
                   type="number"
-                  placeholder="Min"
+                  placeholder="Min age"
                   value={localFilters.minAge || ''}
                   onChange={(e) => updateLocalFilter('minAge', e.target.value ? parseInt(e.target.value) : undefined)}
                   min={18}
                   max={100}
-                  className="text-sm rounded-xl"
+                  className="text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
                 />
                 <Input
                   type="number"
-                  placeholder="Max"
+                  placeholder="Max age"
                   value={localFilters.maxAge || ''}
                   onChange={(e) => updateLocalFilter('maxAge', e.target.value ? parseInt(e.target.value) : undefined)}
                   min={18}
                   max={100}
-                  className="text-sm rounded-xl"
+                  className="text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
                 />
               </div>
             </div>
 
+            {/* Location Filter */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-secondary-700">Max Distance</label>
+              <label className="block text-sm font-semibold text-orange-800">Max Distance (km)</label>
               <Input
                 type="number"
-                placeholder="km"
+                placeholder="Distance in kilometers"
                 value={localFilters.maxDistance || ''}
                 onChange={(e) => updateLocalFilter('maxDistance', e.target.value ? parseInt(e.target.value) : undefined)}
                 min={1}
                 max={1000}
-                className="text-sm rounded-xl"
+                className="text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
               />
             </div>
 
+            {/* Fame Rating Filter */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-secondary-700">Fame Rating</label>
-              <div className="grid grid-cols-2 gap-2">
+              <label className="block text-sm font-semibold text-orange-800">Fame Rating</label>
+              <div className="grid grid-cols-2 gap-3">
                 <Input
                   type="number"
-                  placeholder="Min"
+                  placeholder="Min rating"
                   value={localFilters.fameMin || ''}
                   onChange={(e) => updateLocalFilter('fameMin', e.target.value ? parseFloat(e.target.value) : undefined)}
                   min={0}
                   max={5}
                   step={0.1}
-                  className="text-sm rounded-xl"
+                  className="text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
                 />
                 <Input
                   type="number"
-                  placeholder="Max"
+                  placeholder="Max rating"
                   value={localFilters.fameMax || ''}
                   onChange={(e) => updateLocalFilter('fameMax', e.target.value ? parseFloat(e.target.value) : undefined)}
                   min={0}
                   max={5}
                   step={0.1}
-                  className="text-sm rounded-xl"
+                  className="text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
                 />
               </div>
             </div>
-          </div>
 
-          <div className="space-y-3">
-            <label className="block text-sm font-semibold text-secondary-700">Interests</label>
-            
-            <div className="flex gap-2">
-              <Input
-                type="text"
-                placeholder="Add interest..."
-                value={newInterest}
-                onChange={(e) => setNewInterest(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addInterest(newInterest);
-                  }
-                }}
-                className="flex-1 text-sm rounded-xl"
-              />
-              <Button
-                onClick={() => addInterest(newInterest)}
-                disabled={!newInterest}
-                className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white text-sm rounded-xl disabled:opacity-50"
-              >
-                Add
-              </Button>
+            {/* Common Tags Filter */}
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-orange-800">Common Tags (Interests)</label>
+              
+              {/* Add interest */}
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  placeholder="Add interest..."
+                  value={newInterest}
+                  onChange={(e) => setNewInterest(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addInterest(newInterest);
+                    }
+                  }}
+                  className="flex-1 text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                />
+                <Button
+                  onClick={() => addInterest(newInterest)}
+                  disabled={!newInterest}
+                  className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-medium text-sm rounded-xl disabled:opacity-50 shadow-md"
+                >
+                  Add
+                </Button>
+              </div>
+
+              {/* Popular interests */}
+              {availableInterests.length > 0 && (
+                <div>
+                  <p className="text-xs text-orange-600 font-medium mb-2">Popular interests:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {availableInterests.slice(0, 6).map((interest) => (
+                      <button
+                        key={interest}
+                        onClick={() => addInterest(interest)}
+                        disabled={localFilters.interests?.includes(interest)}
+                        className="px-3 py-1.5 text-xs bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border border-orange-200"
+                      >
+                        {interest}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Selected interests */}
+              {localFilters.interests && localFilters.interests.length > 0 && (
+                <div>
+                  <p className="text-xs text-orange-600 font-medium mb-2">Selected interests:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {localFilters.interests.map((interest) => (
+                      <div
+                        key={interest}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 rounded-full text-xs border border-orange-200"
+                      >
+                        <span>{interest}</span>
+                        <button
+                          onClick={() => removeInterest(interest)}
+                          className="text-orange-600 hover:text-orange-800 font-bold ml-1"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {availableInterests.length > 0 && (
-              <div>
-                <p className="text-xs text-secondary-600 mb-2">Popular interests:</p>
-                <div className="flex flex-wrap gap-2">
-                  {availableInterests.slice(0, 8).map((interest) => (
-                    <button
-                      key={interest}
-                      onClick={() => addInterest(interest)}
-                      disabled={localFilters.interests?.includes(interest)}
-                      className="px-3 py-1 text-xs bg-cream-100 hover:bg-cream-200 text-secondary-700 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {interest}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {localFilters.interests && localFilters.interests.length > 0 && (
-              <div>
-                <p className="text-xs text-secondary-600 mb-2">Selected interests:</p>
-                <div className="flex flex-wrap gap-2">
-                  {localFilters.interests.map((interest) => (
-                    <div
-                      key={interest}
-                      className="flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs"
-                    >
-                      <span>{interest}</span>
-                      <button
-                        onClick={() => removeInterest(interest)}
-                        className="text-primary-600 hover:text-primary-800 font-bold"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="flex justify-center pt-4 border-t border-cream-200">
-            <Button
-              onClick={applyFilters}
-              className="px-8 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105"
-            >
-              Apply Filters
-            </Button>
+            {/* Action buttons */}
+            <div className="flex gap-3 pt-4 border-t border-orange-100">
+              <Button
+                onClick={resetFilters}
+                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all duration-200 border border-gray-200"
+              >
+                Reset
+              </Button>
+              <Button
+                onClick={applyFilters}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg"
+              >
+                Apply Filters
+              </Button>
+            </div>
           </div>
         </div>
       )}

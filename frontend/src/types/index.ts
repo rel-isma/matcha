@@ -82,6 +82,13 @@ export interface Like {
   createdAt: string;
 }
 
+export interface LikeWithUser extends Like {
+  username: string;
+  firstName: string;
+  lastName: string;
+  profilePicture?: string;
+}
+
 export interface ProfileWithDetails extends Profile {
   interests: Interest[];
   pictures: ProfilePicture[];
