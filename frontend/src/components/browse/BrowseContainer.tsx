@@ -6,14 +6,23 @@ import { ProfileCardData } from '@/types';
 import { BrowseFilters, BrowseFiltersData } from './BrowseFilters';
 import { ProfileCard } from './ProfileCard';
 import { Spinner } from '../ui/Spinner';
+import { MatchModal } from '../ui/MatchModal';
 import { useRouter } from 'next/navigation';
 import { profileApi } from '@/lib/profileApi';
+import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 
 export const BrowseContainer: React.FC = () => {
   const router = useRouter();
+  const { user } = useAuth();
+  const { profile: currentUserProfile } = useProfile();
   const [profiles, setProfiles] = useState<ProfileCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [matchModalData, setMatchModalData] = useState<{
+    isOpen: boolean;
+    matchedProfile?: ProfileCardData;
+  }>({ isOpen: false });
   const [filters, setFilters] = useState<BrowseFiltersData>({
     sortBy: 'common_tags',
     sortOrder: 'desc'
@@ -133,6 +142,9 @@ export const BrowseContainer: React.FC = () => {
         throw new Error(result.message || 'Failed to like user');
       }
 
+      // Find the profile that was liked
+      const likedProfile = profiles.find(profile => profile.userId === userId);
+
       // Update the profile in the list
       setProfiles(prev => prev.map(profile => 
         profile.userId === userId 
@@ -141,8 +153,12 @@ export const BrowseContainer: React.FC = () => {
       ));
 
       // Check if it's a match from the message
-      if (result.message?.includes('match')) {
-        toast.success('It\'s a match! 🎉');
+      if (result.message?.includes('match') && likedProfile) {
+        // Show match modal instead of toast
+        setMatchModalData({
+          isOpen: true,
+          matchedProfile: likedProfile
+        });
       } else {
         toast.success('Profile liked!');
       }
@@ -180,6 +196,19 @@ export const BrowseContainer: React.FC = () => {
   // View profile
   const handleViewProfile = (username: string) => {
     router.push(`/profile/${username}`);
+  };
+
+  // Handle match modal actions
+  const handleMatchModalSayHello = () => {
+    if (matchModalData.matchedProfile) {
+      // Navigate to chat with the matched user
+      router.push(`/chat?user=${matchModalData.matchedProfile.username}`);
+    }
+    setMatchModalData({ isOpen: false });
+  };
+
+  const handleMatchModalKeepBrowsing = () => {
+    setMatchModalData({ isOpen: false });
   };
 
   if (loading) {
@@ -266,6 +295,20 @@ export const BrowseContainer: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Match Modal */}
+      {matchModalData.isOpen && matchModalData.matchedProfile && (
+        <MatchModal
+          isOpen={matchModalData.isOpen}
+          onClose={handleMatchModalKeepBrowsing}
+          currentUserPicture={currentUserProfile?.pictures?.[0]?.url}
+          currentUserName={user?.firstName}
+          matchedUserPicture={matchModalData.matchedProfile.pictures?.[0]?.url}
+          matchedUserName={matchModalData.matchedProfile.firstName}
+          onStartChat={handleMatchModalSayHello}
+          onKeepBrowsing={handleMatchModalKeepBrowsing}
+        />
+      )}
     </div>
   );
 };

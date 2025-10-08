@@ -2,6 +2,7 @@
 export { Button } from './Button';
 export { Input } from './Input';
 export { Modal } from './Modal';
+export { MatchModal } from './MatchModal';
 export { Card, CardHeader, CardTitle, CardContent, CardFooter } from './Card';
 export { Avatar } from './Avatar';
 export { Badge } from './Badge';

@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, MapPin, Heart, Camera, Save, Eye, EyeOff, Upload, X, Trash2, Navigation } from 'lucide-react';
+import { User, Mail, Lock, MapPin, Heart, Camera, Save, Eye, EyeOff, Upload, X, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { useGeolocation } from '@/hooks/useGeolocation';
+import { LocationPicker } from '@/components/ui/LocationPicker';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -35,16 +35,15 @@ interface PasswordFormData {
 }
 
 interface LocationFormData {
-  neighborhood: string;
   latitude: number | null;
   longitude: number | null;
   locationSource: 'manual' | 'gps';
+  neighborhood?: string;
 }
 
 export default function SettingsPage() {
   const { user, updateUser } = useAuth();
   const { profile, updateProfile, uploadPicture, deletePicture, addInterests, removeInterest } = useProfile();
-  const { coordinates, error: geoError, loading: geoLoading } = useGeolocation();
   
   const [activeTab, setActiveTab] = useState('personal');
   const [isLoading, setIsLoading] = useState(false);
@@ -76,10 +75,10 @@ export default function SettingsPage() {
   });
 
   const [locationFormData, setLocationFormData] = useState<LocationFormData>({
-    neighborhood: '',
     latitude: null,
     longitude: null,
-    locationSource: 'manual'
+    locationSource: 'manual',
+    neighborhood: ''
   });
 
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -105,10 +104,10 @@ export default function SettingsPage() {
       });
 
       setLocationFormData({
-        neighborhood: profile.neighborhood || '',
         latitude: profile.latitude || null,
         longitude: profile.longitude || null,
-        locationSource: profile.locationSource || 'manual'
+        locationSource: (profile.locationSource === 'gps' ? 'gps' : 'manual') as 'manual' | 'gps',
+        neighborhood: profile.neighborhood || ''
       });
     }
   }, [profile]);
@@ -342,58 +341,6 @@ export default function SettingsPage() {
       }
     } catch (error) {
       toast.error('An error occurred while updating location');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle GPS location update
-  const handleUseGPS = async () => {
-    if (!coordinates) {
-      toast.error('GPS location not available');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      
-      // Use the reverse geocoding from LocationPicker component logic
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coordinates.latitude}&lon=${coordinates.longitude}&zoom=10&addressdetails=1`
-      );
-      
-      if (!response.ok) {
-        throw new Error('Geocoding service unavailable');
-      }
-      
-      const data = await response.json();
-      const address = data.address || {};
-      const city = address.city || address.town || address.village || address.municipality;
-      const state = address.state || address.region;
-      const country = address.country;
-      
-      // Use just the city name for cleaner display
-      let neighborhood = '';
-      if (city) {
-        neighborhood = city;
-      } else if (state) {
-        neighborhood = state;
-      } else if (country) {
-        neighborhood = country;
-      } else {
-        neighborhood = `Location (${coordinates.latitude.toFixed(4)}, ${coordinates.longitude.toFixed(4)})`;
-      }
-
-      setLocationFormData({
-        neighborhood,
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude,
-        locationSource: 'gps'
-      });
-
-      toast.success('GPS location detected successfully!');
-    } catch (error) {
-      toast.error('Failed to get location from GPS');
     } finally {
       setIsLoading(false);
     }
@@ -787,7 +734,7 @@ export default function SettingsPage() {
                   Location Settings
                 </CardTitle>
                 <p className="text-sm text-gray-600">
-                  Set your location using GPS or manually enter your city. This helps us find matches near you.
+                  Update your location using GPS or by manually selecting your city. This helps us find matches near you.
                 </p>
               </CardHeader>
               <CardContent>
@@ -798,110 +745,25 @@ export default function SettingsPage() {
                     </div>
                   )}
                   
-                  {/* GPS Section */}
-                  <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Navigation size={20} className="text-orange-600" />
-                      <h3 className="font-medium text-gray-900">GPS Location</h3>
-                    </div>
-                    
-                    {geoLoading && (
-                      <div className="text-sm text-gray-600 mb-3">
-                        🔄 Getting your GPS location...
-                      </div>
-                    )}
-                    
-                    {geoError && (
-                      <div className="text-sm text-red-600 mb-3">
-                        ❌ GPS Error: {geoError}
-                      </div>
-                    )}
-                    
-                    {coordinates && (
-                      <div className="text-sm text-green-600 mb-3">
-                        ✅ GPS Location Available: {coordinates.latitude.toFixed(4)}, {coordinates.longitude.toFixed(4)}
-                      </div>
-                    )}
-                    
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <Button
-                        type="button"
-                        onClick={handleUseGPS}
-                        disabled={!coordinates || isLoading || geoLoading}
-                        className="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600"
-                      >
-                        <Navigation size={16} />
-                        {geoLoading ? 'Getting GPS...' : coordinates ? 'Use GPS Location' : 'GPS Not Available'}
-                      </Button>
-                      
-                      {coordinates && (
-                        <div className="text-xs text-gray-500 flex items-center">
-                          📍 Accuracy: ±50m
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Manual Location Section */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      City / Location
-                    </label>
-                    <Input
-                      type="text"
-                      value={locationFormData?.neighborhood || ''}
-                      onChange={(e) => setLocationFormData(prev => ({ 
-                        ...prev,
-                        neighborhood: e.target.value,
-                        latitude: prev?.latitude || null,
-                        longitude: prev?.longitude || null,
-                        locationSource: prev?.locationSource || 'manual'
-                      }))}
-                      placeholder="Enter your city or neighborhood (e.g., New York, NY)"
-                      required
-                    />
-                    <p className="text-sm text-gray-500 mt-1">
-                      Enter your city manually if you prefer not to use GPS
-                    </p>
-                  </div>
-                  
-                  {/* Current Location Info */}
-                  {locationFormData?.neighborhood && (
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Location</h4>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <div>📍 <strong>Location:</strong> {locationFormData.neighborhood}</div>
-                        <div>📡 <strong>Source:</strong> {locationFormData?.locationSource === 'gps' ? 'GPS' : 'Manual'}</div>
-                        {locationFormData?.latitude && locationFormData?.longitude && (
-                          <div>🌍 <strong>Coordinates:</strong> {locationFormData.latitude.toFixed(4)}, {locationFormData.longitude.toFixed(4)}</div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Location Source Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Location Source
-                    </label>
-                    <Select
-                      value={locationFormData?.locationSource || 'manual'}
-                      onChange={(value) => setLocationFormData(prev => ({ 
-                        ...prev, 
-                        neighborhood: prev?.neighborhood || '',
-                        latitude: prev?.latitude || null,
-                        longitude: prev?.longitude || null,
-                        locationSource: value as 'manual' | 'gps' 
-                      }))}
-                      options={[
-                        { value: 'manual', label: 'Manual Entry' },
-                        { value: 'gps', label: 'GPS Location' }
-                      ]}
-                    />
-                    <p className="text-sm text-gray-500 mt-1">
-                      Choose how you want to set your location
-                    </p>
-                  </div>
+                  {/* LocationPicker Component */}
+                  <LocationPicker
+                    label="Your Location"
+                    value={{
+                      latitude: locationFormData.latitude || undefined,
+                      longitude: locationFormData.longitude || undefined,
+                      locationSource: locationFormData.locationSource,
+                      neighborhood: locationFormData.neighborhood
+                    }}
+                    onChange={(location) => {
+                      setLocationFormData({
+                        latitude: location.latitude || null,
+                        longitude: location.longitude || null,
+                        locationSource: (location.locationSource === 'gps' ? 'gps' : 'manual') as 'manual' | 'gps',
+                        neighborhood: location.neighborhood || ''
+                      });
+                    }}
+                    error={errors.location}
+                  />
                   
                   <div className="flex flex-col sm:flex-row justify-end gap-3">
                     <Button

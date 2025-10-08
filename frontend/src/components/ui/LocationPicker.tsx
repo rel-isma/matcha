@@ -160,7 +160,7 @@ export function LocationPicker({
                 const data = await response.json()
                 if (data.geonames && data.geonames.length > 0) {
                   const place = data.geonames[0]
-                  cityName = `${place.name}${place.adminName1 ? `, ${place.adminName1}` : ''}`
+                  cityName = place.name // Just the city name, no region
                 }
               }
             } catch (geoError) {
@@ -291,7 +291,7 @@ export function LocationPicker({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {label && (
         <label className="block text-sm font-semibold text-gray-700">
           {label}
@@ -300,7 +300,7 @@ export function LocationPicker({
 
       {/* Current Location Display */}
       <div className={cn(
-        "w-full p-4 border-2 rounded-xl transition-all duration-200",
+        "w-full p-3 border-2 rounded-xl transition-all duration-200",
         error && "border-red-500",
         !error && value && "border-green-200 bg-green-50",
         !error && !value && "border-gray-200",
@@ -308,74 +308,64 @@ export function LocationPicker({
       )}>
         <div className="flex items-start space-x-3">
           {getLocationSourceIcon()}
-          <div className="flex-1">
-            <p className="font-medium text-gray-900">
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-gray-900 text-sm">
               {getLocationDisplayText()}
             </p>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               {getLocationSourceText()}
             </p>
             {value?.latitude && value?.longitude && (
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1 hidden sm:block">
                 Coordinates: {value.latitude.toFixed(6)}, {value.longitude.toFixed(6)}
               </p>
             )}
           </div>
           {value && (
-            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
           )}
         </div>
       </div>
 
-      {/* Location Options */}
-      <div className="space-y-3">
+      {/* Location Options - Mobile Optimized */}
+      <div className="space-y-2">
         {/* Primary GPS Option */}
-        <div className="text-center">
-          <button
-            onClick={handleGetGPSLocation}
-            disabled={isGettingLocation}
-            className="w-full flex items-center justify-center space-x-3 p-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Crosshair className={cn(
-              "h-5 w-5",
-              isGettingLocation && "animate-spin"
-            )} />
-            <span className="text-lg">
-              {isGettingLocation ? "Getting your location..." : "Use GPS (Recommended)"}
-            </span>
-          </button>
-          <p className="text-sm text-gray-600 mt-2">
-            Most accurate way to find matches near you
-          </p>
-        </div>
+        <button
+          onClick={handleGetGPSLocation}
+          disabled={isGettingLocation}
+          className="w-full flex items-center justify-center space-x-2 p-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-medium shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Crosshair className={cn(
+            "h-4 w-4",
+            isGettingLocation && "animate-spin"
+          )} />
+          <span className="text-sm">
+            {isGettingLocation ? "Getting location..." : "Use GPS (Recommended)"}
+          </span>
+        </button>
 
         {/* Divider */}
-        <div className="flex items-center">
+        <div className="flex items-center py-1">
           <div className="flex-1 border-t border-gray-200"></div>
-          <span className="px-3 text-sm text-gray-500 bg-white">or</span>
+          <span className="px-2 text-xs text-gray-500 bg-white">or</span>
           <div className="flex-1 border-t border-gray-200"></div>
         </div>
 
         {/* Manual Location Option */}
-        <div className="text-center">
-          <button
-            onClick={() => setShowCitySelector(!showCitySelector)}
-            className="w-full flex items-center justify-center space-x-3 p-4 border-2 border-orange-200 bg-white hover:bg-orange-50 hover:border-orange-300 rounded-xl font-medium transition-all duration-200"
-          >
-            <Search className="h-5 w-5 text-orange-600" />
-            <span className="text-lg text-orange-700">
-              Pick City Manually
-            </span>
-          </button>
-          <p className="text-sm text-gray-600 mt-2">
-            Search and select your city from the list
-          </p>
-        </div>
+        <button
+          onClick={() => setShowCitySelector(!showCitySelector)}
+          className="w-full flex items-center justify-center space-x-2 p-3 border-2 border-orange-200 bg-white hover:bg-orange-50 hover:border-orange-300 rounded-lg font-medium transition-all duration-200"
+        >
+          <Search className="h-4 w-4 text-orange-600" />
+          <span className="text-sm text-orange-700">
+            Pick City Manually
+          </span>
+        </button>
       </div>
 
-      {/* City Selector */}
+      {/* City Selector - Mobile Optimized */}
       {showCitySelector && (
-        <div className="space-y-3 p-4 bg-orange-50 border border-orange-200 rounded-lg city-autocomplete">
+        <div className="space-y-2 p-3 bg-orange-50 border border-orange-200 rounded-lg city-autocomplete">
           <label className="block text-sm font-medium text-orange-800">
             Search for your city
           </label>
@@ -384,29 +374,29 @@ export function LocationPicker({
               type="text"
               value={cityInput}
               onChange={handleCityInputChange}
-              placeholder="Start typing a city (e.g. Casablanca, Fes, Rabat...)"
-              className="w-full px-3 py-2 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 pr-10"
+              placeholder="Type city name..."
+              className="w-full px-3 py-2 text-sm border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 pr-8"
               autoComplete="off"
             />
             {isLoadingSuggestions && (
-              <div className="absolute right-3 top-2.5">
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-orange-300 border-t-orange-600"></div>
+              <div className="absolute right-2 top-2.5">
+                <div className="animate-spin rounded-full h-3 w-3 border-2 border-orange-300 border-t-orange-600"></div>
               </div>
             )}
             
-            {/* Suggestions List */}
+            {/* Suggestions List - Mobile Optimized */}
             {citySuggestions.length > 0 && (
-              <ul className="absolute left-0 right-0 mt-1 bg-white border border-orange-300 rounded-lg max-h-60 overflow-auto shadow-lg z-10">
+              <ul className="absolute left-0 right-0 mt-1 bg-white border border-orange-300 rounded-lg max-h-40 overflow-auto shadow-lg z-10">
                 {citySuggestions.map((city, index) => (
                   <li
                     key={index}
                     onClick={() => handleCitySelect(city)}
                     className="px-3 py-2 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                   >
-                    <div className="font-medium text-gray-900">
+                    <div className="font-medium text-gray-900 text-sm">
                       {city.name}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-xs text-gray-600">
                       {city.adminName1 && `${city.adminName1}, `}{city.countryName}
                     </div>
                   </li>
@@ -417,7 +407,7 @@ export function LocationPicker({
           
           <button
             onClick={() => setShowCitySelector(false)}
-            className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+            className="w-full px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 text-sm"
           >
             Cancel
           </button>
@@ -426,18 +416,20 @@ export function LocationPicker({
 
       {/* Error Display */}
       {error && (
-        <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="flex items-center space-x-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+          <AlertCircle className="h-3 w-3 text-red-500 flex-shrink-0" />
+          <p className="text-xs text-red-700">{error}</p>
         </div>
       )}
 
-      {/* Location Info */}
-      <div className="text-xs text-gray-500 space-y-1 bg-gray-50 p-3 rounded-lg">
-        <p className="font-medium text-gray-700 mb-2">How this works:</p>
-        <p>• <strong>GPS (Recommended):</strong> Click &quot;Allow&quot; when your browser asks for location permission</p>
-        <p>• <strong>Pick City:</strong> Search and select your city from the list if GPS doesn&apos;t work</p>
-        <p className="text-green-600 font-medium mt-2">🔒 Your exact coordinates are never shared publicly, only your general area</p>
+      {/* Location Info - Mobile Optimized */}
+      <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded-lg">
+        <p className="font-medium text-gray-700 mb-1">How this works:</p>
+        <div className="space-y-1">
+          <p>• <strong>GPS:</strong> Click &quot;Allow&quot; for location permission</p>
+          <p>• <strong>Pick City:</strong> Search if GPS doesn&apos;t work</p>
+        </div>
+        <p className="text-green-600 font-medium mt-1 text-xs">🔒 Your location stays private</p>
       </div>
     </div>
   )

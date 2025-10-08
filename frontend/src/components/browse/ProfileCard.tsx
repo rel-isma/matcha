@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { X, Heart, Eye } from 'lucide-react';
+import { X, Heart, Eye, MapPin, User, Star } from 'lucide-react';
 import { STATIC_BASE_URL } from '@/lib/constants';
 import { ProfileCardData } from '@/types';
 
@@ -37,10 +37,8 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             sizes="400px"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary-200 to-primary-200 flex items-center justify-center">
-            <svg className="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+            <User className="w-24 h-24 text-gray-400" strokeWidth={1.5} />
           </div>
         )}
         
@@ -54,40 +52,58 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           </div>
         )}
 
-        {/* Distance indicator - top left */}
-        <div className="absolute top-6 left-6 bg-black/30 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full border border-white/20">
-          📍 {profile.distance ? `${profile.distance.toFixed(1)} km` : 'Location unknown'}
+        {/* Fame Rating - top left */}
+        <div className="absolute top-6 left-6">
+          {profile.fameRating !== undefined && (
+            <div className="bg-gradient-to-r from-yellow-500/80 to-amber-500/80 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full border border-white/30 flex items-center gap-1">
+              <Star className="w-3 h-3 fill-current" />
+              {profile.fameRating.toFixed(1)}
+            </div>
+          )}
         </div>
 
         {/* Profile Info - Bottom left */}
-        <div className="absolute bottom-0 left-0 p-6 text-white">
-          {/* Name and Age - Large text */}
-          <div className="flex items-end gap-2 mb-1">
+        <div className="absolute bottom-0 left-0 right-16 p-6 text-white">
+          {/* Name with age badge */}
+          <div className="flex items-center gap-3 mb-1">
             <h1 className="font-bold text-3xl text-white drop-shadow-2xl leading-none">
               {profile.firstName}
             </h1>
             {profile.age && (
-              <span className="text-2xl font-medium text-white/95 drop-shadow-lg">
+              <div className="bg-white/20 backdrop-blur-sm border border-white/30 text-white text-sm font-semibold px-3 py-1 rounded-full">
                 {profile.age}
-              </span>
+              </div>
             )}
           </div>
 
-          {/* Username/Occupation */}
-          <div className="mb-3">
+          {/* Username */}
+          <div className="mb-1">
             <p className="text-lg text-white/90 font-medium drop-shadow-lg">
               @{profile.username}
             </p>
           </div>
 
-          {/* Location */}
+          {/* Location with distance */}
           {profile.neighborhood && (
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-white/80" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-              </svg>
+            <div className="flex items-center gap-2 mb-1">
+              <MapPin className="w-4 h-4 text-white/80" />
               <span className="text-base text-white/85 font-medium drop-shadow">
                 {profile.neighborhood}
+                {profile.distance !== undefined && (
+                  <span className="text-white/70">
+                    {' • '}
+                    {profile.distance < 0.1 ? 'Very close' : `${profile.distance.toFixed(1)}km`}
+                  </span>
+                )}
+              </span>
+            </div>
+          )}
+
+          {/* Common interests count */}
+          {profile.commonInterests && profile.commonInterests > 0 && (
+            <div className="mt-1">
+              <span className="bg-gradient-to-r from-orange-500/80 to-amber-500/80 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full border border-white/30">
+                {profile.commonInterests} common interest{profile.commonInterests > 1 ? 's' : ''}
               </span>
             </div>
           )}
@@ -123,19 +139,6 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
                 profile.isLiked ? 'text-orange-500 fill-current' : 'text-white fill-none'
               }`}
             />
-          </button>
-
-          {/* Dislike Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (profile.isLiked) {
-                onUnlike(profile.userId);
-              }
-            }}
-            className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-red-500/80 transition-all duration-300 shadow-lg"
-          >
-            <X className="w-5 h-5 text-white" />
           </button>
         </div>
       </div>
