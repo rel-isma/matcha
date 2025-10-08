@@ -1,14 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { MapPin, Crosshair, Globe, Map, AlertCircle, CheckCircle } from "lucide-react"
+import { MapPin, Crosshair, Map, AlertCircle, CheckCircle, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useGeolocation } from "@/hooks/useGeolocation"
+import toast from "react-hot-toast"
 
 interface LocationData {
   latitude?: number
   longitude?: number
-  locationSource: 'gps' | 'ip' | 'manual'
+  locationSource: 'gps' | 'manual' | 'default'
   neighborhood?: string
 }
 
@@ -20,6 +20,16 @@ interface LocationPickerProps {
   label?: string
 }
 
+interface GeoNamesCity {
+  name: string
+  lat: string
+  lng: string
+  countryName: string
+  adminName1?: string
+}
+
+const GEONAMES_USERNAME = 'relisma' // Your GeoNames username
+
 export function LocationPicker({
   value,
   onChange,
@@ -28,122 +38,217 @@ export function LocationPicker({
   label = "Location"
 }: LocationPickerProps) {
   const [isGettingLocation, setIsGettingLocation] = React.useState(false)
-  const [manualLocation, setManualLocation] = React.useState("")
-  const [showManualInput, setShowManualInput] = React.useState(false)
-  const { coordinates, error: geoError, loading: geoLoading } = useGeolocation()
+  const [showCitySelector, setShowCitySelector] = React.useState(false)
+  const [cityInput, setCityInput] = React.useState("")
+  const [citySuggestions, setCitySuggestions] = React.useState<GeoNamesCity[]>([])
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false)
+  const [controller, setController] = React.useState<AbortController | null>(null)
+  
+  // Debounce timer for city search
+  const debounceTimer = React.useRef<NodeJS.Timeout | null>(null)
+
+  // Clear suggestions
+  const clearSuggestions = () => {
+    setCitySuggestions([])
+  }
+
+  // Fetch cities from GeoNames API
+  const fetchCities = async (query: string) => {
+    if (!query || query.length < 2) {
+      clearSuggestions()
+      return
+    }
+
+    // Cancel previous request
+    if (controller) {
+      controller.abort()
+    }
+
+    const newController = new AbortController()
+    setController(newController)
+    setIsLoadingSuggestions(true)
+
+    try {
+      const url = `https://secure.geonames.org/searchJSON?name_startsWith=${encodeURIComponent(query)}&maxRows=10&featureClass=P&username=${GEONAMES_USERNAME}`
+      const response = await fetch(url, { signal: newController.signal })
+      
+      if (!response.ok) {
+        throw new Error('GeoNames API error')
+      }
+
+      const data = await response.json()
+      
+      if (data && Array.isArray(data.geonames)) {
+        setCitySuggestions(data.geonames)
+      } else {
+        clearSuggestions()
+      }
+    } catch (err: unknown) {
+      const error = err as Error
+      if (error?.name !== 'AbortError') {
+        console.error('Error fetching cities:', err)
+        clearSuggestions()
+        toast.error('Error searching cities. Please try again.')
+      }
+    } finally {
+      setIsLoadingSuggestions(false)
+    }
+  }
+
+  // Handle city input change with debouncing
+  const handleCityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value
+    setCityInput(query)
+
+    // Clear previous timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+
+    // Set new timer
+    debounceTimer.current = setTimeout(() => {
+      fetchCities(query.trim())
+    }, 300)
+  }
+
+  // Handle city selection
+  const handleCitySelect = async (city: GeoNamesCity) => {
+    const lat = parseFloat(city.lat)
+    const lon = parseFloat(city.lng)
+    
+    setCityInput(city.name)
+    clearSuggestions()
+    setShowCitySelector(false)
+
+    // For complete-profile flow, just update local state without API call
+    const locationData: LocationData = {
+      latitude: lat,
+      longitude: lon,
+      locationSource: 'manual',
+      neighborhood: city.name
+    }
+    
+    onChange?.(locationData)
+    toast.success(`Location set to ${city.name}`)
+  }
 
   // Get user's location via GPS
   const handleGetGPSLocation = async () => {
     setIsGettingLocation(true)
     
     try {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const lat = position.coords.latitude
-            const lng = position.coords.longitude
-            
-            // Get neighborhood from coordinates (you can integrate with a geocoding service)
-            const neighborhood = await getNeighborhoodFromCoords(lat, lng)
-            
-            onChange?.({
-              latitude: lat,
-              longitude: lng,
-              locationSource: 'gps',
-              neighborhood
-            })
-            setIsGettingLocation(false)
-          },
-          (error) => {
-            console.error('GPS location error:', error)
-            setIsGettingLocation(false)
-            // Fallback to IP-based location
-            handleGetIPLocation()
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 60000
-          }
-        )
-      } else {
-        throw new Error('Geolocation not supported')
+      if (!navigator.geolocation) {
+        throw new Error('Geolocation not supported by this browser')
       }
-    } catch (error) {
+
+      // Request permission with a more user-friendly approach
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude
+          const lon = position.coords.longitude
+          
+          try {
+            // Get city name from coordinates using reverse geocoding
+            let cityName = 'Unknown Location'
+            
+            try {
+              const response = await fetch(
+                `https://secure.geonames.org/findNearbyPlaceNameJSON?lat=${lat}&lng=${lon}&username=${GEONAMES_USERNAME}`
+              )
+              
+              if (response.ok) {
+                const data = await response.json()
+                if (data.geonames && data.geonames.length > 0) {
+                  const place = data.geonames[0]
+                  cityName = `${place.name}${place.adminName1 ? `, ${place.adminName1}` : ''}`
+                }
+              }
+            } catch (geoError) {
+              console.warn('Failed to get city name from coordinates:', geoError)
+              // Fallback to coordinates if reverse geocoding fails
+              cityName = `${lat.toFixed(4)}, ${lon.toFixed(4)}`
+            }
+            
+            // For complete-profile flow, just update local state without API call
+            const locationData: LocationData = {
+              latitude: lat,
+              longitude: lon,
+              locationSource: 'gps',
+              neighborhood: cityName
+            }
+            
+            onChange?.(locationData)
+            toast.success(`GPS location set to ${cityName}`)
+          } catch (error: unknown) {
+            console.error('Error processing GPS location:', error)
+            toast.error('Failed to process GPS location. Please try manual selection.')
+            setShowCitySelector(true)
+          } finally {
+            setIsGettingLocation(false)
+          }
+        },
+        (error) => {
+          console.error('GPS location error:', error)
+          setIsGettingLocation(false)
+          
+          let errorMessage = 'GPS access denied.'
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'GPS permission denied. Please allow location access or pick a city manually.'
+              break
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'GPS location unavailable. Please pick a city manually.'
+              break
+            case error.TIMEOUT:
+              errorMessage = 'GPS request timed out. Please pick a city manually.'
+              break
+            default:
+              errorMessage = 'GPS error occurred. Please pick a city manually.'
+              break
+          }
+          
+          toast.error(errorMessage)
+          // Automatically show city selector as fallback
+          setShowCitySelector(true)
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
+        }
+      )
+    } catch (error: unknown) {
       console.error('Location error:', error)
       setIsGettingLocation(false)
-      // Fallback to IP-based location
-      handleGetIPLocation()
+      toast.error('GPS not supported. Please pick a city manually.')
+      setShowCitySelector(true)
     }
   }
 
-  // Fallback to IP-based location
-  const handleGetIPLocation = async () => {
-    try {
-      // This would typically call an IP geolocation service
-      // For demo purposes, using approximate location
-      const response = await fetch('https://ipapi.co/json/')
-      const data = await response.json()
-      
-      onChange?.({
-        latitude: data.latitude,
-        longitude: data.longitude,
-        locationSource: 'ip',
-        neighborhood: data.city || data.region || data.country || 'Unknown Location'
-      })
-      setIsGettingLocation(false)
-    } catch (error) {
-      console.error('IP location error:', error)
-      setIsGettingLocation(false)
-    }
-  }
-
-  // Handle manual location input
-  const handleManualLocation = () => {
-    if (manualLocation.trim()) {
-      onChange?.({
-        locationSource: 'manual',
-        neighborhood: manualLocation.trim()
-      })
-      setShowManualInput(false)
-    }
-  }
-
-  // Get neighborhood name from coordinates using reverse geocoding
-  const getNeighborhoodFromCoords = async (lat: number, lng: number): Promise<string> => {
-    try {
-      // Using OpenStreetMap Nominatim API for reverse geocoding (free alternative to Google Maps)
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`
-      );
-      
-      if (!response.ok) {
-        throw new Error('Geocoding service unavailable');
+  // Clean up on unmount
+  React.useEffect(() => {
+    return () => {
+      if (controller) {
+        controller.abort()
       }
-      
-      const data = await response.json();
-      
-      // Extract city name from the response
-      const address = data.address || {};
-      const city = address.city || address.town || address.village || address.municipality;
-      const state = address.state || address.region;
-      const country = address.country;
-      
-      // Return just the city name for cleaner display
-      if (city) {
-        return city;
-      } else if (state) {
-        return state;
-      } else if (country) {
-        return country;
-      } else {
-        return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current)
       }
-    } catch (error) {
-      console.error('Error getting location from coordinates:', error);
-      return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
     }
-  }
+  }, [controller])
+
+  // Close suggestions on outside click
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (!target.closest('.city-autocomplete')) {
+        clearSuggestions()
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [])
 
   const getLocationDisplayText = () => {
     if (!value) return "Location not set"
@@ -165,8 +270,6 @@ export function LocationPicker({
     switch (value.locationSource) {
       case 'gps':
         return <Crosshair className="h-5 w-5 text-green-500" />
-      case 'ip':
-        return <Globe className="h-5 w-5 text-blue-500" />
       case 'manual':
         return <Map className="h-5 w-5 text-orange-500" />
       default:
@@ -180,10 +283,8 @@ export function LocationPicker({
     switch (value.locationSource) {
       case 'gps':
         return "GPS Location (Most Accurate)"
-      case 'ip':
-        return "Approximate Location (IP-based)"
       case 'manual':
-        return "Manual Location"
+        return "Manual Location (City Selected)"
       default:
         return "Unknown Location Source"
     }
@@ -227,56 +328,99 @@ export function LocationPicker({
       </div>
 
       {/* Location Options */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* GPS Location Button */}
-        <button
-          onClick={handleGetGPSLocation}
-          disabled={isGettingLocation || geoLoading}
-          className="flex items-center justify-center space-x-2 p-3 border-2 border-green-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
-        >
-          <Crosshair className={cn(
-            "h-4 w-4 text-green-600",
-            (isGettingLocation || geoLoading) && "animate-spin"
-          )} />
-          <span className="text-sm font-medium text-green-700">
-            {isGettingLocation || geoLoading ? "Getting GPS..." : "Use GPS Location"}
-          </span>
-        </button>
+      <div className="space-y-3">
+        {/* Primary GPS Option */}
+        <div className="text-center">
+          <button
+            onClick={handleGetGPSLocation}
+            disabled={isGettingLocation}
+            className="w-full flex items-center justify-center space-x-3 p-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Crosshair className={cn(
+              "h-5 w-5",
+              isGettingLocation && "animate-spin"
+            )} />
+            <span className="text-lg">
+              {isGettingLocation ? "Getting your location..." : "Use GPS (Recommended)"}
+            </span>
+          </button>
+          <p className="text-sm text-gray-600 mt-2">
+            Most accurate way to find matches near you
+          </p>
+        </div>
 
-        {/* Manual Location Button */}
-        <button
-          onClick={() => setShowManualInput(!showManualInput)}
-          className="flex items-center justify-center space-x-2 p-3 border-2 border-orange-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-all duration-200 group"
-        >
-          <Map className="h-4 w-4 text-orange-600" />
-          <span className="text-sm font-medium text-orange-700">
-            Manual Location
-          </span>
-        </button>
+        {/* Divider */}
+        <div className="flex items-center">
+          <div className="flex-1 border-t border-gray-200"></div>
+          <span className="px-3 text-sm text-gray-500 bg-white">or</span>
+          <div className="flex-1 border-t border-gray-200"></div>
+        </div>
+
+        {/* Manual Location Option */}
+        <div className="text-center">
+          <button
+            onClick={() => setShowCitySelector(!showCitySelector)}
+            className="w-full flex items-center justify-center space-x-3 p-4 border-2 border-orange-200 bg-white hover:bg-orange-50 hover:border-orange-300 rounded-xl font-medium transition-all duration-200"
+          >
+            <Search className="h-5 w-5 text-orange-600" />
+            <span className="text-lg text-orange-700">
+              Pick City Manually
+            </span>
+          </button>
+          <p className="text-sm text-gray-600 mt-2">
+            Search and select your city from the list
+          </p>
+        </div>
       </div>
 
-      {/* Manual Location Input */}
-      {showManualInput && (
-        <div className="space-y-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+      {/* City Selector */}
+      {showCitySelector && (
+        <div className="space-y-3 p-4 bg-orange-50 border border-orange-200 rounded-lg city-autocomplete">
           <label className="block text-sm font-medium text-orange-800">
-            Enter your neighborhood or city
+            Search for your city
           </label>
-          <div className="flex space-x-2">
+          <div className="relative">
             <input
               type="text"
-              value={manualLocation}
-              onChange={(e) => setManualLocation(e.target.value)}
-              placeholder="e.g., Downtown Manhattan, Brooklyn Heights..."
-              className="flex-1 px-3 py-2 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              value={cityInput}
+              onChange={handleCityInputChange}
+              placeholder="Start typing a city (e.g. Casablanca, Fes, Rabat...)"
+              className="w-full px-3 py-2 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 pr-10"
+              autoComplete="off"
             />
-            <button
-              onClick={handleManualLocation}
-              disabled={!manualLocation.trim()}
-              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-            >
-              Set
-            </button>
+            {isLoadingSuggestions && (
+              <div className="absolute right-3 top-2.5">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-orange-300 border-t-orange-600"></div>
+              </div>
+            )}
+            
+            {/* Suggestions List */}
+            {citySuggestions.length > 0 && (
+              <ul className="absolute left-0 right-0 mt-1 bg-white border border-orange-300 rounded-lg max-h-60 overflow-auto shadow-lg z-10">
+                {citySuggestions.map((city, index) => (
+                  <li
+                    key={index}
+                    onClick={() => handleCitySelect(city)}
+                    className="px-3 py-2 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="font-medium text-gray-900">
+                      {city.name}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {city.adminName1 && `${city.adminName1}, `}{city.countryName}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
+          
+          <button
+            onClick={() => setShowCitySelector(false)}
+            className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+          >
+            Cancel
+          </button>
         </div>
       )}
 
@@ -288,23 +432,12 @@ export function LocationPicker({
         </div>
       )}
 
-      {/* GPS Error Display */}
-      {geoError && !value && (
-        <div className="flex items-center space-x-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <AlertCircle className="h-4 w-4 text-yellow-500 flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm text-yellow-700">
-              GPS location access denied. Using approximate location or enter manually.
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Location Info */}
-      <div className="text-xs text-gray-500 space-y-1">
-        <p>• GPS location provides the most accurate matching with nearby users</p>
-        <p>• Your exact coordinates are never shared publicly, only your general area</p>
-        <p>• You can update your location anytime in your profile settings</p>
+      <div className="text-xs text-gray-500 space-y-1 bg-gray-50 p-3 rounded-lg">
+        <p className="font-medium text-gray-700 mb-2">How this works:</p>
+        <p>• <strong>GPS (Recommended):</strong> Click &quot;Allow&quot; when your browser asks for location permission</p>
+        <p>• <strong>Pick City:</strong> Search and select your city from the list if GPS doesn&apos;t work</p>
+        <p className="text-green-600 font-medium mt-2">🔒 Your exact coordinates are never shared publicly, only your general area</p>
       </div>
     </div>
   )

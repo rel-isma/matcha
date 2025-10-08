@@ -94,6 +94,7 @@ export const API_ENDPOINTS = {
   },
   PROFILE: {
     ME: '/profile/me',
+    LOCATION: '/profile/location',
     PICTURES: '/profile/me/pictures',
     PICTURE_DELETE: (id: string) => `/profile/me/pictures/${id}`,
     INTERESTS: '/profile/me/interests',

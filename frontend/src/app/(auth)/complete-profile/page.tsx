@@ -19,7 +19,7 @@ interface FormData {
   location: {
     latitude?: number;
     longitude?: number;
-    locationSource: 'gps' | 'ip' | 'manual';
+    locationSource: 'gps' | 'manual' | 'default';
     neighborhood?: string;
   } | undefined;
   interests: string[];

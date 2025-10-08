@@ -16,32 +16,13 @@ import {
   Block,
   Report
 } from '../types';
-import { forwardGeocode } from '../utils/geocoding';
 
 export class ProfileModel {
   // Profile CRUD operations
   static async createProfile(userId: string, profileData: CreateProfileInput): Promise<Profile> {
-    // Handle geocoding for manual locations
-    let finalLatitude = profileData.latitude;
-    let finalLongitude = profileData.longitude;
-
-    // If it's a manual location entry and no coordinates provided, try to geocode
-    if (profileData.locationSource === 'manual' && 
-        profileData.neighborhood && 
-        !profileData.latitude && 
-        !profileData.longitude) {
-      try {
-        const coords = await forwardGeocode(profileData.neighborhood);
-        if (coords) {
-          finalLatitude = coords.latitude;
-          finalLongitude = coords.longitude;
-          console.log(`Geocoded "${profileData.neighborhood}" to coordinates: ${coords.latitude}, ${coords.longitude}`);
-        }
-      } catch (error) {
-        console.error('Error geocoding manual location during profile creation:', error);
-        // Continue without coordinates if geocoding fails
-      }
-    }
+    // Use coordinates directly from frontend - no geocoding needed
+    const finalLatitude = profileData.latitude;
+    const finalLongitude = profileData.longitude;
 
     const query = `
       INSERT INTO profiles (user_id, gender, sexual_preference, bio, date_of_birth, latitude, longitude, 
@@ -152,7 +133,7 @@ export class ProfileModel {
       paramCount++;
     }
 
-    // Handle location updates with automatic geocoding for manual entries
+    // Handle location updates - coordinates come directly from frontend
     if (profileData.latitude !== undefined) {
       setClause.push(`latitude = $${paramCount}`);
       values.push(profileData.latitude);
@@ -172,24 +153,6 @@ export class ProfileModel {
       setClause.push(`neighborhood = $${paramCount}`);
       values.push(profileData.neighborhood);
       paramCount++;
-
-      // If it's a manual location entry and no coordinates provided, try to geocode
-      if (profileData.locationSource === 'manual' && 
-          profileData.latitude === undefined && 
-          profileData.longitude === undefined) {
-        try {
-          const coords = await forwardGeocode(profileData.neighborhood);
-          if (coords) {
-            setClause.push(`latitude = $${paramCount}`, `longitude = $${paramCount + 1}`);
-            values.push(coords.latitude, coords.longitude);
-            paramCount += 2;
-            console.log(`Geocoded "${profileData.neighborhood}" to coordinates: ${coords.latitude}, ${coords.longitude}`);
-          }
-        } catch (error) {
-          console.error('Error geocoding manual location during profile update:', error);
-          // Continue without coordinates if geocoding fails
-        }
-      }
     }
 
     // Recalculate completeness

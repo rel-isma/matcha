@@ -315,6 +315,121 @@ export class ProfileController {
 
   /**
    * @swagger
+   * /profile/location:
+   *   post:
+   *     summary: Update user location
+   *     tags: [Profile]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               city:
+   *                 type: string
+   *                 description: City name (optional for GPS source)
+   *               lat:
+   *                 type: number
+   *                 description: Latitude coordinate
+   *               lon:
+   *                 type: number
+   *                 description: Longitude coordinate
+   *               source:
+   *                 type: string
+   *                 enum: [gps, manual, default]
+   *                 description: Location source
+   *             required:
+   *               - lat
+   *               - lon
+   *               - source
+   *     responses:
+   *       200:
+   *         description: Location updated successfully
+   *       400:
+   *         description: Validation error
+   *       401:
+   *         description: Unauthorized
+   *       404:
+   *         description: Profile not found
+   */
+  // Update user location
+  static async updateLocation(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Unauthorized'
+        });
+      }
+
+      const { city, lat, lon, source } = req.body;
+
+      // Validate required fields
+      if (typeof lat !== 'number' || typeof lon !== 'number' || !source) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid location data. lat, lon, and source are required.'
+        });
+      }
+
+      // Validate source
+      if (!['gps', 'manual', 'default'].includes(source)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid source. Must be one of: gps, manual, default'
+        });
+      }
+
+      // Check if profile exists
+      const existingProfile = await ProfileModel.getProfileByUserId(userId);
+      
+      if (!existingProfile) {
+        return res.status(404).json({
+          success: false,
+          message: 'Profile not found. Please create a profile first.'
+        });
+      }
+
+      // Update location data
+      const locationData: UpdateProfileInput = {
+        latitude: lat,
+        longitude: lon,
+        locationSource: source,
+        neighborhood: city || existingProfile.neighborhood
+      };
+
+      const profile = await ProfileModel.updateProfile(userId, locationData);
+
+      // Update fame rating
+      await ProfileModel.updateFameRating(userId);
+
+      return res.json({
+        success: true,
+        message: 'Location updated successfully',
+        data: {
+          latitude: profile.latitude,
+          longitude: profile.longitude,
+          locationSource: profile.locationSource,
+          neighborhood: profile.neighborhood
+        }
+      });
+    } catch (error) {
+      console.error('Update location error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+  }
+
+  /**
+   * @swagger
    * /profile/me/pictures:
    *   post:
    *     summary: Upload profile picture

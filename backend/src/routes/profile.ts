@@ -28,6 +28,9 @@ router.use(authenticateToken);
 router.get('/me', ProfileController.getMyProfile);
 router.put('/me', updateProfileValidation, handleValidationErrors, ProfileController.updateMyProfile);
 
+// Location update endpoint (allows GPS/manual/default location setting)
+router.post('/location', ProfileController.updateLocation);
+
 // Picture management (needed for profile completion)
 router.post('/me/pictures', 
   uploadSingle, 

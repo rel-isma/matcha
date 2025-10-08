@@ -69,6 +69,35 @@ class ProfileApiClient {
     }
   }
 
+  // Update location
+  async updateLocation(locationData: {
+    city?: string;
+    lat: number;
+    lon: number;
+    source: 'gps' | 'manual' | 'default';
+  }): Promise<ApiResponse<{
+    latitude: number;
+    longitude: number;
+    locationSource: string;
+    neighborhood?: string;
+  }>> {
+    try {
+      const response = await api.post(API_ENDPOINTS.PROFILE.LOCATION, locationData);
+      return response as ApiResponse<{
+        latitude: number;
+        longitude: number;
+        locationSource: string;
+        neighborhood?: string;
+      }>;
+    } catch (error: unknown) {
+      const profileError = error as ProfileApiError;
+      return {
+        success: false,
+        message: profileError.message || 'Failed to update location'
+      };
+    }
+  }
+
   // Upload picture
   async uploadPicture(file: File): Promise<ApiResponse<{ picture: ProfilePicture }>> {
     try {
