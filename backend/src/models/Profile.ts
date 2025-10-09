@@ -397,11 +397,11 @@ export class ProfileModel {
       if (currentUserProfile.sexualPreference) {
         switch (currentUserProfile.sexualPreference) {
           case 'men':
-          case 'male':  // Support both formats
+          case 'male':
             genderFilter = "AND p.gender = 'male'";
             break;
           case 'women':
-          case 'female':  // Support both formats
+          case 'female':
             genderFilter = "AND p.gender = 'female'";
             break;
           case 'both':

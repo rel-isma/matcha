@@ -7,7 +7,7 @@ import { ArrowLeft, ArrowRight, X, Plus, Camera } from 'lucide-react';
 import { useProfile } from '@/hooks/useProfile';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
-import { LocationPicker } from '@/components/ui/LocationPicker';
+import { ProfileGPSPicker } from '@/components/ui/ProfileGPSPicker';
 import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, INTEREST_OPTIONS, PHOTO_LIMITS, ROUTES } from '@/lib/constants';
 import toast from 'react-hot-toast';
 
@@ -74,10 +74,10 @@ export default function CompleteProfilePage() {
     }
 
     if (step === 2) {
-      if (!formData.location) {
-        newErrors.location = 'Location is required';
-      } else if (!formData.location.neighborhood && (!formData.location.latitude || !formData.location.longitude)) {
-        newErrors.location = 'Please set your location using GPS or enter manually';
+      // Location is now optional during profile completion
+      // Users can skip this step and location will be set via IP on login
+      if (formData.location && !formData.location.neighborhood && (!formData.location.latitude || !formData.location.longitude)) {
+        newErrors.location = 'Please set your location using GPS or enter manually, or skip this step';
       }
     }
 
@@ -98,11 +98,20 @@ export default function CompleteProfilePage() {
     if (validateStep(currentStep)) {
       if (currentStep < 5) {
         setCurrentStep(currentStep + 1);
+      } else {
+        handleSubmit();
       }
     }
   };
 
-  // Handle previous step
+  // Handle skipping location step
+  const handleSkipLocation = () => {
+    if (currentStep === 2) {
+      setFormData(prev => ({ ...prev, location: undefined }));
+      setErrors(prev => ({ ...prev, location: '' }));
+      setCurrentStep(3);
+    }
+  };  // Handle previous step
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
@@ -443,14 +452,15 @@ export default function CompleteProfilePage() {
                 Your Location
               </h2>
               <p className="text-gray-600 text-sm">
-                Your location helps us connect you with people nearby
+                Using your GPS location helps us connect you with people nearby
               </p>
             </div>
 
-            <LocationPicker
+            <ProfileGPSPicker
               label="Your Location"
               value={formData.location}
               onChange={(location) => setFormData(prev => ({ ...prev, location }))}
+              onSkip={handleSkipLocation}
               error={errors.location}
             />
 

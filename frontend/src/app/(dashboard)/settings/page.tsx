@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { User, Mail, Lock, MapPin, Heart, Camera, Save, Eye, EyeOff, Upload, X, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { LocationPicker } from '@/components/ui/LocationPicker';
+import { GPSLocationPicker } from '@/components/ui/GPSLocationPicker';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -37,8 +37,8 @@ interface PasswordFormData {
 interface LocationFormData {
   latitude: number | null;
   longitude: number | null;
-  locationSource: 'manual' | 'gps';
-  neighborhood?: string;
+  locationSource: 'gps';
+  neighborhood: string;
 }
 
 export default function SettingsPage() {
@@ -77,7 +77,7 @@ export default function SettingsPage() {
   const [locationFormData, setLocationFormData] = useState<LocationFormData>({
     latitude: null,
     longitude: null,
-    locationSource: 'manual',
+    locationSource: 'gps',
     neighborhood: ''
   });
 
@@ -106,7 +106,7 @@ export default function SettingsPage() {
       setLocationFormData({
         latitude: profile.latitude || null,
         longitude: profile.longitude || null,
-        locationSource: (profile.locationSource === 'gps' ? 'gps' : 'manual') as 'manual' | 'gps',
+        locationSource: 'gps',
         neighborhood: profile.neighborhood || ''
       });
     }
@@ -329,8 +329,8 @@ export default function SettingsPage() {
 
       const success = await updateProfile({
         neighborhood: locationFormData.neighborhood,
-        latitude: locationFormData.latitude,
-        longitude: locationFormData.longitude,
+        latitude: locationFormData.latitude ?? undefined,
+        longitude: locationFormData.longitude ?? undefined,
         locationSource: locationFormData.locationSource
       });
 
@@ -734,7 +734,7 @@ export default function SettingsPage() {
                   Location Settings
                 </CardTitle>
                 <p className="text-sm text-gray-600">
-                  Update your location using GPS or by manually selecting your city. This helps us find matches near you.
+                  Update your location using GPS only. Precise GPS location helps us find the best matches in your area.
                 </p>
               </CardHeader>
               <CardContent>
@@ -745,20 +745,20 @@ export default function SettingsPage() {
                     </div>
                   )}
                   
-                  {/* LocationPicker Component */}
-                  <LocationPicker
-                    label="Your Location"
+                  {/* GPSLocationPicker Component */}
+                  <GPSLocationPicker
+                    label="Your GPS Location"
                     value={{
                       latitude: locationFormData.latitude || undefined,
                       longitude: locationFormData.longitude || undefined,
-                      locationSource: locationFormData.locationSource,
+                      locationSource: 'gps',
                       neighborhood: locationFormData.neighborhood
                     }}
                     onChange={(location) => {
                       setLocationFormData({
                         latitude: location.latitude || null,
                         longitude: location.longitude || null,
-                        locationSource: (location.locationSource === 'gps' ? 'gps' : 'manual') as 'manual' | 'gps',
+                        locationSource: 'gps',
                         neighborhood: location.neighborhood || ''
                       });
                     }}

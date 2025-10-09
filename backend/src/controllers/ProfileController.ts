@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
+import { cleanClientIp, ipapiLookup } from '../utils/ip';
 import { ProfileModel } from '../models/Profile';
 import { UserModel } from '../models/User';
 import { ApiResponse, CreateProfileInput, UpdateProfileInput, BrowseFilters } from '../types';
@@ -211,6 +212,39 @@ export class ProfileController {
         });
       }
 
+      // Check if user doesn't have GPS location and set IP location
+      if (!profile.latitude || !profile.longitude || profile.locationSource !== 'gps') {
+        try {
+          const clientIp = cleanClientIp(req);
+          
+          if (clientIp) {
+            const locationData = await ipapiLookup(clientIp);
+            
+            // Update profile with IP-based location
+            await ProfileModel.updateProfile(userId, {
+              latitude: locationData.latitude,
+              longitude: locationData.longitude,
+              locationSource: 'ip',
+              neighborhood: locationData.city ? 
+                `${locationData.city}, ${locationData.region || locationData.country}` : 
+                (profile.neighborhood || '')
+            });
+
+            // Get updated profile
+            const updatedProfile = await ProfileModel.getProfileByUserId(userId);
+            
+            return res.json({
+              success: true,
+              message: 'Profile retrieved successfully (location updated)',
+              data: updatedProfile
+            });
+          }
+        } catch (locationError) {
+          // Don't fail the request if location update fails
+          console.error('Failed to update location from IP:', locationError);
+        }
+      }
+
       return res.json({
         success: true,
         message: 'Profile retrieved successfully',
@@ -339,7 +373,7 @@ export class ProfileController {
    *                 description: Longitude coordinate
    *               source:
    *                 type: string
-   *                 enum: [gps, manual, default]
+   *                 enum: [gps, manual, default, ip]
    *                 description: Location source
    *             required:
    *               - lat
@@ -378,10 +412,10 @@ export class ProfileController {
       }
 
       // Validate source
-      if (!['gps', 'manual', 'default'].includes(source)) {
+      if (!['gps', 'manual', 'default', 'ip'].includes(source)) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid source. Must be one of: gps, manual, default'
+          message: 'Invalid source. Must be one of: gps, manual, default, ip'
         });
       }
 

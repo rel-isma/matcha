@@ -9,4 +9,6 @@ export { Badge } from './Badge';
 export { Select } from './Select';
 export { ImageUpload } from './ImageUpload';
 export { Spinner, Loading } from './Spinner';
+export { GPSLocationPicker } from './GPSLocationPicker';
+export { ProfileGPSPicker } from './ProfileGPSPicker';
 export { default as GoogleSignInButton } from './GoogleSignInButton';

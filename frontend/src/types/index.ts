@@ -24,7 +24,7 @@ export interface Profile {
   fameRating: number;
   latitude?: number;
   longitude?: number;
-  locationSource: 'gps' | 'manual' | 'default';
+  locationSource: 'gps' | 'manual' | 'default' | 'ip';
   neighborhood?: string;
   completeness: number;
   createdAt: string;
@@ -118,7 +118,7 @@ export interface UpdateProfileInput {
   dateOfBirth?: string;
   latitude?: number;
   longitude?: number;
-  locationSource?: 'gps' | 'manual' | 'default';
+  locationSource?: 'gps' | 'manual' | 'default' | 'ip';
   neighborhood?: string;
 }
 
