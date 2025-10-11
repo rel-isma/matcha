@@ -8,36 +8,59 @@ import toast from "react-hot-toast"
 interface LocationData {
   latitude?: number
   longitude?: number
-  locationSource: 'gps'
+  locationSource: 'gps' | 'manual' | 'default'
   neighborhood?: string
 }
 
-interface GPSLocationPickerProps {
+interface GPSPickerProps {
   value?: LocationData
   onChange?: (location: LocationData) => void
+  onSkip?: () => void
   error?: string
   className?: string
   label?: string
+  autoTryGPS?: boolean
+  mode?: 'profile' | 'settings'
 }
 
-const GEONAMES_USERNAME = 'relisma' // Your GeoNames username
+const GEONAMES_USERNAME = 'relisma'
 
-export function GPSLocationPicker({
+export function GPSPicker({
   value,
   onChange,
+  onSkip,
   error,
   className,
-  label = "GPS Location"
-}: GPSLocationPickerProps) {
+  label = "GPS Location",
+  autoTryGPS = false,
+  mode = 'settings'
+}: GPSPickerProps) {
   const [isGettingLocation, setIsGettingLocation] = React.useState(false)
+  const [hasTriedGPS, setHasTriedGPS] = React.useState(false)
   
+  // Auto-try GPS on mount only in profile mode or when explicitly enabled
+  React.useEffect(() => {
+    if ((mode === 'profile' || autoTryGPS) && !hasTriedGPS) {
+      handleGetGPSLocation()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasTriedGPS, mode, autoTryGPS])
+
   const handleGetGPSLocation = async () => {
     if (!navigator.geolocation) {
-      toast.error("GPS location is not supported by your browser")
+      const errorMsg = mode === 'profile' 
+        ? "GPS not supported - location will be set automatically"
+        : "GPS location is not supported by your browser"
+      toast.error(errorMsg)
+      setHasTriedGPS(true)
+      if (mode === 'profile') {
+        onSkip?.()
+      }
       return
     }
 
     setIsGettingLocation(true)
+    setHasTriedGPS(true)
 
     try {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -46,7 +69,7 @@ export function GPSLocationPicker({
           reject,
           {
             enableHighAccuracy: true,
-            timeout: 10000,
+            timeout: mode === 'profile' ? 8000 : 10000,
             maximumAge: 300000 // 5 minutes
           }
         )
@@ -66,7 +89,7 @@ export function GPSLocationPicker({
           const data = await response.json()
           if (data.geonames && data.geonames.length > 0) {
             const place = data.geonames[0]
-            neighborhood = `${place.name}, ${place.adminName1 || place.countryName}`
+            neighborhood = place.name
           }
         }
       } catch (geoError) {
@@ -86,22 +109,39 @@ export function GPSLocationPicker({
       
     } catch (error) {
       console.error('GPS Error:', error)
+      let errorMessage = "GPS not available"
+      
       if (error instanceof GeolocationPositionError) {
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            toast.error("GPS access denied. Please enable location permissions in your browser.")
+            errorMessage = mode === 'profile' 
+              ? "GPS access denied"
+              : "GPS access denied. Please enable location permissions in your browser."
             break
           case error.POSITION_UNAVAILABLE:
-            toast.error("GPS location unavailable. Please check your device settings.")
+            errorMessage = mode === 'profile'
+              ? "GPS unavailable"
+              : "GPS location unavailable. Please check your device settings."
             break
           case error.TIMEOUT:
-            toast.error("GPS request timed out. Please try again.")
+            errorMessage = mode === 'profile'
+              ? "GPS timeout"
+              : "GPS request timed out. Please try again."
             break
           default:
-            toast.error("Failed to get GPS location. Please try again.")
+            errorMessage = mode === 'profile'
+              ? "GPS not available"
+              : "Failed to get GPS location. Please try again."
         }
-      } else {
-        toast.error("Failed to get GPS location. Please try again.")
+      }
+      
+      toast.error(`${errorMessage}${mode === 'profile' ? ' - location will be set automatically' : ''}`)
+      
+      // Auto-skip when GPS fails in profile mode
+      if (mode === 'profile') {
+        setTimeout(() => {
+          onSkip?.()
+        }, 1500)
       }
     } finally {
       setIsGettingLocation(false)
@@ -115,8 +155,8 @@ export function GPSLocationPicker({
       }
       return `${value.latitude.toFixed(4)}, ${value.longitude.toFixed(4)} (GPS)`
     }
-    return "Get GPS Location"
-  }, [value])
+    return isGettingLocation ? "Getting GPS location..." : "Get GPS Location"
+  }, [value, isGettingLocation])
 
   const hasValidLocation = value?.latitude && value?.longitude && value?.locationSource === 'gps'
 
@@ -153,13 +193,15 @@ export function GPSLocationPicker({
             )}
             <div className="text-left">
               <div className="font-medium">
-                {isGettingLocation ? "Getting GPS location..." : displayText}
+                {displayText}
               </div>
               {!isGettingLocation && (
                 <div className="text-xs text-gray-600 mt-1">
                   {hasValidLocation
                     ? "GPS location set"
-                    : "Use your device's GPS for precise location"
+                    : mode === 'profile'
+                      ? "Trying to get your GPS location..."
+                      : "Use your device's GPS for precise location"
                   }
                 </div>
               )}
@@ -173,7 +215,9 @@ export function GPSLocationPicker({
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="flex items-center gap-2 text-green-800">
               <CheckCircle className="w-4 h-4" />
-              <span className="text-sm font-medium">GPS Location Active</span>
+              <span className="text-sm font-medium">
+                {mode === 'profile' ? "GPS Location Set" : "GPS Location Active"}
+              </span>
             </div>
             <div className="text-sm text-green-700 mt-1">
               {value.neighborhood && <div>📍 {value.neighborhood}</div>}
@@ -196,10 +240,21 @@ export function GPSLocationPicker({
       {/* Information */}
       <div className="text-xs text-gray-500">
         <p>
-          🔒 Your precise GPS location helps us find the most accurate matches in your area. 
-          Only use GPS for location updates in settings.
+          {mode === 'profile' 
+            ? "🔒 If GPS is not available, your approximate location will be set automatically after completing your profile."
+            : "🔒 Your precise GPS location helps us find the most accurate matches in your area. Only use GPS for location updates in settings."
+          }
         </p>
       </div>
     </div>
   )
+}
+
+// Legacy exports for backward compatibility
+export function ProfileGPSPicker(props: Omit<GPSPickerProps, 'mode'>) {
+  return <GPSPicker {...props} mode="profile" autoTryGPS={true} />
+}
+
+export function GPSLocationPicker(props: Omit<GPSPickerProps, 'mode' | 'onSkip' | 'autoTryGPS'>) {
+  return <GPSPicker {...props} mode="settings" />
 }

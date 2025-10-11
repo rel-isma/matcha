@@ -225,8 +225,7 @@ export class ProfileController {
               latitude: locationData.latitude,
               longitude: locationData.longitude,
               locationSource: 'ip',
-              neighborhood: locationData.city ? 
-                `${locationData.city}, ${locationData.region || locationData.country}` : 
+              neighborhood: locationData.city ? locationData.city : 
                 (profile.neighborhood || '')
             });
 

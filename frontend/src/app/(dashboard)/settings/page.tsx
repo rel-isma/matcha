@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { User, Mail, Lock, MapPin, Heart, Camera, Save, Eye, EyeOff, Upload, X, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { GPSLocationPicker } from '@/components/ui/GPSLocationPicker';
+import { GPSLocationPicker } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';

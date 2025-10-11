@@ -7,7 +7,7 @@ import { ArrowLeft, ArrowRight, X, Plus, Camera } from 'lucide-react';
 import { useProfile } from '@/hooks/useProfile';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
-import { ProfileGPSPicker } from '@/components/ui/ProfileGPSPicker';
+import { ProfileGPSPicker } from '@/components/ui';
 import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, INTEREST_OPTIONS, PHOTO_LIMITS, ROUTES } from '@/lib/constants';
 import toast from 'react-hot-toast';
 

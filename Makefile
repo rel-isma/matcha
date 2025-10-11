@@ -121,8 +121,32 @@ db-reset: ## Reset database - clear all data and reinitialize
 	@read dummy
 	@$(DOCKER_COMPOSE) stop postgres
 	@$(DOCKER_COMPOSE) rm -f postgres
-	@docker volume rm matcha_postgres_data 2>/dev/null || true
+	@docker volume rm matcha_postgres_data_dev 2>/dev/null || true
 	@$(DOCKER_COMPOSE) up -d postgres
 	@echo "⏳ Waiting for PostgreSQL to initialize..."
 	@sleep 15
 	@echo "✅ Database reset complete!"
+
+mock-data: ## Create 100 mock profiles for testing (50 male, 50 female)
+	@echo "🚀 Creating mock data for testing..."
+	@echo "📝 This will create 100 realistic profiles with:"
+	@echo "   • Complete user accounts (verified)"
+	@echo "   • Profile pictures and bios"
+	@echo "   • Interests and preferences"
+	@echo "   • Likes, views, and connections"
+	@echo "   • Geographic distribution"
+	@if ! docker ps | grep -q "matcha-backend-dev"; then \
+		echo "⚠️  Backend container not running. Starting services..."; \
+		$(DOCKER_COMPOSE) up -d; \
+		echo "⏳ Waiting for services to start..."; \
+		sleep 15; \
+	fi
+	@echo "🔍 Testing database connection..."
+	@$(DOCKER_COMPOSE) exec backend sh -c "echo 'Testing DB connection...' && node -e 'const pg = require(\"pg\"); const pool = new pg.Pool({user: process.env.DB_USER, host: process.env.DB_HOST, database: process.env.DB_NAME, password: process.env.DB_PASSWORD, port: process.env.DB_PORT}); pool.query(\"SELECT NOW()\").then(res => {console.log(\"✅ DB Connected:\", res.rows[0]); process.exit(0);}).catch(err => {console.error(\"❌ DB Error:\", err.message); process.exit(1);});'"
+	@echo "📊 Running mock data creation..."
+	@$(DOCKER_COMPOSE) exec backend node scripts/createMockData.js
+	@echo ""
+	@echo "✅ Mock data created successfully!"
+	@echo "🔑 All users have password: Password123!"
+	@echo "📧 Email format: [username]@example.com"
+	@echo "🌐 Frontend: http://localhost:3000"

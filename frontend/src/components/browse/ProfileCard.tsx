@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { X, Heart, Eye, MapPin, User, Star } from 'lucide-react';
+import { Heart, Eye, MapPin, User, Star } from 'lucide-react';
 import { STATIC_BASE_URL } from '@/lib/constants';
 import { ProfileCardData } from '@/types';
 
@@ -30,7 +30,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
       >
         {profilePicture ? (
           <Image
-            src={`${STATIC_BASE_URL}${profilePicture.url}`}
+            src={profilePicture.url.startsWith('http') ? profilePicture.url : `${STATIC_BASE_URL}${profilePicture.url}`}
             alt={`${profile.firstName}`}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"

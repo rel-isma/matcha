@@ -15,8 +15,11 @@ export const useProfilePicture = () => {
         if (result.success && result.data?.pictures?.length > 0) {
           // Get the main profile picture (first one or the one marked as profile pic)
           const mainPicture = result.data.pictures.find(pic => pic.isProfilePic) || result.data.pictures[0];
-          // mainPicture.url already contains "/uploads/profile-pictures/filename.webp"
-          setProfilePicture(`${STATIC_BASE_URL}${mainPicture.url}`);
+          // Handle both external URLs (starting with http) and local uploads
+          const pictureUrl = mainPicture.url.startsWith('http') 
+            ? mainPicture.url 
+            : `${STATIC_BASE_URL}${mainPicture.url}`;
+          setProfilePicture(pictureUrl);
         }
       } catch (error) {
         console.error('Failed to fetch profile picture:', error);

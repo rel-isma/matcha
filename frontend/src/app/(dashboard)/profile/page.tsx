@@ -436,7 +436,7 @@ export default function ProfilePage() {
                           transition={{ duration: 0.2 }}
                         >
                           <Image
-                            src={`${STATIC_BASE_URL}${picture.url}`}
+                            src={picture.url.startsWith('http') ? picture.url : `${STATIC_BASE_URL}${picture.url}`}
                             alt={`Photo ${index + 1}`}
                             width={400}
                             height={533}
@@ -535,7 +535,7 @@ export default function ProfilePage() {
                           <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-orange-100 to-amber-50 flex-shrink-0">
                             {like.profilePicture ? (
                               <Image
-                                src={`${STATIC_BASE_URL}${like.profilePicture}`}
+                                src={like.profilePicture.startsWith('http') ? like.profilePicture : `${STATIC_BASE_URL}${like.profilePicture}`}
                                 alt={`${like.firstName} ${like.lastName}`}
                                 width={64}
                                 height={64}
