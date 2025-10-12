@@ -150,6 +150,7 @@ export interface PublicProfile {
   firstName: string;
   lastName: string;
   gender?: string;
+  sexualPreference?: string;
   bio?: string;
   dateOfBirth?: Date;
   fameRating: number;
@@ -158,6 +159,12 @@ export interface PublicProfile {
   interests: Interest[];
   pictures: ProfilePicture[];
   createdAt: Date;
+  isOnline?: boolean;
+  lastSeen?: Date;
+  isLiked?: boolean;
+  hasLikedMe?: boolean;
+  isConnected?: boolean;
+  isBlocked?: boolean;
 }
 
 // Browse and matching types
@@ -187,4 +194,18 @@ export interface UserProfile extends PublicProfile {
   isLiked?: boolean;
   hasLikedBack?: boolean;
   isBlocked?: boolean;
+}
+
+export interface SearchFilters {
+  minAge?: number;
+  maxAge?: number;
+  minFame?: number;
+  maxFame?: number;
+  tags?: string[];
+  city?: string;
+  sortBy?: 'age' | 'location' | 'fame' | 'tags';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+  offset?: number;
 }

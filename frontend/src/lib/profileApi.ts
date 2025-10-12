@@ -328,6 +328,76 @@ class ProfileApiClient {
       };
     }
   }
+
+  // Search profiles with manual filters (no algorithm)
+  async searchProfiles(filters: {
+    minAge?: number;
+    maxAge?: number;
+    minFame?: number;
+    maxFame?: number;
+    tags?: string[];
+    city?: string;
+    sortBy?: 'age' | 'location' | 'fame' | 'tags';
+    sortOrder?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+  }): Promise<ApiResponse<{
+    profiles: Array<{
+      id: string;
+      userId: string;
+      username: string;
+      firstName: string;
+      lastName: string;
+      age?: number;
+      gender?: string;
+      bio?: string;
+      fameRating: number;
+      neighborhood?: string;
+      distance?: number;
+      commonInterests?: number;
+      interests: Array<{ id: number; name: string }>;
+      pictures: Array<{ 
+        id: string; 
+        url: string; 
+        isProfilePic: boolean; 
+        position: number 
+      }>;
+      isLiked?: boolean;
+      hasLikedBack?: boolean;
+    }>;
+    pagination: {
+      page: number;
+      limit: number;
+      hasMore: boolean;
+    };
+  }>> {
+    try {
+      const params = new URLSearchParams();
+      
+      // Add search filters to params
+      if (filters.minAge) params.append('minAge', filters.minAge.toString());
+      if (filters.maxAge) params.append('maxAge', filters.maxAge.toString());
+      if (filters.minFame) params.append('minFame', filters.minFame.toString());
+      if (filters.maxFame) params.append('maxFame', filters.maxFame.toString());
+      if (filters.tags?.length) {
+        params.append('tags', filters.tags.join(','));
+      }
+      if (filters.city) params.append('city', filters.city);
+      if (filters.sortBy) params.append('sortBy', filters.sortBy);
+      if (filters.sortOrder) params.append('sortOrder', filters.sortOrder);
+      if (filters.page) params.append('page', filters.page.toString());
+      if (filters.limit) params.append('limit', filters.limit.toString());
+
+      const response = await api.get(`${API_ENDPOINTS.PROFILE.SEARCH}?${params.toString()}`);
+      return response;
+    } catch (error: unknown) {
+      const profileError = error as ProfileApiError;
+      return {
+        success: false,
+        message: profileError.message || 'Failed to search profiles'
+      };
+    }
+  }
 }
 
 // Create and export a singleton instance

@@ -101,6 +101,7 @@ export interface PublicProfile {
   firstName: string;
   lastName: string;
   gender?: string;
+  sexualPreference?: string;
   bio?: string;
   dateOfBirth?: string;
   fameRating: number;
@@ -109,6 +110,12 @@ export interface PublicProfile {
   interests: Interest[];
   pictures: ProfilePicture[];
   createdAt: string;
+  isOnline?: boolean;
+  lastSeen?: string;
+  isLiked?: boolean;
+  hasLikedMe?: boolean;
+  isConnected?: boolean;
+  isBlocked?: boolean;
 }
 
 export interface UpdateProfileInput {
@@ -209,4 +216,18 @@ export interface ModalProps {
   children: any;
   size?: 'sm' | 'default' | 'lg' | 'xl' | 'full';
   showCloseButton?: boolean;
+}
+
+// Search filters for the search/research functionality
+export interface SearchFilters {
+  minAge?: number;
+  maxAge?: number;
+  minFame?: number;
+  maxFame?: number;
+  tags?: string[];
+  city?: string;
+  sortBy?: 'age' | 'location' | 'fame' | 'tags';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
 }

@@ -101,6 +101,7 @@ export const API_ENDPOINTS = {
     INTEREST_DELETE: (id: string) => `/profile/me/interests/${id}`,
     USER: (username: string) => `/profile/user/${username}`,
     BROWSE: '/profile/browse',
+    SEARCH: '/profile/search',
     LIKES_RECEIVED: '/profile/likes/received',
     LIKE: (userId: string) => `/profile/like/${userId}`,
     UNLIKE: (userId: string) => `/profile/like/${userId}`,

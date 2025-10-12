@@ -7,6 +7,7 @@ import {
   updateProfileValidation, 
   addInterestsValidation,
   browseValidation,
+  searchValidation,
   reportUserValidation,
   userIdParamValidation,
   usernameParamValidation,
@@ -71,6 +72,20 @@ router.get('/browse',
   browseValidation, 
   handleValidationErrors, 
   ProfileController.browseProfiles
+);
+
+// Search profiles
+router.get('/search', 
+  searchValidation, 
+  handleValidationErrors, 
+  ProfileController.searchProfiles
+);
+
+// Search profiles
+router.get('/search', 
+  searchValidation, 
+  handleValidationErrors, 
+  ProfileController.searchProfiles
 );
 
 // Utility routes

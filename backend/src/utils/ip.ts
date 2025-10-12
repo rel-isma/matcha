@@ -10,7 +10,6 @@ export interface IPLocationData {
 
 
 export function cleanClientIp(req: Request): string {
-  // Prefer X-Forwarded-For (comma list). Fallback to connection remote.
   const xf = (req.headers['x-forwarded-for'] as string || '')
     .split(',')
     .map(s => s.trim())
@@ -21,7 +20,6 @@ export function cleanClientIp(req: Request): string {
     (req.connection as any)?.remoteAddress || 
     '';
   
-  // Strip IPv6 prefix if present
   return ip.replace(/^::ffff:/, '').replace(/\s+/, '');
 }
 
@@ -74,9 +72,8 @@ export async function ipapiLookup(cleanIp: string): Promise<IPLocationData> {
     };
   } catch (error) {
     console.error('IP location lookup failed:', error);
-    // Return fallback location if IP lookup fails
     return {
-      latitude: 48.8566,  // Paris coordinates as fallback
+      latitude: 48.8566,
       longitude: 2.3522,
       city: 'Paris',
       region: 'Île-de-France',

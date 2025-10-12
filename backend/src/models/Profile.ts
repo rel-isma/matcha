@@ -9,6 +9,7 @@ import {
   ProfilePicture,
   PublicProfile,
   BrowseFilters,
+  SearchFilters,
   UserProfile,
   ProfileView,
   Like,
@@ -334,13 +335,15 @@ export class ProfileModel {
   }
 
   // Public profile views
-  static async getPublicProfile(username: string): Promise<PublicProfile | null> {
+  static async getPublicProfile(username: string, viewerId?: string): Promise<PublicProfile | null> {
     const client = await pool.connect();
     try {
       const profileQuery = `
         SELECT p.id, p.user_id as "userId", u.username, u.first_name as "firstName", 
-               u.last_name as "lastName", p.gender, p.bio, p.date_of_birth as "dateOfBirth",
-               p.fame_rating as "fameRating", p.neighborhood, p.completeness, p.created_at as "createdAt"
+               u.last_name as "lastName", p.gender, p.sexual_preference as "sexualPreference",
+               p.bio, p.date_of_birth as "dateOfBirth",
+               p.fame_rating as "fameRating", p.neighborhood, p.completeness, 
+               p.created_at as "createdAt", u.is_online as "isOnline", u.last_seen as "lastSeen"
         FROM profiles p
         JOIN users u ON p.user_id = u.id
         WHERE u.username = $1 AND u.is_verified = true
@@ -353,8 +356,8 @@ export class ProfileModel {
       
       const profile = profileResult.rows[0];
 
-      // Get interests and pictures
-      const [interestsResult, picturesResult] = await Promise.all([
+      // Get interests, pictures, and interaction status
+      const queries = [
         client.query(`
           SELECT i.id, i.name
           FROM interests i
@@ -368,12 +371,57 @@ export class ProfileModel {
           WHERE profile_id = $1 
           ORDER BY is_profile_pic DESC, position ASC
         `, [profile.id])
-      ]);
+      ];
+
+      // If viewer is provided, check interaction status
+      if (viewerId) {
+        // Check if viewer has liked this profile
+        queries.push(
+          client.query(`
+            SELECT id FROM likes 
+            WHERE from_user = $1 AND to_user = $2
+          `, [viewerId, profile.userId])
+        );
+        
+        // Check if this profile has liked the viewer
+        queries.push(
+          client.query(`
+            SELECT id FROM likes 
+            WHERE from_user = $1 AND to_user = $2
+          `, [profile.userId, viewerId])
+        );
+        
+        // Check if viewer has blocked this profile
+        queries.push(
+          client.query(`
+            SELECT id FROM blocks 
+            WHERE blocker_id = $1 AND blocked_id = $2
+          `, [viewerId, profile.userId])
+        );
+      }
+
+      const results = await Promise.all(queries);
+      
+      const [interestsResult, picturesResult, ...statusResults] = results;
+
+      let isLiked = false;
+      let hasLikedMe = false;
+      let isBlocked = false;
+
+      if (viewerId && statusResults.length >= 3) {
+        isLiked = statusResults[0].rows.length > 0;
+        hasLikedMe = statusResults[1].rows.length > 0;
+        isBlocked = statusResults[2].rows.length > 0;
+      }
 
       return {
         ...profile,
         interests: interestsResult.rows,
-        pictures: picturesResult.rows
+        pictures: picturesResult.rows,
+        isLiked,
+        hasLikedMe,
+        isConnected: isLiked && hasLikedMe,
+        isBlocked
       };
     } finally {
       client.release();
@@ -616,6 +664,181 @@ export class ProfileModel {
           pictures,
           distance: profile.distance,
           commonInterests: profile.common_interests || 0,
+          isLiked,
+          hasLikedBack,
+          isBlocked: false // Already filtered out in query
+        };
+      }));
+
+      return profiles;
+    } finally {
+      client.release();
+    }
+  }
+
+  // Search profiles - manual search without algorithm matching
+  static async searchProfiles(currentUserId: string, filters: SearchFilters): Promise<UserProfile[]> {
+    const client = await pool.connect();
+    try {
+      // First get current user's profile for distance calculation
+      const currentUserProfile = await this.getProfileByUserId(currentUserId);
+      
+      // Build base query for manual search - all profiles without algorithm
+      let baseQuery = `
+        FROM profiles p
+        JOIN users u ON p.user_id = u.id
+        LEFT JOIN (
+          SELECT 
+            pi.profile_id,
+            COUNT(*) as interests_count
+          FROM profile_interests pi
+          GROUP BY pi.profile_id
+        ) interests_count ON p.id = interests_count.profile_id
+        WHERE u.is_verified = true 
+          AND u.is_profile_completed = true
+          AND p.user_id != $1
+          AND p.completeness >= 50
+          AND p.user_id NOT IN (
+            SELECT blocked_id FROM blocks WHERE blocker_id = $1
+            UNION
+            SELECT blocker_id FROM blocks WHERE blocked_id = $1
+          )
+      `;
+      
+      const values: any[] = [currentUserId];
+      let paramCount = 2;
+
+      // Distance calculation - always include distance field for search
+      let distanceSelect = '';
+      
+      if (currentUserProfile?.latitude && currentUserProfile?.longitude) {
+        // Current user has GPS coordinates - can calculate distance to GPS users
+        distanceSelect = `, 
+          CASE 
+            WHEN p.latitude IS NOT NULL AND p.longitude IS NOT NULL THEN
+              6371 * acos(
+                cos(radians($${paramCount})) * cos(radians(p.latitude)) * 
+                cos(radians(p.longitude) - radians($${paramCount + 1})) + 
+                sin(radians($${paramCount})) * sin(radians(p.latitude))
+              )
+            ELSE NULL
+          END as distance`;
+        
+        values.push(currentUserProfile.latitude, currentUserProfile.longitude);
+        paramCount += 2;
+      } else {
+        // Current user doesn't have GPS - no distance calculation
+        distanceSelect = `, NULL as distance`;
+      }
+
+      // Age filters
+      if (filters.minAge || filters.maxAge) {
+        const today = new Date();
+        if (filters.maxAge) {
+          const minBirthDate = new Date(today.getFullYear() - filters.maxAge - 1, today.getMonth(), today.getDate());
+          baseQuery += ` AND p.date_of_birth >= $${paramCount}`;
+          values.push(minBirthDate.toISOString().split('T')[0]);
+          paramCount++;
+        }
+        if (filters.minAge) {
+          const maxBirthDate = new Date(today.getFullYear() - filters.minAge, today.getMonth(), today.getDate());
+          baseQuery += ` AND p.date_of_birth <= $${paramCount}`;
+          values.push(maxBirthDate.toISOString().split('T')[0]);
+          paramCount++;
+        }
+      }
+
+      // Fame rating filters
+      if (filters.minFame !== undefined) {
+        baseQuery += ` AND p.fame_rating >= $${paramCount}`;
+        values.push(filters.minFame);
+        paramCount++;
+      }
+      
+      if (filters.maxFame !== undefined) {
+        baseQuery += ` AND p.fame_rating <= $${paramCount}`;
+        values.push(filters.maxFame);
+        paramCount++;
+      }
+
+      // Interest/tags filters
+      if (filters.tags && filters.tags.length > 0) {
+        baseQuery += ` AND p.id IN (
+          SELECT DISTINCT pi.profile_id 
+          FROM profile_interests pi 
+          JOIN interests i ON pi.interest_id = i.id 
+          WHERE i.name = ANY($${paramCount})
+        )`;
+        // Convert tags to lowercase to match database storage
+        values.push(filters.tags.map(tag => tag.toLowerCase().trim()));
+        paramCount++;
+      }
+
+      // City/location filter
+      if (filters.city) {
+        baseQuery += ` AND p.neighborhood ILIKE $${paramCount}`;
+        values.push(`%${filters.city}%`);
+        paramCount++;
+      }
+
+      // Build ORDER BY clause based on sortBy parameter
+      let orderBy = '';
+      if (filters.sortBy) {
+        switch (filters.sortBy) {
+          case 'age':
+            orderBy = `ORDER BY p.date_of_birth ${filters.sortOrder === 'asc' ? 'DESC' : 'ASC'}`;
+            break;
+          case 'location':
+            orderBy = `ORDER BY p.neighborhood ${filters.sortOrder || 'ASC'}`;
+            break;
+          case 'fame':
+            orderBy = `ORDER BY p.fame_rating ${filters.sortOrder || 'DESC'}`;
+            break;
+          case 'tags':
+            orderBy = `ORDER BY COALESCE(interests_count.interests_count, 0) ${filters.sortOrder || 'DESC'}, p.fame_rating DESC`;
+            break;
+          default:
+            orderBy = 'ORDER BY p.fame_rating DESC';
+        }
+      } else {
+        orderBy = 'ORDER BY p.fame_rating DESC';
+      }
+
+      // Build the complete query
+      const query = `
+        SELECT p.id, p.user_id as "userId", u.username, u.first_name as "firstName", 
+               u.last_name as "lastName", p.gender, p.bio, p.date_of_birth as "dateOfBirth",
+               p.fame_rating as "fameRating", p.neighborhood, p.completeness, p.created_at as "createdAt",
+               COALESCE(interests_count.interests_count, 0) as tag_count
+               ${distanceSelect}
+        ${baseQuery}
+        ${orderBy}
+        LIMIT ${filters.limit || 20} OFFSET ${filters.offset || 0}
+      `;
+
+      const result = await client.query(query, values);
+      
+      // Get interests and pictures for each profile
+      const profiles = await Promise.all(result.rows.map(async (profile: any) => {
+        const [interests, pictures, isLiked, hasLikedBack] = await Promise.all([
+          this.getInterestsByProfileId(profile.id),
+          this.getPicturesByProfileId(profile.id),
+          this.checkIfLiked(currentUserId, profile.userId),
+          this.checkIfLiked(profile.userId, currentUserId)
+        ]);
+
+        // Calculate age from date of birth
+        const age = profile.dateOfBirth ? 
+          Math.floor((Date.now() - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : 
+          null;
+
+        return {
+          ...profile,
+          age,
+          interests,
+          pictures,
+          distance: profile.distance || null,
+          commonInterests: profile.tag_count || 0,
           isLiked,
           hasLikedBack,
           isBlocked: false // Already filtered out in query

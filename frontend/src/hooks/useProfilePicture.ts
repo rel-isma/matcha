@@ -15,6 +15,7 @@ export const useProfilePicture = () => {
         if (result.success && result.data?.pictures?.length > 0) {
           // Get the main profile picture (first one or the one marked as profile pic)
           const mainPicture = result.data.pictures.find(pic => pic.isProfilePic) || result.data.pictures[0];
+          console.log('Fetched profile picture:', mainPicture);
           // Handle both external URLs (starting with http) and local uploads
           const pictureUrl = mainPicture.url.startsWith('http') 
             ? mainPicture.url 

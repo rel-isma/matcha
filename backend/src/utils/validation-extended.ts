@@ -316,3 +316,48 @@ export const interestIdParamValidation = [
     .isInt({ min: 1 })
     .withMessage('Interest ID must be a positive integer'),
 ];
+
+export const searchValidation = [
+  query('minAge')
+    .optional()
+    .isInt({ min: 18, max: 100 })
+    .withMessage('Minimum age must be between 18 and 100'),
+  query('maxAge')
+    .optional()
+    .isInt({ min: 18, max: 100 })
+    .withMessage('Maximum age must be between 18 and 100'),
+  query('minFame')
+    .optional()
+    .isInt({ min: 0, max: 100 })
+    .withMessage('Minimum fame rating must be between 0 and 100'),
+  query('maxFame')
+    .optional()
+    .isInt({ min: 0, max: 100 })
+    .withMessage('Maximum fame rating must be between 0 and 100'),
+  query('tags')
+    .optional()
+    .isString()
+    .withMessage('Tags must be a comma-separated string'),
+  query('city')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('City must be between 1 and 100 characters'),
+  query('sortBy')
+    .optional()
+    .isIn(['age', 'location', 'fame', 'tags'])
+    .withMessage('Sort by must be one of: age, location, fame, tags'),
+  query('sortOrder')
+    .optional()
+    .isIn(['asc', 'desc'])
+    .withMessage('Sort order must be asc or desc'),
+  query('page')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('Page must be a positive integer'),
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 50 })
+    .withMessage('Limit must be between 1 and 50'),
+];
