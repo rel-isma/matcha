@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { Toaster } from 'react-hot-toast';
 import { Header, NavBar } from '../../components/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { Spinner } from '../../components/ui';
@@ -59,6 +60,44 @@ export default function DashboardLayout({
       
       {/* Mobile Bottom Navigation */}
       <NavBar />
+      
+      {/* Toast Notifications */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#fff',
+            color: '#374151',
+            border: '1px solid #d1d5db',
+            borderRadius: '0.5rem',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+          success: {
+            style: {
+              border: '1px solid #10b981',
+              backgroundColor: '#f0fdf4',
+              color: '#065f46',
+            },
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#f0fdf4',
+            },
+          },
+          error: {
+            style: {
+              border: '1px solid #ef4444',
+              backgroundColor: '#fef2f2',
+              color: '#991b1b',
+            },
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fef2f2',
+            },
+          },
+        }}
+      />
     </div>
   );
 }
