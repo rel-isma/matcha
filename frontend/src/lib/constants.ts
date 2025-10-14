@@ -106,6 +106,8 @@ export const API_ENDPOINTS = {
     LIKE: (userId: string) => `/profile/like/${userId}`,
     UNLIKE: (userId: string) => `/profile/like/${userId}`,
     BLOCK: (userId: string) => `/profile/block/${userId}`,
+    BLOCKED: '/profile/blocked',
+    UNBLOCK: (userId: string) => `/profile/unblock/${userId}`,
     REPORT: (userId: string) => `/profile/report/${userId}`,
   },
 } as const;

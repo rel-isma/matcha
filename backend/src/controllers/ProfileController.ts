@@ -705,6 +705,17 @@ export class ProfileController {
         });
       }
 
+      // Check if the user is blocked by the profile owner or vice versa
+      const isUserBlocked = await ProfileModel.isUserBlocked(profile.userId, userId);
+      const hasUserBlocked = await ProfileModel.isUserBlocked(userId, profile.userId);
+      
+      if (isUserBlocked || hasUserBlocked) {
+        return res.status(403).json({
+          success: false,
+          message: 'This profile has been blocked and is no longer accessible.'
+        });
+      }
+
       // Record profile view
       await ProfileModel.recordProfileView(userId, profile.userId);
 
@@ -1597,6 +1608,145 @@ export class ProfileController {
       res.status(500).json({
         success: false,
         message: 'Failed to fix neighborhood',
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+      });
+    }
+  }
+
+  /**
+   * @swagger
+   * /profile/blocked:
+   *   get:
+   *     summary: Get list of blocked users
+   *     tags: [Social Actions]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Blocked users retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   type: array
+   *                   items:
+   *                     type: object
+   *                     properties:
+   *                       id:
+   *                         type: string
+   *                       userId:
+   *                         type: string
+   *                       username:
+   *                         type: string
+   *                       firstName:
+   *                         type: string
+   *                       lastName:
+   *                         type: string
+   *                       profilePicture:
+   *                         type: string
+   *                       blockedAt:
+   *                         type: string
+   *                         format: date-time
+   *       401:
+   *         description: Unauthorized
+   */
+  // Get blocked users
+  static async getBlockedUsers(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Unauthorized'
+        });
+      }
+
+      const blockedUsers = await ProfileModel.getBlockedUsers(userId);
+
+      return res.json({
+        success: true,
+        data: blockedUsers
+      });
+    } catch (error) {
+      console.error('Get blocked users error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+      });
+    }
+  }
+
+  /**
+   * @swagger
+   * /profile/unblock/{targetUserId}:
+   *   delete:
+   *     summary: Unblock a user
+   *     tags: [Social Actions]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: targetUserId
+   *         required: true
+   *         schema:
+   *           type: string
+   *           format: uuid
+   *         description: Target user ID to unblock
+   *     responses:
+   *       200:
+   *         description: User unblocked successfully
+   *       400:
+   *         description: Cannot unblock yourself or user not blocked
+   *       404:
+   *         description: Block not found
+   *       401:
+   *         description: Unauthorized
+   */
+  // Unblock a user
+  static async unblockUser(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      const { targetUserId } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Unauthorized'
+        });
+      }
+
+      if (userId === targetUserId) {
+        return res.status(400).json({
+          success: false,
+          message: 'You cannot unblock yourself'
+        });
+      }
+
+      await ProfileModel.unblockUser(userId, targetUserId);
+
+      return res.json({
+        success: true,
+        message: 'User unblocked successfully'
+      });
+    } catch (error) {
+      console.error('Unblock user error:', error);
+      
+      if ((error as Error).message === 'No block found to remove') {
+        return res.status(404).json({
+          success: false,
+          message: 'User is not blocked'
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
         error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
       });
     }

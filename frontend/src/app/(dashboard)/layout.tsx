@@ -69,20 +69,21 @@ export default function DashboardLayout({
           style: {
             background: '#fff',
             color: '#374151',
-            border: '1px solid #d1d5db',
-            borderRadius: '0.5rem',
+            border: '1px solid #fed7aa',
+            borderRadius: '0.75rem',
             fontSize: '14px',
             fontWeight: '500',
+            boxShadow: '0 10px 15px -3px rgba(249, 115, 22, 0.1), 0 4px 6px -2px rgba(249, 115, 22, 0.05)',
           },
           success: {
             style: {
-              border: '1px solid #10b981',
-              backgroundColor: '#f0fdf4',
-              color: '#065f46',
+              border: '1px solid #f97316',
+              backgroundColor: '#fff7ed',
+              color: '#9a3412',
             },
             iconTheme: {
-              primary: '#10b981',
-              secondary: '#f0fdf4',
+              primary: '#f97316',
+              secondary: '#fff7ed',
             },
           },
           error: {
@@ -94,6 +95,17 @@ export default function DashboardLayout({
             iconTheme: {
               primary: '#ef4444',
               secondary: '#fef2f2',
+            },
+          },
+          loading: {
+            style: {
+              border: '1px solid #f59e0b',
+              backgroundColor: '#fffbeb',
+              color: '#92400e',
+            },
+            iconTheme: {
+              primary: '#f59e0b',
+              secondary: '#fffbeb',
             },
           },
         }}

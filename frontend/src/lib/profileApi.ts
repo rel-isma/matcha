@@ -231,6 +231,50 @@ class ProfileApiClient {
     }
   }
 
+  // Get blocked users
+  async getBlockedUsers(): Promise<ApiResponse<Array<{
+    id: string;
+    userId: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+    blockedAt: Date;
+  }>>> {
+    try {
+      const response = await api.get(API_ENDPOINTS.PROFILE.BLOCKED);
+      return response as ApiResponse<Array<{
+        id: string;
+        userId: string;
+        username: string;
+        firstName: string;
+        lastName: string;
+        profilePicture?: string;
+        blockedAt: Date;
+      }>>;
+    } catch (error: unknown) {
+      const profileError = error as ProfileApiError;
+      return {
+        success: false,
+        message: profileError.message || 'Failed to get blocked users'
+      };
+    }
+  }
+
+  // Unblock user
+  async unblockUser(userId: string): Promise<ApiResponse<{ message: string }>> {
+    try {
+      const response = await api.delete(API_ENDPOINTS.PROFILE.UNBLOCK(userId));
+      return response as ApiResponse<{ message: string }>;
+    } catch (error: unknown) {
+      const profileError = error as ProfileApiError;
+      return {
+        success: false,
+        message: profileError.message || 'Failed to unblock user'
+      };
+    }
+  }
+
   // Report user
   async reportUser(userId: string, reason: string): Promise<ApiResponse<{ message: string }>> {
     try {

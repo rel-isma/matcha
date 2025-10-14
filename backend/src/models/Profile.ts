@@ -1130,4 +1130,67 @@ export class ProfileModel {
     const result = await pool.query(query, [profileId]);
     return result.rows;
   }
+
+  // Get blocked users for a user
+  static async getBlockedUsers(userId: string): Promise<Array<{
+    id: string;
+    userId: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+    blockedAt: Date;
+  }>> {
+    const query = `
+      SELECT 
+        u.id,
+        u.username,
+        u.first_name as "firstName",
+        u.last_name as "lastName",
+        pp.url as "profilePicture",
+        b.created_at as "blockedAt"
+      FROM blocks b
+      JOIN users u ON b.blocked_id = u.id
+      LEFT JOIN profiles p ON u.id = p.user_id
+      LEFT JOIN profile_pictures pp ON p.id = pp.profile_id AND pp.is_profile_pic = true
+      WHERE b.blocker_id = $1
+      ORDER BY b.created_at DESC
+    `;
+    
+    const result = await pool.query(query, [userId]);
+    return result.rows.map(row => ({
+      id: row.id,
+      userId: row.id,
+      username: row.username,
+      firstName: row.firstName,
+      lastName: row.lastName,
+      profilePicture: row.profilePicture,
+      blockedAt: row.blockedAt
+    }));
+  }
+
+  // Unblock a user
+  static async unblockUser(blockerId: string, blockedId: string): Promise<void> {
+    const query = `
+      DELETE FROM blocks 
+      WHERE blocker_id = $1 AND blocked_id = $2
+    `;
+    
+    const result = await pool.query(query, [blockerId, blockedId]);
+    
+    if (result.rowCount === 0) {
+      throw new Error('No block found to remove');
+    }
+  }
+
+  // Check if user is blocked
+  static async isUserBlocked(blockerId: string, blockedId: string): Promise<boolean> {
+    const query = `
+      SELECT 1 FROM blocks 
+      WHERE blocker_id = $1 AND blocked_id = $2
+    `;
+    
+    const result = await pool.query(query, [blockerId, blockedId]);
+    return result.rows.length > 0;
+  }
 }

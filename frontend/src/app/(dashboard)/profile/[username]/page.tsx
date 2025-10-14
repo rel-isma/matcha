@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { Loading } from '@/components/ui/Spinner';
 import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, STATIC_BASE_URL } from '../../../../lib/constants';
 import { profileApi } from '@/lib/profileApi';
+import { getLastSeenText } from '@/lib/utils';
 import { PublicProfile } from '@/types';
 
 export default function UserProfilePage() {
@@ -34,16 +35,12 @@ export default function UserProfilePage() {
   const [isConnected, setIsConnected] = useState(false);
   const [hasLikedMe, setHasLikedMe] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
-  const [lastSeen, setLastSeen] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('Information');
   
   const username = params.username as string;
-
-  // Check if viewing own profile
   const isOwnProfile = user?.username === username;
-  console.log(">>>>>>>>>>>>>>>>user", user)
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -55,16 +52,17 @@ export default function UserProfilePage() {
         const profileData = response.data.profile;
         setProfile(profileData);
         
-        // Set interaction status from backend
         setIsLiked(profileData.isLiked || false);
         setHasLikedMe(profileData.hasLikedMe || false);
         setIsConnected(profileData.isConnected || false);
         setIsOnline(profileData.isOnline || false);
-        setLastSeen(profileData.lastSeen || null);
         
-        // Record profile view is handled automatically by the backend
       } else {
-        setError(response.message || 'Failed to load profile');
+        if (response.message?.includes('blocked') || response.message?.includes('access denied')) {
+          setError('This profile has been blocked and is no longer accessible.');
+        } else {
+          setError(response.message || 'Failed to load profile');
+        }
       }
     } catch (error) {
       setError('Failed to load profile');
@@ -85,7 +83,6 @@ export default function UserProfilePage() {
   const handleLike = async () => {
     if (!profile) return;
 
-    // Check if current user has a profile picture
     if (!user?.isProfileCompleted) {
       toast.error('You need to complete your profile with a profile picture to like other users.');
       return;
@@ -95,23 +92,18 @@ export default function UserProfilePage() {
       setActionLoading('like');
       
       if (isLiked) {
-        // Unlike
         const response = await profileApi.unlikeUser(profile.userId);
         if (response.success) {
           setIsLiked(false);
           setIsConnected(false);
-          // If they had liked us, we're no longer connected but they still like us
-          // hasLikedMe remains true if they still like us
           toast.success(`You've unliked ${profile.firstName}'s profile.`);
         } else {
           toast.error(response.message || 'Failed to unlike user');
         }
       } else {
-        // Like
         const response = await profileApi.likeUser(profile.userId);
         if (response.success) {
           setIsLiked(true);
-          // Check if it creates a match (they already liked us)
           if (hasLikedMe) {
             setIsConnected(true);
             setShowMatchModal(true);
@@ -158,6 +150,7 @@ export default function UserProfilePage() {
     }
   };
 
+
   const handleReport = async () => {
     if (!user || reportLoading || !profile) return;
 
@@ -177,7 +170,6 @@ export default function UserProfilePage() {
     if (isConnected) {
       router.push(`/chat?user=${profile?.username}`);
     } else {
-      // Navigate to general messages page if not connected
       router.push('/messages'); 
     }
   };
@@ -213,30 +205,6 @@ export default function UserProfilePage() {
     if (rating >= 150) return { level: 'Gold', color: 'text-yellow-500', bgColor: 'bg-yellow-100' };
     if (rating >= 50) return { level: 'Silver', color: 'text-gray-400', bgColor: 'bg-gray-50' };
     return { level: 'Bronze', color: 'text-orange-400', bgColor: 'bg-orange-100' };
-  };
-
-  const getLastSeenText = () => {
-    if (isOnline) return 'Online now';
-    if (!lastSeen) return 'Last seen unknown';
-    
-    const lastSeenDate = new Date(lastSeen);
-    const now = new Date();
-    const diffMs = now.getTime() - lastSeenDate.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} minutes ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    
-    return lastSeenDate.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: lastSeenDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-    });
   };
 
   const genderLabel = GENDER_OPTIONS.find(g => g.value === profile?.gender)?.label;
@@ -285,74 +253,7 @@ export default function UserProfilePage() {
         Back
       </Button>
 
-      {/* Connection Status Banner */}
-      {(isConnected || hasLikedMe) && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`mb-6 p-4 rounded-lg ${
-            isConnected 
-              ? 'bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-300' 
-              : 'bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-200'
-          }`}
-        >
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-            {isConnected ? (
-              <>
-                <div className="flex-shrink-0">
-                  <HeartHandshake className="text-orange-600" size={28} />
-                </div>
-                <div className="flex-1 text-center md:text-left">
-                  <h3 className="font-bold text-orange-800 text-lg mb-1">🎉 You&apos;re Connected!</h3>
-                  <p className="text-orange-700 text-sm">
-                    You both liked each other&apos;s profiles. Start a conversation and get to know each other better!
-                  </p>
-                </div>
-                <div className="flex-shrink-0 w-full md:w-auto">
-                  <Button
-                    onClick={handleStartChat}
-                    className="w-full md:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                  >
-                    <MessageCircle size={16} className="mr-2" />
-                    Start Chat
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex-shrink-0">
-                  <Heart className="text-orange-500 fill-current" size={28} />
-                </div>
-                <div className="flex-1 text-center md:text-left">
-                  <h3 className="font-bold text-orange-800 text-lg mb-1">💖 {profile.firstName} Liked You!</h3>
-                  <p className="text-orange-700 text-sm">
-                    They&apos;ve shown interest in your profile. Like them back to connect and start chatting!
-                  </p>
-                </div>
-                <div className="flex-shrink-0 w-full md:w-auto">
-                  <Button
-                    onClick={handleLike}
-                    disabled={actionLoading === 'like'}
-                    className="w-full md:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
-                  >
-                    {actionLoading === 'like' ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Liking...</span>
-                      </div>
-                    ) : (
-                      <>
-                        <Heart size={16} className="mr-2" />
-                        Like Back
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        </motion.div>
-      )}
+
 
       {/* Profile Header */}
       <motion.div
@@ -424,7 +325,7 @@ export default function UserProfilePage() {
               <div className="flex items-center justify-center md:justify-start gap-4 text-sm text-gray-600 mb-4">
                 <div className="flex items-center gap-1">
                   <Clock size={14} />
-                  <span>{getLastSeenText()}</span>
+                  <span>{getLastSeenText(profile.lastSeen || null, isOnline)}</span>
                 </div>
                 {profile.neighborhood && (
                   <>
@@ -708,7 +609,7 @@ export default function UserProfilePage() {
                     <dt className="text-gray-700 font-medium">Status</dt>
                   </div>
                   <dd className={`font-medium ${isOnline ? 'text-green-600' : 'text-gray-600'}`}>
-                    {getLastSeenText()}
+                    {getLastSeenText(profile.lastSeen || null, isOnline)}
                   </dd>
                 </div>
               </div>

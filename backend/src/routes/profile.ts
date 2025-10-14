@@ -108,6 +108,12 @@ router.post('/block/:targetUserId',
   handleValidationErrors, 
   ProfileController.blockUser
 );
+router.get('/blocked', ProfileController.getBlockedUsers);
+router.delete('/unblock/:targetUserId', 
+  userIdParamValidation, 
+  handleValidationErrors, 
+  ProfileController.unblockUser
+);
 router.post('/report/:targetUserId', 
   userIdParamValidation, 
   reportUserValidation, 

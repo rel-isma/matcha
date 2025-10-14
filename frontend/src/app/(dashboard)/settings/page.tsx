@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, MapPin, Heart, Camera, Save, Eye, EyeOff, Upload, X, Trash2 } from 'lucide-react';
+import { User, Mail, Lock, MapPin, Heart, Camera, Save, Eye, EyeOff, Upload, X, Trash2, Ban } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { GPSLocationPicker } from '@/components/ui';
@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, INTEREST_OPTIONS, PHOTO_LIMITS } from '@/lib/constants';
 import { authApi } from '@/lib/api';
+import { profileApi } from '@/lib/profileApi';
 import toast from 'react-hot-toast';
 
 interface UserFormData {
@@ -82,6 +83,15 @@ export default function SettingsPage() {
   });
 
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [blockedUsers, setBlockedUsers] = useState<Array<{
+    id: string;
+    userId: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+    blockedAt: Date;
+  }>>([]);
 
   // Initialize form data when user/profile loads
   useEffect(() => {
@@ -112,44 +122,35 @@ export default function SettingsPage() {
     }
   }, [profile]);
 
-  const handleUserFormSubmit = async (e: React.FormEvent) => {
+  const handlePersonalInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setErrors({});
 
     try {
-      // Call API to update user information
-      const response = await authApi.updateUser(userFormData);
+      // Update user information first
+      const userResponse = await authApi.updateUser(userFormData);
       
-      if (response.success) {
-        // Update auth context
-        await updateUser();
-        toast.success('Personal information updated successfully!');
-      } else {
-        setErrors({ user: response.message || 'Failed to update personal information' });
+      if (!userResponse.success) {
+        setErrors({ personal: userResponse.message || 'Failed to update personal information' });
+        setIsLoading(false);
+        return;
       }
-    } catch (error) {
-      setErrors({ user: 'An error occurred while updating personal information' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const handleProfileFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrors({});
-
-    try {
-      const result = await updateProfile(profileFormData);
+      // Then update profile information
+      const profileResponse = await updateProfile(profileFormData);
       
-      if (result.success) {
-        toast.success('Profile information updated successfully!');
-      } else {
-        setErrors({ profile: result.message || 'Failed to update profile information' });
+      if (!profileResponse) {
+        setErrors({ personal: 'Failed to update profile information' });
+        setIsLoading(false);
+        return;
       }
+
+      // Update auth context
+      await updateUser();
+      toast.success('Personal information updated successfully!');
     } catch (error) {
-      setErrors({ profile: 'An error occurred while updating profile information' });
+      setErrors({ personal: 'An error occurred while updating personal information' });
     } finally {
       setIsLoading(false);
     }
@@ -346,12 +347,54 @@ export default function SettingsPage() {
     }
   };
 
+  // Fetch blocked users when blocked tab is active
+  useEffect(() => {
+    if (activeTab === 'blocked') {
+      fetchBlockedUsers();
+    }
+  }, [activeTab]);
+
+  const fetchBlockedUsers = async () => {
+    try {
+      setIsLoading(true);
+      const response = await profileApi.getBlockedUsers();
+      if (response.success && response.data) {
+        setBlockedUsers(response.data);
+      } else {
+        toast.error('Failed to load blocked users');
+      }
+    } catch (error) {
+      toast.error('An error occurred while loading blocked users');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle unblock user
+  const handleUnblockUser = async (userId: string, name: string) => {
+    try {
+      setIsLoading(true);
+      const response = await profileApi.unblockUser(userId);
+      if (response.success) {
+        // Remove user from blocked list
+        setBlockedUsers(prev => prev.filter(user => user.userId !== userId));
+        toast.success(`${name} has been unblocked successfully!`);
+      } else {
+        toast.error(response.message || 'Failed to unblock user');
+      }
+    } catch (error) {
+      toast.error('An error occurred while unblocking user');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const tabs = [
     { id: 'personal', label: 'Personal Info', icon: User },
-    { id: 'profile', label: 'Profile Details', icon: Heart },
     { id: 'location', label: 'Location', icon: MapPin },
     { id: 'photos', label: 'Photos Gallery', icon: Camera },
     { id: 'interests', label: 'Interests', icon: Heart },
+    { id: 'blocked', label: 'Blocked Users', icon: Ban },
     { id: 'security', label: 'Security', icon: Lock }
   ];
 
@@ -556,152 +599,126 @@ export default function SettingsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleUserFormSubmit} className="space-y-6">
-                  {errors.user && (
+                <form onSubmit={handlePersonalInfoSubmit} className="space-y-6">
+                  {errors.personal && (
                     <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-                      {errors.user}
+                      {errors.personal}
                     </div>
                   )}
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        First Name
-                      </label>
-                      <Input
-                        type="text"
-                        value={userFormData.firstName}
-                        onChange={(e) => setUserFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                        placeholder="Enter your first name"
-                        required
-                      />
+                  {/* Basic Information Section */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800 border-b border-orange-200 pb-2">
+                      Basic Information
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          First Name
+                        </label>
+                        <Input
+                          type="text"
+                          value={userFormData.firstName}
+                          onChange={(e) => setUserFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                          placeholder="Enter your first name"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Last Name
+                        </label>
+                        <Input
+                          type="text"
+                          value={userFormData.lastName}
+                          onChange={(e) => setUserFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                          placeholder="Enter your last name"
+                          required
+                        />
+                      </div>
                     </div>
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Last Name
+                        Email Address
                       </label>
                       <Input
-                        type="text"
-                        value={userFormData.lastName}
-                        onChange={(e) => setUserFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                        placeholder="Enter your last name"
+                        type="email"
+                        value={userFormData.email}
+                        onChange={(e) => setUserFormData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="Enter your email address"
                         required
                       />
                     </div>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address
-                    </label>
-                    <Input
-                      type="email"
-                      value={userFormData.email}
-                      onChange={(e) => setUserFormData(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="Enter your email address"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row justify-end gap-3">
-                    <Button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2"
-                    >
-                      <Save size={16} />
-                      {isLoading ? 'Saving...' : 'Save Changes'}
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
 
-        {/* Profile Details Tab */}
-        {activeTab === 'profile' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card className="shadow-xl border-0 bg-white/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart size={20} />
-                  Profile Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleProfileFormSubmit} className="space-y-6">
-                  {errors.profile && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-                      {errors.profile}
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Gender
-                      </label>
-                      <Select
-                        value={profileFormData.gender}
-                        onChange={(e) => setProfileFormData(prev => ({ ...prev, gender: e.target.value }))}
-                        options={[{ value: '', label: 'Select your gender' }, ...GENDER_OPTIONS]}
-                        required
-                      />
+                  {/* Profile Details Section */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800 border-b border-orange-200 pb-2">
+                      Profile Details
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Gender
+                        </label>
+                        <Select
+                          value={profileFormData.gender}
+                          onChange={(value) => setProfileFormData(prev => ({ ...prev, gender: value as string }))}
+                          options={[{ value: '', label: 'Select your gender' }, ...GENDER_OPTIONS]}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Looking For
+                        </label>
+                        <Select
+                          value={profileFormData.sexualPreference}
+                          onChange={(value) => setProfileFormData(prev => ({ ...prev, sexualPreference: value as string }))}
+                          options={[{ value: '', label: 'Who are you looking for?' }, ...SEXUAL_PREFERENCE_OPTIONS]}
+                        />
+                      </div>
                     </div>
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Looking For
+                        Date of Birth
                       </label>
-                      <Select
-                        value={profileFormData.sexualPreference}
-                        onChange={(e) => setProfileFormData(prev => ({ ...prev, sexualPreference: e.target.value }))}
-                        options={[{ value: '', label: 'Who are you looking for?' }, ...SEXUAL_PREFERENCE_OPTIONS]}
+                      <Input
+                        type="date"
+                        value={profileFormData.dateOfBirth}
+                        onChange={(e) => setProfileFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                        max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+                        min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
                         required
                       />
+                      {profileFormData.dateOfBirth && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          Age: {Math.floor((new Date().getTime() - new Date(profileFormData.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old
+                        </p>
+                      )}
                     </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date of Birth
-                    </label>
-                    <Input
-                      type="date"
-                      value={profileFormData.dateOfBirth}
-                      onChange={(e) => setProfileFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                      max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                      min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
-                      required
-                    />
-                    {profileFormData.dateOfBirth && (
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Bio
+                      </label>
+                      <textarea
+                        value={profileFormData.bio}
+                        onChange={(e) => setProfileFormData(prev => ({ ...prev, bio: e.target.value }))}
+                        placeholder="Tell others about yourself..."
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors resize-none"
+                        rows={4}
+                        maxLength={500}
+                      />
                       <p className="text-sm text-gray-500 mt-1">
-                        Age: {Math.floor((new Date().getTime() - new Date(profileFormData.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old
+                        {profileFormData.bio.length}/500 characters
                       </p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Bio
-                    </label>
-                    <textarea
-                      value={profileFormData.bio}
-                      onChange={(e) => setProfileFormData(prev => ({ ...prev, bio: e.target.value }))}
-                      placeholder="Tell others about yourself..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors resize-none"
-                      rows={4}
-                      maxLength={500}
-                    />
-                    <p className="text-sm text-gray-500 mt-1">
-                      {profileFormData.bio.length}/500 characters
-                    </p>
+                    </div>
                   </div>
                   
                   <div className="flex flex-col sm:flex-row justify-end gap-3">
@@ -1086,6 +1103,104 @@ export default function SettingsPage() {
                     maxHeight={300}
                   />
                 </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Blocked Users Tab */}
+        {activeTab === 'blocked' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="shadow-xl border-0 bg-white/50 backdrop-blur-sm">
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent flex items-center gap-2">
+                  <Ban size={24} />
+                  Blocked Users
+                </CardTitle>
+                <p className="text-sm text-gray-600 mt-2">
+                  Manage users you have blocked. You can unblock them to allow interaction again.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {isLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading blocked users...</p>
+                  </div>
+                ) : blockedUsers.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Ban size={48} className="mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No Blocked Users</h3>
+                    <p className="text-gray-500">
+                      You haven&apos;t blocked any users yet. Users you block will appear here.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <h3 className="text-base font-semibold text-gray-700">
+                      Blocked Users ({blockedUsers.length})
+                    </h3>
+                    <div className="grid gap-4">
+                      {blockedUsers.map((user) => (
+                        <div
+                          key={user.userId}
+                          className="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg hover:from-red-100 hover:to-orange-100 transition-all duration-200"
+                        >
+                          <div className="flex items-center gap-4">
+                            {/* Profile Picture */}
+                            <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                              {user.profilePicture ? (
+                                <img
+                                  src={`http://localhost:5000${user.profilePicture}`}
+                                  alt={`${user.firstName}'s profile`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    (e.currentTarget.parentNode as HTMLElement).innerHTML = `
+                                      <div class="w-full h-full flex items-center justify-center">
+                                        <span class="text-gray-500 font-medium text-sm">${user.firstName.charAt(0)}</span>
+                                      </div>
+                                    `;
+                                  }}
+                                />
+                              ) : (
+                                <span className="text-gray-500 font-medium text-sm">
+                                  {user.firstName.charAt(0)}
+                                </span>
+                              )}
+                            </div>
+                            
+                            {/* User Info */}
+                            <div>
+                              <h4 className="font-semibold text-gray-900">
+                                {user.firstName} {user.lastName}
+                              </h4>
+                              <p className="text-sm text-gray-600">@{user.username}</p>
+                              <p className="text-xs text-gray-500">
+                                Blocked on {new Date(user.blockedAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Unblock Button */}
+                          <Button
+                            type="button"
+                            onClick={() => handleUnblockUser(user.userId, user.firstName)}
+                            disabled={isLoading}
+                            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-semibold transition-all duration-200 hover:scale-105 disabled:opacity-50"
+                          >
+                            <X size={16} />
+                            Unblock
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
