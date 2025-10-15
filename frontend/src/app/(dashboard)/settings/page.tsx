@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, MapPin, Heart, Camera, Save, Eye, EyeOff, Upload, X, Trash2, Ban } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -11,7 +12,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, INTEREST_OPTIONS, PHOTO_LIMITS } from '@/lib/constants';
+import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, INTEREST_OPTIONS, PHOTO_LIMITS, STATIC_BASE_URL } from '@/lib/constants';
 import { authApi } from '@/lib/api';
 import { profileApi } from '@/lib/profileApi';
 import toast from 'react-hot-toast';
@@ -931,11 +932,12 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
                       {profile.pictures?.map((picture, index) => (
                         <div key={picture.id} className="relative group">
-                          <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 shadow-md group-hover:shadow-lg transition-shadow duration-200">
-                            <img
-                              src={`http://localhost:5000${picture.url}`}
+                          <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 shadow-md group-hover:shadow-lg transition-shadow duration-200">
+                            <Image
+                              src={picture.url.startsWith('http') ? picture.url : `${STATIC_BASE_URL}${picture.url}`}
                               alt={`Photo ${index + 1}`}
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                               onError={(e) => {
                                 console.error('Image load error:', picture.url);
                                 e.currentTarget.src = '/placeholder.svg';
@@ -976,11 +978,12 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
                       {newPictures.map((file, index) => (
                         <div key={index} className="relative group">
-                          <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                            <img
+                          <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                            <Image
                               src={URL.createObjectURL(file)}
                               alt={`New photo ${index + 1}`}
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
                           </div>
                           <button
@@ -1148,16 +1151,17 @@ export default function SettingsPage() {
                       {blockedUsers.map((user) => (
                         <div
                           key={user.userId}
-                          className="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg hover:from-red-100 hover:to-orange-100 transition-all duration-200"
+                          className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg hover:from-orange-100 hover:to-amber-100 transition-all duration-200"
                         >
                           <div className="flex items-center gap-4">
                             {/* Profile Picture */}
-                            <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                               {user.profilePicture ? (
-                                <img
-                                  src={`http://localhost:5000${user.profilePicture}`}
+                                <Image
+                                  src={user.profilePicture.startsWith('http') ? user.profilePicture : `${STATIC_BASE_URL}${user.profilePicture}`}
                                   alt={`${user.firstName}'s profile`}
-                                  className="w-full h-full object-cover"
+                                  fill
+                                  className="object-cover"
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                     (e.currentTarget.parentNode as HTMLElement).innerHTML = `
