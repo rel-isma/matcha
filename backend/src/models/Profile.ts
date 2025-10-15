@@ -859,13 +859,102 @@ export class ProfileModel {
   }
 
   // Social features
-  static async recordProfileView(viewerId: string, viewedUserId: string): Promise<void> {
-    const query = `
-      INSERT INTO profile_views (viewer_id, viewed_user)
-      VALUES ($1, $2)
-      ON CONFLICT DO NOTHING
+  static async recordProfileView(
+    viewerId: string, 
+    viewedUserId: string, 
+    viewerIp?: string, 
+    viewerAgent?: string
+  ): Promise<void> {
+    // Don't record self-views
+    if (viewerId === viewedUserId) return;
+
+    // Check for recent view by same viewer to avoid duplicates within 10 minutes
+    const recentViewQuery = `
+      SELECT created_at 
+      FROM profile_views 
+      WHERE viewer_id = $1 AND viewed_user = $2 
+      ORDER BY created_at DESC 
+      LIMIT 1
     `;
-    await pool.query(query, [viewerId, viewedUserId]);
+    
+    const recentView = await pool.query(recentViewQuery, [viewerId, viewedUserId]);
+    
+    if (recentView.rows.length > 0) {
+      const lastViewTime = new Date(recentView.rows[0].created_at);
+      const currentTime = new Date();
+      const timeDiffMs = currentTime.getTime() - lastViewTime.getTime();
+      const tenMinutesMs = 10 * 60 * 1000; // 10 minutes in milliseconds
+      
+      // Skip recording if last view was within 10 minutes
+      if (timeDiffMs < tenMinutesMs) {
+        return;
+      }
+    }
+
+    const query = `
+      INSERT INTO profile_views (viewer_id, viewed_user, viewer_ip, viewer_agent)
+      VALUES ($1, $2, $3, $4)
+    `;
+    await pool.query(query, [viewerId, viewedUserId, viewerIp, viewerAgent]);
+  }
+
+  static async getProfileViews(
+    userId: string, 
+    page: number = 1, 
+    limit: number = 20
+  ): Promise<{ views: ProfileView[]; total: number; hasMore: boolean }> {
+    const offset = (page - 1) * limit;
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM profile_views pv
+      WHERE pv.viewed_user = $1
+    `;
+    const countResult = await pool.query(countQuery, [userId]);
+    const total = parseInt(countResult.rows[0]?.total || '0');
+
+    // Get views with viewer details
+    const query = `
+      SELECT DISTINCT ON (pv.id)
+        pv.id,
+        pv.viewer_id as "viewerId",
+        pv.viewed_user as "viewedUser",
+        pv.viewer_ip as "viewerIp",
+        pv.viewer_agent as "viewerAgent",
+        pv.created_at as "createdAt",
+        u.username,
+        u.first_name as "firstName",
+        u.last_name as "lastName",
+        (SELECT url FROM profile_pictures WHERE profile_id = p.id AND is_profile_pic = true LIMIT 1) as "profilePicture"
+      FROM profile_views pv
+      LEFT JOIN users u ON pv.viewer_id = u.id
+      LEFT JOIN profiles p ON u.id = p.user_id
+      WHERE pv.viewed_user = $1
+      ORDER BY pv.id, pv.created_at DESC
+      LIMIT $2 OFFSET $3
+    `;
+
+    const result = await pool.query(query, [userId, limit, offset]);
+    
+    const views: ProfileView[] = result.rows.map(row => ({
+      id: row.id,
+      viewerId: row.viewerId,
+      viewedUser: row.viewedUser,
+      viewerIp: row.viewerIp,
+      viewerAgent: row.viewerAgent,
+      createdAt: row.createdAt,
+      viewer: row.viewerId ? {
+        username: row.username,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        profilePicture: row.profilePicture
+      } : undefined
+    }));
+
+    const hasMore = offset + limit < total;
+
+    return { views, total, hasMore };
   }
 
   static async getLikesReceived(userId: string): Promise<Like[]> {

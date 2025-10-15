@@ -83,7 +83,16 @@ export interface ProfileView {
   id: string;
   viewerId?: string;
   viewedUser: string;
+  viewerIp?: string;
+  viewerAgent?: string;
   createdAt: Date;
+  // Populated when fetching with viewer details
+  viewer?: {
+    username: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+  };
 }
 
 export interface Like {

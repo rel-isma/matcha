@@ -217,6 +217,56 @@ class ProfileApiClient {
     }
   }
 
+  // Get profile views
+  async getProfileViews(page: number = 1, limit: number = 20): Promise<ApiResponse<{
+    views: Array<{
+      id: string;
+      viewerId?: string;
+      createdAt: Date;
+      viewer?: {
+        username: string;
+        firstName: string;
+        lastName: string;
+        profilePicture?: string;
+      };
+    }>;
+    total: number;
+    hasMore: boolean;
+    currentPage: number;
+    totalPages: number;
+  }>> {
+    try {
+      const params = new URLSearchParams();
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+      
+      const response = await api.get(`${API_ENDPOINTS.PROFILE.VIEWS}?${params.toString()}`);
+      return response as ApiResponse<{
+        views: Array<{
+          id: string;
+          viewerId?: string;
+          createdAt: Date;
+          viewer?: {
+            username: string;
+            firstName: string;
+            lastName: string;
+            profilePicture?: string;
+          };
+        }>;
+        total: number;
+        hasMore: boolean;
+        currentPage: number;
+        totalPages: number;
+      }>;
+    } catch (error: unknown) {
+      const profileError = error as ProfileApiError;
+      return {
+        success: false,
+        message: profileError.message || 'Failed to get profile views'
+      };
+    }
+  }
+
   // Block user
   async blockUser(userId: string): Promise<ApiResponse<{ message: string }>> {
     try {

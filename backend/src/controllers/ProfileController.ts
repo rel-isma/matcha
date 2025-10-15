@@ -716,8 +716,15 @@ export class ProfileController {
         });
       }
 
-      // Record profile view
-      await ProfileModel.recordProfileView(userId, profile.userId);
+      // Record profile view with IP and user agent
+      const clientIp = req.headers['x-forwarded-for'] as string || 
+                      req.headers['x-real-ip'] as string || 
+                      req.connection?.remoteAddress || 
+                      req.socket?.remoteAddress || 
+                      'unknown';
+      const userAgent = req.headers['user-agent'] || 'unknown';
+      
+      await ProfileModel.recordProfileView(userId, profile.userId, clientIp, userAgent);
 
       return res.json({
         success: true,
@@ -1744,6 +1751,116 @@ export class ProfileController {
         });
       }
       
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+      });
+    }
+  }
+
+  /**
+   * @swagger
+   * /api/profile/views:
+   *   get:
+   *     summary: Get profile views for the current user
+   *     tags: [Profile]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number for pagination
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *           maximum: 50
+   *         description: Number of views per page
+   *     responses:
+   *       200:
+   *         description: Profile views retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 message:
+   *                   type: string
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     views:
+   *                       type: array
+   *                       items:
+   *                         type: object
+   *                         properties:
+   *                           id:
+   *                             type: string
+   *                           viewerId:
+   *                             type: string
+   *                           createdAt:
+   *                             type: string
+   *                             format: date-time
+   *                           viewer:
+   *                             type: object
+   *                             properties:
+   *                               username:
+   *                                 type: string
+   *                               firstName:
+   *                                 type: string
+   *                               lastName:
+   *                                 type: string
+   *                               profilePicture:
+   *                                 type: string
+   *                     total:
+   *                       type: integer
+   *                     hasMore:
+   *                       type: boolean
+   *                     currentPage:
+   *                       type: integer
+   *                     totalPages:
+   *                       type: integer
+   *       401:
+   *         description: Unauthorized
+   */
+  static async getProfileViews(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Authentication required'
+        });
+      }
+
+      const page = Math.max(1, parseInt(req.query.page as string) || 1);
+      const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+
+      const result = await ProfileModel.getProfileViews(userId, page, limit);
+      const totalPages = Math.ceil(result.total / limit);
+
+      return res.json({
+        success: true,
+        message: 'Profile views retrieved successfully',
+        data: {
+          views: result.views,
+          total: result.total,
+          hasMore: result.hasMore,
+          currentPage: page,
+          totalPages
+        }
+      });
+
+    } catch (error) {
+      console.error('Get profile views error:', error);
       return res.status(500).json({
         success: false,
         message: 'Internal server error',

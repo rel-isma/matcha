@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Loading } from '@/components/ui/Spinner';
 import { ROUTES, GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, STATIC_BASE_URL } from '../../../lib/constants';
 import { profileApi } from '@/lib/profileApi';
-import { LikeWithUser } from '@/types';
+import { LikeWithUser, ProfileView } from '@/types';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -22,8 +22,11 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('Information');
   const [likesReceived, setLikesReceived] = useState<LikeWithUser[]>([]);
   const [likesLoading, setLikesLoading] = useState(false);
+  const [profileViews, setProfileViews] = useState<ProfileView[]>([]);
+  const [viewsLoading, setViewsLoading] = useState(false);
+  const [viewsTotal, setViewsTotal] = useState(0);
 
-  // Fetch likes received when component mounts
+  // Fetch likes received and profile views when component mounts
   useEffect(() => {
     const fetchLikesReceived = async () => {
       setLikesLoading(true);
@@ -40,7 +43,24 @@ export default function ProfilePage() {
       }
     };
 
+    const fetchProfileViews = async () => {
+      setViewsLoading(true);
+      try {
+        const response = await profileApi.getProfileViews(1, 20);
+        if (response.success && response.data) {
+          setProfileViews(response.data.views);
+          setViewsTotal(response.data.total);
+        }
+        console.log('Profile views:', response);
+      } catch (error) {
+        console.error('Failed to fetch profile views:', error);
+      } finally {
+        setViewsLoading(false);
+      }
+    };
+
     fetchLikesReceived();
+    fetchProfileViews();
   }, []);
 
   const handleLogout = async () => {
@@ -484,21 +504,92 @@ export default function ProfilePage() {
               >
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-bold text-orange-600">Profile Views</h2>
-                  <div className="text-3xl font-bold text-orange-500">0</div>
+                  <div className="text-3xl font-bold text-orange-500">{viewsTotal}</div>
                 </div>
                 
-                <div className="text-center py-16">
-                  <Eye size={64} className="mx-auto text-orange-400 mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No views yet</h3>
-                  <p className="text-gray-500 mb-6">Views will appear here when people visit your profile</p>
-                  <Button
-                    onClick={() => router.push(ROUTES.BROWSE)}
-                    className="bg-orange-500 hover:bg-orange-600"
-                  >
-                    <Eye size={16} className="mr-2" />
-                    Browse Profiles
-                  </Button>
-                </div>
+                {viewsLoading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <Loading />
+                  </div>
+                ) : profileViews.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {profileViews.map((view) => (
+                      <motion.div
+                        key={view.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="rounded-xl border border-orange-200 p-2 hover:shadow-lg transition-all duration-200 hover:border-orange-300 cursor-pointer"
+                        onClick={() => view.viewer?.username && router.push(`/profile/${view.viewer.username}`)}
+                      >
+                        <div className="flex items-center gap-4">
+                          {/* Profile Picture */}
+                          <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-orange-100 to-amber-50 flex-shrink-0">
+                            {view.viewer?.profilePicture ? (
+                              <Image
+                                src={view.viewer.profilePicture.startsWith('http') ? view.viewer.profilePicture : `${STATIC_BASE_URL}${view.viewer.profilePicture}`}
+                                alt={`${view.viewer.firstName} ${view.viewer.lastName}`}
+                                width={64}
+                                height={64}
+                                className="w-full h-full object-cover"
+                                unoptimized
+                              />
+                            ) : (
+                              <div className="flex items-center justify-center h-full">
+                                <User size={24} className="text-orange-400" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* User Info */}
+                          <div className="flex-1 min-w-0">
+                            {view.viewer ? (
+                              <>
+                                <h3 className="font-semibold text-gray-900 truncate">
+                                  {view.viewer.firstName} {view.viewer.lastName}
+                                </h3>
+                                <p className="text-sm text-gray-600 truncate">@{view.viewer.username}</p>
+                              </>
+                            ) : (
+                              <>
+                                <h3 className="font-semibold text-gray-900">
+                                  Anonymous Viewer
+                                </h3>
+                                <p className="text-sm text-gray-600">Account no longer available</p>
+                              </>
+                            )}
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(view.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+
+                          {/* View Icon */}
+                          <div className="flex-shrink-0">
+                            <Eye size={20} className="text-orange-500" />
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16">
+                    <Eye size={64} className="mx-auto text-orange-400 mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-600 mb-2">No views yet</h3>
+                    <p className="text-gray-500 mb-6">Views will appear here when people visit your profile</p>
+                    <Button
+                      onClick={() => router.push(ROUTES.BROWSE)}
+                      className="bg-orange-500 hover:bg-orange-600"
+                    >
+                      <Eye size={16} className="mr-2" />
+                      Browse Profiles
+                    </Button>
+                  </div>
+                )}
               </motion.div>
             )}
 

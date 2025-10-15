@@ -71,8 +71,13 @@ export interface ProfileCardData {
 export interface ProfileView {
   id: string;
   viewerId?: string;
-  viewedUser: string;
-  createdAt: string;
+  createdAt: Date | string;
+  viewer?: {
+    username: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+  };
 }
 
 export interface Like {

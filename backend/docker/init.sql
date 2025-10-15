@@ -93,9 +93,13 @@ CREATE TABLE IF NOT EXISTS profile_views (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   viewer_id UUID REFERENCES users(id) ON DELETE SET NULL,
   viewed_user UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  viewer_ip INET NULL,
+  viewer_agent TEXT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_profile_views_viewed ON profile_views(viewed_user);
+CREATE INDEX IF NOT EXISTS idx_profile_views_viewer ON profile_views(viewer_id);
+CREATE INDEX IF NOT EXISTS idx_profile_views_created_at ON profile_views(created_at DESC);
 
 -- Likes (from -> to). unique constraint prevents duplicates
 CREATE TABLE IF NOT EXISTS likes (

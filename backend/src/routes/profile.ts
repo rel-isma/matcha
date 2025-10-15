@@ -92,6 +92,7 @@ router.get('/search',
 router.patch('/fix-neighborhoods', ProfileController.fixNeighborhoods);
 
 // Social actions
+router.get('/views', ProfileController.getProfileViews);
 router.get('/likes/received', ProfileController.getLikesReceived);
 router.post('/like/:targetUserId', 
   userIdParamValidation, 

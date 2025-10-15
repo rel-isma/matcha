@@ -102,6 +102,7 @@ export const API_ENDPOINTS = {
     USER: (username: string) => `/profile/user/${username}`,
     BROWSE: '/profile/browse',
     SEARCH: '/profile/search',
+    VIEWS: '/profile/views',
     LIKES_RECEIVED: '/profile/likes/received',
     LIKE: (userId: string) => `/profile/like/${userId}`,
     UNLIKE: (userId: string) => `/profile/like/${userId}`,
