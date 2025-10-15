@@ -273,48 +273,14 @@ export const SearchContainer: React.FC = () => {
               Set your search criteria using the filters above, then click &quot;Apply Search&quot; to find profiles that match exactly what you&apos;re looking for.
             </p>
             
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto mb-8">
-              <div className="flex items-center gap-2 text-blue-700">
+            <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 max-w-md mx-auto mb-8">
+              <div className="flex items-center gap-2 text-primary-700">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span className="font-medium text-sm">
                   Please set at least one filter to start searching
                 </span>
-              </div>
-            </div>
-            
-            {/* Quick search examples */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mt-8">
-              <div className="bg-white rounded-xl border border-secondary-200 p-6 hover:border-primary-300 transition-colors">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <h4 className="font-semibold text-secondary-800 mb-2">Age Range</h4>
-                <p className="text-sm text-secondary-600">Find people within a specific age range</p>
-              </div>
-              
-              <div className="bg-white rounded-xl border border-secondary-200 p-6 hover:border-primary-300 transition-colors">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <h4 className="font-semibold text-secondary-800 mb-2">Location</h4>
-                <p className="text-sm text-secondary-600">Search by city or location</p>
-              </div>
-              
-              <div className="bg-white rounded-xl border border-secondary-200 p-6 hover:border-primary-300 transition-colors">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z" />
-                  </svg>
-                </div>
-                <h4 className="font-semibold text-secondary-800 mb-2">Interests</h4>
-                <p className="text-sm text-secondary-600">Find people with shared interests</p>
               </div>
             </div>
           </div>
