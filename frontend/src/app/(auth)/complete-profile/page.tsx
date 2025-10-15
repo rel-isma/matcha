@@ -210,12 +210,12 @@ export default function CompleteProfilePage() {
 
 
   return (
-    <div className="flex flex-col">
-      {/* Mobile Layout */}
-      <div className="md:hidden flex-1 flex flex-col">
-        <div className="flex-1 flex flex-col justify-center px-6 py-8">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-lg md:max-w-3xl">
+        {/* Mobile Layout */}
+        <div className="md:hidden">
           {/* Main Content Card */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/60 flex-1 min-h-0 overflow-auto relative">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/60 relative">
             {/* Card background glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-blue-50/50 rounded-3xl"></div>
             
@@ -274,29 +274,26 @@ export default function CompleteProfilePage() {
             )}
           </div>
         </div>
-      </div>
 
-      {/* Desktop Layout */}
-      <div className="hidden md:block flex-1">
-        <div className="h-full flex items-center justify-center px-8 py-12">
-          <div className="w-full max-w-4xl">
-            {/* Main Content Card */}
-            <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-12 shadow-2xl border border-white/60 mb-8 relative overflow-hidden">
-              {/* Card background glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-blue-50/50 rounded-3xl"></div>
-              
-              {/* Form content */}
-              <div className="relative z-10">
-                {renderStepContent()}
-              </div>
-              
-              {/* Decorative corner elements */}
-              <div className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-br from-pink-300 to-rose-400 rounded-full opacity-30 animate-pulse"></div>
-              <div className="absolute bottom-4 left-4 w-6 h-6 bg-gradient-to-br from-purple-300 to-indigo-400 rounded-full opacity-25 animate-pulse" style={{animationDelay: '1s'}}></div>
+        {/* Desktop Layout */}
+        <div className="hidden md:block">
+          {/* Main Content Card */}
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-12 shadow-2xl border border-white/60 mb-8 relative overflow-hidden min-h-[500px] flex items-center">
+            {/* Card background glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-blue-50/50 rounded-3xl"></div>
+            
+            {/* Form content - centered */}
+            <div className="relative z-10 w-full">
+              {renderStepContent()}
             </div>
+            
+            {/* Decorative corner elements */}
+            <div className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-br from-pink-300 to-rose-400 rounded-full opacity-30 animate-pulse"></div>
+            <div className="absolute bottom-4 left-4 w-6 h-6 bg-gradient-to-br from-purple-300 to-indigo-400 rounded-full opacity-25 animate-pulse" style={{animationDelay: '1s'}}></div>
+          </div>
 
-            {/* Desktop Navigation with circular progress */}
-            <div className="flex justify-between items-center">
+          {/* Desktop Navigation with circular progress */}
+          <div className="flex justify-between items-center">
               <Button
                 variant="outline"
                 onClick={handlePrevious}
@@ -339,7 +336,6 @@ export default function CompleteProfilePage() {
                 </Button>
               )}
             </div>
-          </div>
         </div>
       </div>
     </div>
@@ -565,7 +561,7 @@ export default function CompleteProfilePage() {
 
             <div className="space-y-3">
               {/* Upload Area */}
-              <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hover:border-orange-300">
+              <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hover:border-orange-300 max-w-md mx-auto">
                 <input
                   type="file"
                   id="photo-upload"
@@ -585,7 +581,7 @@ export default function CompleteProfilePage() {
 
               {/* Photo Grid */}
               {formData.pictures.length > 0 && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-md mx-auto">
                   {Array.from({ length: 4 }).map((_, index) => (
                     <div key={index} className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
                       {formData.pictures[index] ? (
