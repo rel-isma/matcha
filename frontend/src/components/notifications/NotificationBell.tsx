@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, X, Check, Eye, Heart, HeartOff, Trash2 } from 'lucide-react';
+import { Bell, X, Check, Eye, Heart, HeartOff, Trash2, User } from 'lucide-react';
 import { useNotifications } from '@/context/NotificationContext2';
 import { Notification } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,12 +16,12 @@ export const NotificationBell = () => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors duration-200 relative"
+        className="p-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors duration-200 relative"
         aria-label="Notifications"
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center leading-none font-medium">
+          <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center leading-none font-medium">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -88,13 +89,13 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
       case 'like_received':
         return <Heart className="w-5 h-5 text-pink-500" />;
       case 'match':
-        return <Heart className="w-5 h-5 text-red-500 fill-red-500" />;
+        return <Heart className="w-5 h-5 text-pink-500 fill-pink-500" />;
       case 'profile_view':
-        return <Eye className="w-5 h-5 text-blue-500" />;
+        return <Eye className="w-5 h-5 text-primary-500" />;
       case 'unlike':
-        return <HeartOff className="w-5 h-5 text-gray-500" />;
+        return <HeartOff className="w-5 h-5 text-gray-400 dark:text-gray-500" />;
       default:
-        return <Bell className="w-5 h-5 text-gray-500" />;
+        return <Bell className="w-5 h-5 text-gray-400 dark:text-gray-500" />;
     }
   };
 
@@ -112,10 +113,10 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b dark:border-gray-800">
           <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5" />
+            <Bell className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             <h2 className="text-lg font-semibold">Notifications</h2>
             {unreadCount > 0 && (
-              <span className="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-full">
+              <span className="px-2 py-1 text-xs font-medium text-white bg-pink-500 rounded-full">
                 {unreadCount}
               </span>
             )}
@@ -134,7 +135,7 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
           <div className="p-3 border-b dark:border-gray-800">
             <button
               onClick={markAllAsRead}
-              className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:underline"
             >
               <Check className="w-4 h-4" />
               Mark all as read
@@ -146,7 +147,7 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
         <div className="overflow-y-auto h-[calc(100%-8rem)]">
           {isLoading ? (
             <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500" />
             </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400">
@@ -180,15 +181,40 @@ interface NotificationItemProps {
 }
 
 const NotificationItem = ({ notification, onClick, onDelete, icon }: NotificationItemProps) => {
+  const avatarUrl = notification.fromUserAvatar 
+    ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${notification.fromUserAvatar}`
+    : null;
+
   return (
     <div
       onClick={onClick}
       className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors ${
-        !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/10' : ''
+        !notification.isRead ? 'bg-primary-50/50 dark:bg-primary-900/10' : ''
       }`}
     >
       <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 mt-1">{icon}</div>
+        {/* Avatar with icon badge */}
+        <div className="flex-shrink-0 mt-1 relative">
+          {avatarUrl ? (
+            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700">
+              <Image
+                src={avatarUrl}
+                alt={`${notification.fromUsername || 'User'}'s avatar`}
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              <User className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </div>
+          )}
+          {/* Icon indicator badge */}
+          <div className="absolute -bottom-1 -right-1 bg-white dark:bg-gray-900 rounded-full p-0.5">
+            {icon}
+          </div>
+        </div>
         
         <div className="flex-1 min-w-0">
           <p className={`text-sm ${!notification.isRead ? 'font-semibold' : ''}`}>
@@ -208,7 +234,7 @@ const NotificationItem = ({ notification, onClick, onDelete, icon }: Notificatio
         </button>
 
         {!notification.isRead && (
-          <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2" />
+          <div className="flex-shrink-0 w-2 h-2 bg-primary-500 rounded-full mt-2" />
         )}
       </div>
     </div>

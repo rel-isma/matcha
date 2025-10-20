@@ -116,6 +116,7 @@ export interface Notification {
   fromUsername?: string;
   fromFirstName?: string;
   fromLastName?: string;
+  fromUserAvatar?: string;
   isRead: boolean;
   createdAt: string;
 }

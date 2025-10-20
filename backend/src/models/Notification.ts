@@ -42,9 +42,12 @@ export class NotificationModel {
         n.created_at as "createdAt",
         u.username as "fromUsername",
         u.first_name as "fromFirstName",
-        u.last_name as "fromLastName"
+        u.last_name as "fromLastName",
+        pp.url as "fromUserAvatar"
       FROM notifications n
       LEFT JOIN users u ON n.from_user_id = u.id
+      LEFT JOIN profiles p ON u.id = p.user_id
+      LEFT JOIN profile_pictures pp ON p.id = pp.profile_id AND pp.is_profile_pic = true
       WHERE n.user_id = $1
       ORDER BY n.created_at DESC
       LIMIT $2
