@@ -21,7 +21,7 @@ export const NotificationBell = () => {
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center leading-none font-medium">
+          <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center leading-none font-medium">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -116,7 +116,7 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
             <Bell className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             <h2 className="text-lg font-semibold">Notifications</h2>
             {unreadCount > 0 && (
-              <span className="px-2 py-1 text-xs font-medium text-white bg-pink-500 rounded-full">
+              <span className="px-2 py-1 text-xs font-medium text-white bg-primary-500 rounded-full">
                 {unreadCount}
               </span>
             )}
