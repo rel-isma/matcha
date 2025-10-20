@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Bell, User, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { User, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 export default function Header() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -78,15 +79,7 @@ export default function Header() {
           {/* Right side - Notifications & Profile */}
           <div className="flex items-center space-x-4">
             {/* Notifications Button */}
-            <Link
-              href="/notifications"
-              className="p-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors duration-200 relative"
-            >
-              <Bell className="w-6 h-6" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center leading-none font-medium">
-                2
-              </span>
-            </Link>
+            <NotificationBell />
 
             {/* Profile Dropdown */}
             <div className="relative" ref={profileMenuRef}>

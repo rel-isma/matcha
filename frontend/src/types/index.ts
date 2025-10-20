@@ -99,6 +99,28 @@ export interface ProfileWithDetails extends Profile {
   pictures: ProfilePicture[];
 }
 
+// Notification types
+export type NotificationType = 
+  | 'like_received' 
+  | 'profile_view' 
+  | 'match' 
+  | 'unlike';
+
+export interface Notification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  message: string;
+  link?: string;
+  fromUserId?: string;
+  fromUsername?: string;
+  fromFirstName?: string;
+  fromLastName?: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+
 export interface PublicProfile {
   id: string;
   userId: string;

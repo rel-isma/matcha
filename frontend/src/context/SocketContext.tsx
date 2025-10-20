@@ -2,6 +2,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { io, Socket } from 'socket.io-client';
+import { useAuth } from './AuthContext';
 
 interface SocketContextType {
   isConnected: boolean;
@@ -11,6 +13,7 @@ interface SocketContextType {
   sendMessage: (roomId: string, message: string) => void;
   startTyping: (roomId: string) => void;
   stopTyping: (roomId: string) => void;
+  socket: Socket | null;
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -20,43 +23,93 @@ interface SocketProviderProps {
 }
 
 export const SocketProvider = ({ children }: SocketProviderProps) => {
+  const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set());
+  const { user } = useAuth();
 
   useEffect(() => {
-    // Mock socket connection
-    const timer = setTimeout(() => {
-      setIsConnected(true);
-      // Simulate some online users
-      setOnlineUsers(new Set([2, 3, 5, 8, 12]));
-    }, 1000);
+    if (!user) {
+      // Disconnect socket if user logs out
+      if (socket) {
+        socket.disconnect();
+        setSocket(null);
+        setIsConnected(false);
+      }
+      return;
+    }
 
-    return () => clearTimeout(timer);
-  }, []);
+    // Initialize Socket.IO connection with cookies (withCredentials)
+    const socketInstance = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000', {
+      withCredentials: true, // Send cookies with the connection
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5
+    });
+
+    socketInstance.on('connect', () => {
+      console.log('Socket connected');
+      setIsConnected(true);
+    });
+
+    socketInstance.on('disconnect', () => {
+      console.log('Socket disconnected');
+      setIsConnected(false);
+    });
+
+    socketInstance.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+      setIsConnected(false);
+    });
+
+    socketInstance.on('user:online', ({ userId }) => {
+      setOnlineUsers((prev) => new Set(prev).add(userId));
+    });
+
+    socketInstance.on('user:offline', ({ userId }) => {
+      setOnlineUsers((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+    });
+
+    setSocket(socketInstance);
+
+    return () => {
+      socketInstance.disconnect();
+    };
+  }, [user]);
 
   const joinRoom = (roomId: string) => {
-    console.log(`Joining room: ${roomId}`);
-    // In a real app, emit socket event to join room
+    if (socket) {
+      socket.emit('room:join', roomId);
+    }
   };
 
   const leaveRoom = (roomId: string) => {
-    console.log(`Leaving room: ${roomId}`);
-    // In a real app, emit socket event to leave room
+    if (socket) {
+      socket.emit('room:leave', roomId);
+    }
   };
 
   const sendMessage = (roomId: string, message: string) => {
-    console.log(`Sending message to room ${roomId}:`, message);
-    // In a real app, emit socket event to send message
+    if (socket) {
+      socket.emit('message:send', { roomId, message });
+    }
   };
 
   const startTyping = (roomId: string) => {
-    console.log(`Started typing in room: ${roomId}`);
-    // In a real app, emit socket event for typing indicator
+    if (socket) {
+      socket.emit('typing:start', roomId);
+    }
   };
 
   const stopTyping = (roomId: string) => {
-    console.log(`Stopped typing in room: ${roomId}`);
-    // In a real app, emit socket event to stop typing indicator
+    if (socket) {
+      socket.emit('typing:stop', roomId);
+    }
   };
 
   const value: SocketContextType = {
@@ -66,7 +119,8 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
     leaveRoom,
     sendMessage,
     startTyping,
-    stopTyping
+    stopTyping,
+    socket
   };
 
   return (

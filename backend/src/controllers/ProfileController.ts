@@ -3,6 +3,7 @@ import { validationResult } from 'express-validator';
 import { cleanClientIp, ipapiLookup } from '../utils/ip';
 import { ProfileModel } from '../models/Profile';
 import { UserModel } from '../models/User';
+import { NotificationService } from '../services/NotificationService';
 import { ApiResponse, CreateProfileInput, UpdateProfileInput, BrowseFilters, SearchFilters } from '../types';
 import { reverseGeocode, isCoordinateFormat, extractCoordinatesFromString } from '../utils/geocoding';
 
@@ -726,6 +727,21 @@ export class ProfileController {
       
       await ProfileModel.recordProfileView(userId, profile.userId, clientIp, userAgent);
 
+      // Send profile view notification ONLY if this is a new view (not within 10 minutes)
+      // Check if we should send notification (same logic as recordProfileView)
+      const shouldNotify = await ProfileController.shouldSendViewNotification(userId, profile.userId);
+      
+      if (shouldNotify) {
+        const viewer = await UserModel.findById(userId);
+        if (viewer) {
+          await NotificationService.notifyProfileView(
+            profile.userId,
+            userId,
+            viewer.username
+          );
+        }
+      }
+
       return res.json({
         success: true,
         message: 'Profile retrieved successfully',
@@ -1348,6 +1364,27 @@ export class ProfileController {
 
       const result = await ProfileModel.likeUser(userId, targetUserId);
 
+      // Get the liker's username for notifications
+      const liker = await UserModel.findById(userId);
+      
+      if (liker) {
+        // Send "like received" notification to the target user
+        await NotificationService.notifyLikeReceived(
+          targetUserId,
+          userId,
+          liker.username
+        );
+
+        // If it's a match, send match notification to both users
+        if (result.connection) {
+          const targetUser = await UserModel.findById(targetUserId);
+          if (targetUser) {
+            await NotificationService.notifyMatch(userId, targetUserId, targetUser.username);
+            await NotificationService.notifyMatch(targetUserId, userId, liker.username);
+          }
+        }
+      }
+
       return res.json({
         success: true,
         message: result.connection ? 'It\'s a match!' : 'User liked successfully',
@@ -1377,6 +1414,16 @@ export class ProfileController {
       }
 
       await ProfileModel.unlikeUser(userId, targetUserId);
+
+      // Send unlike notification
+      const unliker = await UserModel.findById(userId);
+      if (unliker) {
+        await NotificationService.notifyUnlike(
+          targetUserId,
+          userId,
+          unliker.username
+        );
+      }
 
       return res.json({
         success: true,
@@ -1866,6 +1913,44 @@ export class ProfileController {
         message: 'Internal server error',
         error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
       });
+    }
+  }
+
+  // Helper function to check if we should send a profile view notification
+  // Only send notification if last notification was sent more than 10 minutes ago
+  private static async shouldSendViewNotification(viewerId: string, viewedUserId: string): Promise<boolean> {
+    try {
+      const pool = (await import('../config/database')).default;
+      
+      // Check for recent notification by same viewer to avoid spam
+      const recentNotificationQuery = `
+        SELECT created_at 
+        FROM notifications 
+        WHERE from_user_id = $1 
+          AND user_id = $2 
+          AND type = 'profile_view'
+        ORDER BY created_at DESC 
+        LIMIT 1
+      `;
+      
+      const recentNotif = await pool.query(recentNotificationQuery, [viewerId, viewedUserId]);
+      
+      if (recentNotif.rows.length > 0) {
+        const lastNotifTime = new Date(recentNotif.rows[0].created_at);
+        const currentTime = new Date();
+        const timeDiffMs = currentTime.getTime() - lastNotifTime.getTime();
+        const tenMinutesMs = 10 * 60 * 1000; // 10 minutes in milliseconds
+        
+        // Don't send notification if last one was within 10 minutes
+        if (timeDiffMs < tenMinutesMs) {
+          return false;
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error checking notification eligibility:', error);
+      return false; // Don't send notification if there's an error
     }
   }
 }

@@ -4,16 +4,26 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import path from 'path';
+import http from 'http';
 import passport from './config/passport';
 import routes from './routes';
 import { specs, swaggerUi } from './config/swagger';
 import pool from './config/database';
+import { initializeSocket } from './config/socket';
+import { NotificationService } from './services/NotificationService';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Create HTTP server
+const httpServer = http.createServer(app);
+
+// Initialize Socket.IO
+const io = initializeSocket(httpServer);
+NotificationService.setSocketIO(io);
 
 // Security middleware
 app.use(helmet({
@@ -133,11 +143,12 @@ const startServer = async () => {
   try {
     await initializeDatabase();
     
-    app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
       console.log(`🚀 Server is running on port ${PORT}`);
       console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
       console.log(`🌐 API Base URL: http://localhost:${PORT}/api`);
       console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
+      console.log(`🔌 WebSocket Server: Ready for connections`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
@@ -148,12 +159,14 @@ const startServer = async () => {
 // Graceful shutdown
 process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down server gracefully...');
+  io.close();
   await pool.end();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
   console.log('\n🛑 Shutting down server gracefully...');
+  io.close();
   await pool.end();
   process.exit(0);
 });

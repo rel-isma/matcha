@@ -46,11 +46,11 @@ export default function RootLayout({
       <body className="font-body bg-cream text-secondary-800 antialiased">
         <ThemeProvider>
           <AuthProvider>
-            <NotificationProvider>
-              <SocketProvider>
+            <SocketProvider>
+              <NotificationProvider>
                 {children}
-              </SocketProvider>
-            </NotificationProvider>
+              </NotificationProvider>
+            </SocketProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

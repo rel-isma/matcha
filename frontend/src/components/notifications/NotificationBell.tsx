@@ -1,0 +1,216 @@
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { Bell, X, Check, Eye, Heart, HeartOff, Trash2 } from 'lucide-react';
+import { useNotifications } from '@/context/NotificationContext2';
+import { Notification } from '@/types';
+import { formatDistanceToNow } from 'date-fns';
+import { useRouter } from 'next/navigation';
+
+export const NotificationBell = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { unreadCount } = useNotifications();
+
+  return (
+    <>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="p-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors duration-200 relative"
+        aria-label="Notifications"
+      >
+        <Bell className="w-6 h-6" />
+        {unreadCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center leading-none font-medium">
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </span>
+        )}
+      </button>
+
+      {isOpen && <NotificationSidebar onClose={() => setIsOpen(false)} />}
+    </>
+  );
+};
+
+interface NotificationSidebarProps {
+  onClose: () => void;
+}
+
+const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const {
+    notifications,
+    unreadCount,
+    isLoading,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification
+  } = useNotifications();
+  const router = useRouter();
+
+  // Close sidebar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose]);
+
+  // Prevent body scroll when sidebar is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  const handleNotificationClick = async (notification: Notification) => {
+    if (!notification.isRead) {
+      await markAsRead(notification.id);
+    }
+    
+    if (notification.link) {
+      router.push(notification.link);
+      onClose();
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent, notificationId: string) => {
+    e.stopPropagation();
+    await deleteNotification(notificationId);
+  };
+
+  const getNotificationIcon = (type: Notification['type']) => {
+    switch (type) {
+      case 'like_received':
+        return <Heart className="w-5 h-5 text-pink-500" />;
+      case 'match':
+        return <Heart className="w-5 h-5 text-red-500 fill-red-500" />;
+      case 'profile_view':
+        return <Eye className="w-5 h-5 text-blue-500" />;
+      case 'unlike':
+        return <HeartOff className="w-5 h-5 text-gray-500" />;
+      default:
+        return <Bell className="w-5 h-5 text-gray-500" />;
+    }
+  };
+
+  return (
+    <>
+      {/* Overlay */}
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:bg-transparent" onClick={onClose} />
+
+      {/* Sidebar */}
+      <div
+        ref={sidebarRef}
+        className="fixed top-0 right-0 h-full w-full md:w-96 bg-white dark:bg-gray-900 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out"
+        style={{ transform: 'translateX(0)' }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b dark:border-gray-800">
+          <div className="flex items-center gap-2">
+            <Bell className="w-5 h-5" />
+            <h2 className="text-lg font-semibold">Notifications</h2>
+            {unreadCount > 0 && (
+              <span className="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            aria-label="Close notifications"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Mark all as read button */}
+        {unreadCount > 0 && (
+          <div className="p-3 border-b dark:border-gray-800">
+            <button
+              onClick={markAllAsRead}
+              className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              <Check className="w-4 h-4" />
+              Mark all as read
+            </button>
+          </div>
+        )}
+
+        {/* Notifications list */}
+        <div className="overflow-y-auto h-[calc(100%-8rem)]">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500" />
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400">
+              <Bell className="w-12 h-12 mb-2 opacity-50" />
+              <p>No notifications yet</p>
+            </div>
+          ) : (
+            <div className="divide-y dark:divide-gray-800">
+              {notifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onClick={() => handleNotificationClick(notification)}
+                  onDelete={(e) => handleDelete(e, notification.id)}
+                  icon={getNotificationIcon(notification.type)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+interface NotificationItemProps {
+  notification: Notification;
+  onClick: () => void;
+  onDelete: (e: React.MouseEvent) => void;
+  icon: React.ReactNode;
+}
+
+const NotificationItem = ({ notification, onClick, onDelete, icon }: NotificationItemProps) => {
+  return (
+    <div
+      onClick={onClick}
+      className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors ${
+        !notification.isRead ? 'bg-blue-50 dark:bg-blue-900/10' : ''
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <div className="flex-shrink-0 mt-1">{icon}</div>
+        
+        <div className="flex-1 min-w-0">
+          <p className={`text-sm ${!notification.isRead ? 'font-semibold' : ''}`}>
+            {notification.message}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+          </p>
+        </div>
+
+        <button
+          onClick={onDelete}
+          className="flex-shrink-0 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+          aria-label="Delete notification"
+        >
+          <Trash2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+        </button>
+
+        {!notification.isRead && (
+          <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2" />
+        )}
+      </div>
+    </div>
+  );
+};
