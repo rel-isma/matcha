@@ -24,9 +24,12 @@ export class NotificationService {
       ...(fromUserId && { fromUserId })
     });
 
-    // Emit real-time notification via Socket.IO
-    if (this.io) {
-      this.io.to(userId).emit('notification', notification);
+    // Fetch the complete notification data with user details for real-time emission
+    const completeNotification = await NotificationModel.findById(notification.id);
+
+    // Emit real-time notification via Socket.IO with complete data including fromUserAvatar
+    if (this.io && completeNotification) {
+      this.io.to(userId).emit('notification', completeNotification);
     }
 
     return notification;
@@ -88,8 +91,12 @@ export class NotificationService {
     );
   }
 
-  static async getUserNotifications(userId: string, limit: number = 50): Promise<Notification[]> {
-    return NotificationModel.findByUserId(userId, limit);
+  static async getUserNotifications(userId: string, limit: number = 15, offset: number = 0): Promise<{
+    notifications: Notification[];
+    total: number;
+    hasMore: boolean;
+  }> {
+    return NotificationModel.findByUserId(userId, limit, offset);
   }
 
   static async markAsRead(notificationId: string, userId: string): Promise<boolean> {

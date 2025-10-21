@@ -17,14 +17,20 @@ router.use(authenticateToken);
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
- *           default: 50
- *         description: Maximum number of notifications to return
+ *           default: 15
+ *         description: Maximum number of notifications to return per page
  *     responses:
  *       200:
- *         description: List of notifications
+ *         description: Paginated list of notifications
  *       401:
  *         description: Unauthorized
  */

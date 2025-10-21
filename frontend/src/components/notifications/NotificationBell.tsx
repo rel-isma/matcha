@@ -7,6 +7,8 @@ import { Notification } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { STATIC_BASE_URL } from '@/lib/constants';
+
 
 export const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,9 +44,12 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
     notifications,
     unreadCount,
     isLoading,
+    isLoadingMore,
+    hasMore,
     markAsRead,
     markAllAsRead,
-    deleteNotification
+    deleteNotification,
+    loadMoreNotifications
   } = useNotifications();
   const router = useRouter();
 
@@ -155,16 +160,38 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
               <p>No notifications yet</p>
             </div>
           ) : (
-            <div className="divide-y dark:divide-gray-800">
-              {notifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                  onClick={() => handleNotificationClick(notification)}
-                  onDelete={(e) => handleDelete(e, notification.id)}
-                  icon={getNotificationIcon(notification.type)}
-                />
-              ))}
+            <div>
+              <div className="divide-y dark:divide-gray-800">
+                {notifications.map((notification) => (
+                  <NotificationItem
+                    key={notification.id}
+                    notification={notification}
+                    onClick={() => handleNotificationClick(notification)}
+                    onDelete={(e) => handleDelete(e, notification.id)}
+                    icon={getNotificationIcon(notification.type)}
+                  />
+                ))}
+              </div>
+              
+              {/* Load More Button */}
+              {hasMore && (
+                <div className="p-4 border-t dark:border-gray-800">
+                  <button
+                    onClick={loadMoreNotifications}
+                    disabled={isLoadingMore}
+                    className="w-full py-2 px-4 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500" />
+                        Loading more...
+                      </>
+                    ) : (
+                      'Load More Notifications'
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -182,8 +209,10 @@ interface NotificationItemProps {
 
 const NotificationItem = ({ notification, onClick, onDelete, icon }: NotificationItemProps) => {
   const avatarUrl = notification.fromUserAvatar 
-    ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${notification.fromUserAvatar}`
+    ? `${STATIC_BASE_URL}${notification.fromUserAvatar}`
     : null;
+
+  // console.log('Avatar URL:', avatarUrl);
 
   return (
     <div
@@ -194,9 +223,9 @@ const NotificationItem = ({ notification, onClick, onDelete, icon }: Notificatio
     >
       <div className="flex items-start gap-3">
         {/* Avatar with icon badge */}
-        <div className="flex-shrink-0 mt-1 relative">
+        <div className="flex-shrink-0 relative">
           {avatarUrl ? (
-            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700">
+            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700">
               <Image
                 src={avatarUrl}
                 alt={`${notification.fromUsername || 'User'}'s avatar`}
@@ -211,7 +240,7 @@ const NotificationItem = ({ notification, onClick, onDelete, icon }: Notificatio
             </div>
           )}
           {/* Icon indicator badge */}
-          <div className="absolute -bottom-1 -right-1 bg-white dark:bg-gray-900 rounded-full p-0.5">
+          <div className="absolute -bottom-1 -right-1 bg-white dark:bg-gray-900 rounded-full p-0.5 border border-gray-200 dark:border-gray-700 shadow-sm">
             {icon}
           </div>
         </div>

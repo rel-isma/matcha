@@ -13,12 +13,24 @@ export class NotificationController {
         });
       }
 
-      const limit = parseInt(req.query.limit as string) || 50;
-      const notifications = await NotificationService.getUserNotifications(userId, limit);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 15;
+      const offset = (page - 1) * limit;
+
+      const result = await NotificationService.getUserNotifications(userId, limit, offset);
 
       return res.json({
         success: true,
-        data: notifications
+        data: {
+          notifications: result.notifications,
+          pagination: {
+            page,
+            limit,
+            total: result.total,
+            totalPages: Math.ceil(result.total / limit),
+            hasMore: result.hasMore
+          }
+        }
       });
     } catch (error) {
       console.error('Error fetching notifications:', error);

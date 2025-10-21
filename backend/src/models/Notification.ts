@@ -29,7 +29,21 @@ export class NotificationModel {
     return result.rows[0];
   }
 
-  static async findByUserId(userId: string, limit: number = 50): Promise<Notification[]> {
+  static async findByUserId(userId: string, limit: number = 15, offset: number = 0): Promise<{
+    notifications: Notification[];
+    total: number;
+    hasMore: boolean;
+  }> {
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as count
+      FROM notifications
+      WHERE user_id = $1
+    `;
+    const countResult = await pool.query(countQuery, [userId]);
+    const total = parseInt(countResult.rows[0].count, 10);
+
+    // Get paginated notifications
     const query = `
       SELECT 
         n.id, 
@@ -50,11 +64,44 @@ export class NotificationModel {
       LEFT JOIN profile_pictures pp ON p.id = pp.profile_id AND pp.is_profile_pic = true
       WHERE n.user_id = $1
       ORDER BY n.created_at DESC
-      LIMIT $2
+      LIMIT $2 OFFSET $3
     `;
     
-    const result = await pool.query(query, [userId, limit]);
-    return result.rows;
+    const result = await pool.query(query, [userId, limit, offset]);
+    const notifications = result.rows;
+    const hasMore = offset + limit < total;
+
+    return {
+      notifications,
+      total,
+      hasMore
+    };
+  }
+
+  static async findById(notificationId: string): Promise<Notification | null> {
+    const query = `
+      SELECT 
+        n.id, 
+        n.user_id as "userId", 
+        n.type, 
+        n.message, 
+        n.link, 
+        n.from_user_id as "fromUserId",
+        n.is_read as "isRead", 
+        n.created_at as "createdAt",
+        u.username as "fromUsername",
+        u.first_name as "fromFirstName",
+        u.last_name as "fromLastName",
+        pp.url as "fromUserAvatar"
+      FROM notifications n
+      LEFT JOIN users u ON n.from_user_id = u.id
+      LEFT JOIN profiles p ON u.id = p.user_id
+      LEFT JOIN profile_pictures pp ON p.id = pp.profile_id AND pp.is_profile_pic = true
+      WHERE n.id = $1
+    `;
+    
+    const result = await pool.query(query, [notificationId]);
+    return result.rows[0] || null;
   }
 
   static async markAsRead(notificationId: string, userId: string): Promise<boolean> {

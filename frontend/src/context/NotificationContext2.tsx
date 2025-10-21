@@ -10,7 +10,13 @@ interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
   isLoading: boolean;
-  fetchNotifications: () => Promise<void>;
+  isLoadingMore: boolean;
+  hasMore: boolean;
+  currentPage: number;
+  totalPages: number;
+  total: number;
+  fetchNotifications: (reset?: boolean) => Promise<void>;
+  loadMoreNotifications: () => Promise<void>;
   markAsRead: (notificationId: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   deleteNotification: (notificationId: string) => Promise<void>;
@@ -37,20 +43,43 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [total, setTotal] = useState(0);
   const { socket } = useSocket();
   const { user } = useAuth();
 
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = useCallback(async (reset = true) => {
     if (!user) return;
 
     try {
       setIsLoading(true);
       
-      const response = await notificationApi.get('/api/notifications');
+      const page = reset ? 1 : currentPage + 1;
+      const response = await notificationApi.get(`/api/notifications?page=${page}&limit=15`);
 
       if (response.data.success) {
-        setNotifications(response.data.data);
-        const unread = response.data.data.filter((n: Notification) => !n.isRead).length;
+        const { notifications: newNotifications, pagination } = response.data.data;
+        
+        if (reset) {
+          setNotifications(newNotifications);
+          setCurrentPage(1);
+        } else {
+          setNotifications(prev => [...prev, ...newNotifications]);
+          setCurrentPage(page);
+        }
+        
+        setHasMore(pagination.hasMore);
+        setTotalPages(pagination.totalPages);
+        setTotal(pagination.total);
+        
+        console.log('Fetched notifications:', newNotifications);
+        
+        // Calculate unread count from all loaded notifications
+        const allNotifications = reset ? newNotifications : [...notifications, ...newNotifications];
+        const unread = allNotifications.filter((n: Notification) => !n.isRead).length;
         setUnreadCount(unread);
       }
     } catch (error) {
@@ -58,7 +87,32 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, currentPage, notifications]);
+
+  const loadMoreNotifications = useCallback(async () => {
+    if (!user || isLoadingMore || !hasMore) return;
+
+    try {
+      setIsLoadingMore(true);
+      
+      const nextPage = currentPage + 1;
+      const response = await notificationApi.get(`/api/notifications?page=${nextPage}&limit=15`);
+
+      if (response.data.success) {
+        const { notifications: newNotifications, pagination } = response.data.data;
+        
+        setNotifications(prev => [...prev, ...newNotifications]);
+        setCurrentPage(nextPage);
+        setHasMore(pagination.hasMore);
+        
+        console.log('Loaded more notifications:', newNotifications);
+      }
+    } catch (error) {
+      console.error('Failed to load more notifications:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [user, currentPage, isLoadingMore, hasMore]);
 
   const markAsRead = async (notificationId: string) => {
     try {
@@ -105,12 +159,16 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
   // Fetch notifications on mount and when user changes
   useEffect(() => {
     if (user) {
-      fetchNotifications();
+      fetchNotifications(true);
     } else {
       setNotifications([]);
       setUnreadCount(0);
+      setCurrentPage(1);
+      setHasMore(true);
+      setTotalPages(0);
+      setTotal(0);
     }
-  }, [user, fetchNotifications]);
+  }, [user]); // Remove fetchNotifications from dependencies to avoid infinite loop
 
   // Listen for real-time notifications via socket
   useEffect(() => {
@@ -135,7 +193,13 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
     notifications,
     unreadCount,
     isLoading,
+    isLoadingMore,
+    hasMore,
+    currentPage,
+    totalPages,
+    total,
     fetchNotifications,
+    loadMoreNotifications,
     markAsRead,
     markAllAsRead,
     deleteNotification
