@@ -63,9 +63,9 @@ export default function DashboardLayout({
       
       {/* Toast Notifications */}
       <Toaster
-        position="top-right"
+        position="top-center"
         toastOptions={{
-          duration: 4000,
+          duration: 2000,
           style: {
             background: '#fff',
             color: '#374151',

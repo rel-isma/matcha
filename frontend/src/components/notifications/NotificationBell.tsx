@@ -132,7 +132,7 @@ const NotificationDropdown = ({ onClose }: NotificationDropdownProps) => {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.95 }}
       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-      className="absolute right-0 mt-2 w-[42vw] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-50 overflow-hidden"
+      className="absolute right-0 mt-2 w-96 max-w-[384px] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-50 overflow-hidden"
       style={{ maxWidth: 'calc(100vw - 2rem)' }}
     >
       {/* Header */}
@@ -207,10 +207,9 @@ const NotificationDropdown = ({ onClose }: NotificationDropdownProps) => {
                 <motion.div
                   key={notification.id}
                   variants={{
-                    hidden: { opacity: 0, y: 5 },
+                    hidden: { opacity: 0 },
                     visible: { 
-                      opacity: 1, 
-                      y: 0,
+                      opacity: 1,
                       transition: { duration: 0.4, ease: "easeOut" }
                     }
                   }}

@@ -237,16 +237,16 @@ export const SearchContainer: React.FC = () => {
 
   return (
     <div className="">
-      <div className="py-6">
+      <div className="py-4">
 
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-4">
           <h1 className="text-2xl md:text-3xl font-bold text-secondary-800">Advanced Search</h1>
-          <p className="text-secondary-600 mt-2">Find exactly who you&apos;re looking for with detailed filters</p>
+          <p className="text-secondary-600 mt-1 text-sm">Find exactly who you&apos;re looking for with detailed filters</p>
         </div>
 
         {/* Filters */}
-        <div className="mb-6">
+        <div className="mb-4">
           <SearchFilters
             filters={filters}
             onFiltersChange={handleFiltersChange}
