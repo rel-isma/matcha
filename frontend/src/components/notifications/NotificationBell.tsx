@@ -14,13 +14,53 @@ import { motion, AnimatePresence } from 'framer-motion';
 export const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { unreadCount } = useNotifications();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  // Close on escape key
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen]);
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
 
   return (
-    <>
+    <div className="relative" ref={containerRef}>
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={toggleDropdown}
         className="p-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors duration-200 relative"
         aria-label="Notifications"
+        aria-expanded={isOpen}
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
@@ -31,18 +71,17 @@ export const NotificationBell = () => {
       </button>
 
       <AnimatePresence>
-        {isOpen && <NotificationSidebar onClose={() => setIsOpen(false)} />}
+        {isOpen && <NotificationDropdown onClose={() => setIsOpen(false)} />}
       </AnimatePresence>
-    </>
+    </div>
   );
 };
 
-interface NotificationSidebarProps {
+interface NotificationDropdownProps {
   onClose: () => void;
 }
 
-const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
-  const sidebarRef = useRef<HTMLDivElement>(null);
+const NotificationDropdown = ({ onClose }: NotificationDropdownProps) => {
   const {
     notifications,
     unreadCount,
@@ -55,26 +94,6 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
     loadMoreNotifications
   } = useNotifications();
   const router = useRouter();
-
-  // Close sidebar when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [onClose]);
-
-  // Prevent body scroll when sidebar is open
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, []);
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.isRead) {
@@ -108,163 +127,133 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
   };
 
   return (
-    <>
-      {/* Blur Overlay */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        className="z-40" 
-        onClick={onClose} 
-      />
-
-      {/* Sidebar */}
-      <motion.div
-        ref={sidebarRef}
-        initial={{ x: '100%' }}
-        animate={{ x: 0 }}
-        exit={{ x: '100%' }}
-        transition={{ 
-          type: "spring", 
-          damping: 25, 
-          stiffness: 300,
-          duration: 0.3
-        }}
-        className="fixed top-0 right-0 h-full w-full md:w-96 bg-white dark:bg-gray-900 shadow-2xl z-50"
-      >
-        {/* Header */}
-        <motion.div 
-          className="flex items-center justify-between p-4 border-b dark:border-gray-800"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
-          <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-            <h2 className="text-lg font-semibold">Notifications</h2>
-            {unreadCount > 0 && (
-              <motion.span 
-                className="px-2 py-1 text-xs font-medium text-white bg-primary-500 rounded-full"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.2, delay: 0.3 }}
-              >
-                {unreadCount}
-              </motion.span>
-            )}
-          </div>
-          <motion.button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-            aria-label="Close notifications"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <X className="w-5 h-5" />
-          </motion.button>
-        </motion.div>
-
-        {/* Mark all as read button */}
-        <AnimatePresence>
+    <motion.div
+      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+      transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      className="absolute right-0 mt-2 w-[42vw] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-50 overflow-hidden"
+      style={{ maxWidth: 'calc(100vw - 2rem)' }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+        <div className="flex items-center gap-2">
+          <Bell className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <h2 className="text-base font-semibold">Notifications</h2>
           {unreadCount > 0 && (
-            <motion.div 
-              className="p-3 border-b dark:border-gray-800"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <motion.button
-                onClick={markAllAsRead}
-                className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:underline"
-                whileHover={{ x: 5 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Check className="w-4 h-4" />
-                Mark all as read
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Notifications list */}
-        <div className="overflow-y-auto h-[calc(100%-8rem)]">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500" />
-            </div>
-          ) : notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400">
-              <Bell className="w-12 h-12 mb-2 opacity-50" />
-              <p>No notifications yet</p>
-            </div>
-          ) : (
-            <div>
-              <motion.div 
-                className="divide-y dark:divide-gray-800"
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: {
-                    opacity: 1,
-                    transition: {
-                      staggerChildren: 0.05
-                    }
-                  }
-                }}
-              >
-                {notifications.map((notification) => (
-                  <motion.div
-                    key={notification.id}
-                    variants={{
-                      hidden: { opacity: 0, y: 20 },
-                      visible: { opacity: 1, y: 0 }
-                    }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <NotificationItem
-                      notification={notification}
-                      onClick={() => handleNotificationClick(notification)}
-                      onDelete={(e) => handleDelete(e, notification.id)}
-                      icon={getNotificationIcon(notification.type)}
-                    />
-                  </motion.div>
-                ))}
-              </motion.div>
-              
-              {/* Load More Button */}
-              {hasMore && (
-                <motion.div 
-                  className="p-4 border-t dark:border-gray-800"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.2 }}
-                >
-                  <motion.button
-                    onClick={loadMoreNotifications}
-                    disabled={isLoadingMore}
-                    className="w-full py-2 px-4 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {isLoadingMore ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500" />
-                        Loading more...
-                      </>
-                    ) : (
-                      'Load More Notifications'
-                    )}
-                  </motion.button>
-                </motion.div>
-              )}
-            </div>
+            <span className="px-2 py-0.5 text-xs font-medium text-white bg-primary-500 rounded-full">
+              {unreadCount}
+            </span>
           )}
         </div>
-      </motion.div>
-    </>
+        <button
+          onClick={onClose}
+          className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          aria-label="Close notifications"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Mark all as read button */}
+      <AnimatePresence>
+        {unreadCount > 0 && (
+          <motion.div 
+            className="px-4 py-2 border-b dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <button
+              onClick={markAllAsRead}
+              className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:underline transition-all hover:translate-x-1"
+            >
+              <Check className="w-4 h-4" />
+              Mark all as read
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Notifications list with scroll */}
+      <div className="overflow-y-auto max-h-[60vh] sm:max-h-[500px]">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500" />
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400">
+            <Bell className="w-12 h-12 mb-2 opacity-50" />
+            <p className="text-sm">No notifications yet</p>
+          </div>
+        ) : (
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.05,
+                  delayChildren: 0.1
+                }
+              }
+            }}
+          >
+            <div className="divide-y dark:divide-gray-800">
+              {notifications.map((notification) => (
+                <motion.div
+                  key={notification.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 5 },
+                    visible: { 
+                      opacity: 1, 
+                      y: 0,
+                      transition: { duration: 0.4, ease: "easeOut" }
+                    }
+                  }}
+                >
+                  <NotificationItem
+                    notification={notification}
+                    onClick={() => handleNotificationClick(notification)}
+                    onDelete={(e) => handleDelete(e, notification.id)}
+                    icon={getNotificationIcon(notification.type)}
+                  />
+                </motion.div>
+              ))}
+            </div>
+            
+            {/* Load More Button */}
+            {hasMore && (
+              <motion.div 
+                className="p-3 border-t dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { opacity: 1, transition: { delay: 0.2 } }
+                }}
+              >
+                <button
+                  onClick={loadMoreNotifications}
+                  disabled={isLoadingMore}
+                  className="w-full py-2 px-4 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More'
+                  )}
+                </button>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </div>
+    </motion.div>
   );
 };
 
@@ -280,12 +269,10 @@ const NotificationItem = ({ notification, onClick, onDelete, icon }: Notificatio
     ? `${STATIC_BASE_URL}${notification.fromUserAvatar}`
     : null;
 
-  // console.log('Avatar URL:', avatarUrl);
-
   return (
     <div
       onClick={onClick}
-      className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors ${
+      className={`p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors ${
         !notification.isRead ? 'bg-primary-50/50 dark:bg-primary-900/10' : ''
       }`}
     >
@@ -293,7 +280,7 @@ const NotificationItem = ({ notification, onClick, onDelete, icon }: Notificatio
         {/* Avatar with icon badge */}
         <div className="flex-shrink-0 relative">
           {avatarUrl ? (
-            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700">
               <Image
                 src={avatarUrl}
                 alt={`${notification.fromUsername || 'User'}'s avatar`}
@@ -308,7 +295,7 @@ const NotificationItem = ({ notification, onClick, onDelete, icon }: Notificatio
             </div>
           )}
           {/* Icon indicator badge */}
-          <div className="absolute -bottom-1 -right-1 bg-white dark:bg-gray-900 rounded-full p-0.5 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="absolute -bottom-0.5 -right-0.5 bg-white dark:bg-gray-900 rounded-full p-0.5 border border-gray-200 dark:border-gray-700 shadow-sm">
             {icon}
           </div>
         </div>
@@ -317,22 +304,24 @@ const NotificationItem = ({ notification, onClick, onDelete, icon }: Notificatio
           <p className={`text-sm ${!notification.isRead ? 'font-semibold' : ''}`}>
             {notification.message}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
             {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
           </p>
         </div>
 
-        <button
-          onClick={onDelete}
-          className="flex-shrink-0 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-          aria-label="Delete notification"
-        >
-          <Trash2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-        </button>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <button
+            onClick={onDelete}
+            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+            aria-label="Delete notification"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+          </button>
 
-        {!notification.isRead && (
-          <div className="flex-shrink-0 w-2 h-2 bg-primary-500 rounded-full mt-2" />
-        )}
+          {!notification.isRead && (
+            <div className="w-2 h-2 bg-primary-500 rounded-full" />
+          )}
+        </div>
       </div>
     </div>
   );

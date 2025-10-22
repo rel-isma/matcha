@@ -14,7 +14,7 @@ export class NotificationController {
       }
 
       const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 15;
+      const limit = parseInt(req.query.limit as string) || 10;
       const offset = (page - 1) * limit;
 
       const result = await NotificationService.getUserNotifications(userId, limit, offset);

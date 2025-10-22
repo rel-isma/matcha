@@ -91,7 +91,7 @@ export class NotificationService {
     );
   }
 
-  static async getUserNotifications(userId: string, limit: number = 15, offset: number = 0): Promise<{
+  static async getUserNotifications(userId: string, limit: number = 10, offset: number = 0): Promise<{
     notifications: Notification[];
     total: number;
     hasMore: boolean;

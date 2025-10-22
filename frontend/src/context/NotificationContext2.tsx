@@ -58,7 +58,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       setIsLoading(true);
       
       const page = reset ? 1 : currentPage + 1;
-      const response = await notificationApi.get(`/api/notifications?page=${page}&limit=15`);
+      const response = await notificationApi.get(`/api/notifications?page=${page}&limit=10`);
 
       if (response.data.success) {
         const { notifications: newNotifications, pagination } = response.data.data;
@@ -96,7 +96,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       setIsLoadingMore(true);
       
       const nextPage = currentPage + 1;
-      const response = await notificationApi.get(`/api/notifications?page=${nextPage}&limit=15`);
+      const response = await notificationApi.get(`/api/notifications?page=${nextPage}&limit=10`);
 
       if (response.data.success) {
         const { notifications: newNotifications, pagination } = response.data.data;

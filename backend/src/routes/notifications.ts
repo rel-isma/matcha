@@ -26,7 +26,7 @@ router.use(authenticateToken);
  *         name: limit
  *         schema:
  *           type: integer
- *           default: 15
+ *           default: 10
  *         description: Maximum number of notifications to return per page
  *     responses:
  *       200:
