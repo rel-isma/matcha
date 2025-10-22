@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { Loading } from '@/components/ui/Spinner';
 import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, STATIC_BASE_URL } from '../../../../lib/constants';
 import { profileApi } from '@/lib/profileApi';
 import { getLastSeenText } from '@/lib/utils';
@@ -23,7 +22,6 @@ export default function UserProfilePage() {
   const params = useParams();
   const { user } = useAuth();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -44,7 +42,6 @@ export default function UserProfilePage() {
 
   const fetchProfile = useCallback(async () => {
     try {
-      setLoading(true);
       setError(null);
       
       const response = await profileApi.getPublicProfile(username);
@@ -67,8 +64,6 @@ export default function UserProfilePage() {
     } catch (error) {
       setError('Failed to load profile');
       console.error('Error fetching profile:', error);
-    } finally {
-      setLoading(false);
     }
   }, [username]);
 
@@ -210,14 +205,6 @@ export default function UserProfilePage() {
   const genderLabel = GENDER_OPTIONS.find(g => g.value === profile?.gender)?.label;
   const preferenceLabel = SEXUAL_PREFERENCE_OPTIONS.find(p => p.value === profile?.sexualPreference)?.label;
   
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loading />
-      </div>
-    );
-  }
-
   if (error || !profile) {
     return (
       <div className="flex items-center justify-center py-20">
