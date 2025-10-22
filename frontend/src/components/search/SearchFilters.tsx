@@ -79,6 +79,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
     setLocalFilters(defaultFilters);
     onFiltersChange(defaultFilters);
     onReset();
+    setIsExpanded(false);
   };
 
   const addInterest = (interest: string) => {
