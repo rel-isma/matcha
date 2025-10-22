@@ -7,11 +7,13 @@ import { usePathname } from 'next/navigation';
 import { Search, MessageCircle, Home, Bell, User, Settings, LogOut } from 'lucide-react';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/context/NotificationContext2';
 
 export default function NavBar() {
   const pathname = usePathname();
   const { profilePicture } = useProfilePicture();
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -73,9 +75,11 @@ export default function NavBar() {
         <div className="relative">
           <Bell className={`w-6 h-6 ${active ? 'text-orange-600' : 'text-gray-500'}`} />
           {/* Notification badge */}
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center leading-none font-medium shadow-lg">
-            2
-          </span>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center leading-none font-medium shadow-lg">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </div>
       )
     },

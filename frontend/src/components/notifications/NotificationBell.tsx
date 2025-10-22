@@ -8,6 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { STATIC_BASE_URL } from '@/lib/constants';
+import { motion, AnimatePresence } from 'framer-motion';
 
 
 export const NotificationBell = () => {
@@ -29,7 +30,9 @@ export const NotificationBell = () => {
         )}
       </button>
 
-      {isOpen && <NotificationSidebar onClose={() => setIsOpen(false)} />}
+      <AnimatePresence>
+        {isOpen && <NotificationSidebar onClose={() => setIsOpen(false)} />}
+      </AnimatePresence>
     </>
   );
 };
@@ -106,47 +109,84 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
 
   return (
     <>
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:bg-transparent" onClick={onClose} />
+      {/* Blur Overlay */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="z-40" 
+        onClick={onClose} 
+      />
 
       {/* Sidebar */}
-      <div
+      <motion.div
         ref={sidebarRef}
-        className="fixed top-0 right-0 h-full w-full md:w-96 bg-white dark:bg-gray-900 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out"
-        style={{ transform: 'translateX(0)' }}
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: '100%' }}
+        transition={{ 
+          type: "spring", 
+          damping: 25, 
+          stiffness: 300,
+          duration: 0.3
+        }}
+        className="fixed top-0 right-0 h-full w-full md:w-96 bg-white dark:bg-gray-900 shadow-2xl z-50"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b dark:border-gray-800">
+        <motion.div 
+          className="flex items-center justify-between p-4 border-b dark:border-gray-800"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
           <div className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             <h2 className="text-lg font-semibold">Notifications</h2>
             {unreadCount > 0 && (
-              <span className="px-2 py-1 text-xs font-medium text-white bg-primary-500 rounded-full">
+              <motion.span 
+                className="px-2 py-1 text-xs font-medium text-white bg-primary-500 rounded-full"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.2, delay: 0.3 }}
+              >
                 {unreadCount}
-              </span>
+              </motion.span>
             )}
           </div>
-          <button
+          <motion.button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             aria-label="Close notifications"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
           >
             <X className="w-5 h-5" />
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
         {/* Mark all as read button */}
-        {unreadCount > 0 && (
-          <div className="p-3 border-b dark:border-gray-800">
-            <button
-              onClick={markAllAsRead}
-              className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:underline"
+        <AnimatePresence>
+          {unreadCount > 0 && (
+            <motion.div 
+              className="p-3 border-b dark:border-gray-800"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
             >
-              <Check className="w-4 h-4" />
-              Mark all as read
-            </button>
-          </div>
-        )}
+              <motion.button
+                onClick={markAllAsRead}
+                className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:underline"
+                whileHover={{ x: 5 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Check className="w-4 h-4" />
+                Mark all as read
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Notifications list */}
         <div className="overflow-y-auto h-[calc(100%-8rem)]">
@@ -161,25 +201,53 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
             </div>
           ) : (
             <div>
-              <div className="divide-y dark:divide-gray-800">
+              <motion.div 
+                className="divide-y dark:divide-gray-800"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.05
+                    }
+                  }
+                }}
+              >
                 {notifications.map((notification) => (
-                  <NotificationItem
+                  <motion.div
                     key={notification.id}
-                    notification={notification}
-                    onClick={() => handleNotificationClick(notification)}
-                    onDelete={(e) => handleDelete(e, notification.id)}
-                    icon={getNotificationIcon(notification.type)}
-                  />
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      visible: { opacity: 1, y: 0 }
+                    }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <NotificationItem
+                      notification={notification}
+                      onClick={() => handleNotificationClick(notification)}
+                      onDelete={(e) => handleDelete(e, notification.id)}
+                      icon={getNotificationIcon(notification.type)}
+                    />
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
               
               {/* Load More Button */}
               {hasMore && (
-                <div className="p-4 border-t dark:border-gray-800">
-                  <button
+                <motion.div 
+                  className="p-4 border-t dark:border-gray-800"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                >
+                  <motion.button
                     onClick={loadMoreNotifications}
                     disabled={isLoadingMore}
                     className="w-full py-2 px-4 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     {isLoadingMore ? (
                       <>
@@ -189,13 +257,13 @@ const NotificationSidebar = ({ onClose }: NotificationSidebarProps) => {
                     ) : (
                       'Load More Notifications'
                     )}
-                  </button>
-                </div>
+                  </motion.button>
+                </motion.div>
               )}
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
     </>
   );
 };
