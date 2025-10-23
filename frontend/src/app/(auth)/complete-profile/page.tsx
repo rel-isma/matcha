@@ -125,7 +125,7 @@ export default function CompleteProfilePage() {
 
     const newFiles = Array.from(files).filter(file => {
       // Check file type
-      if (!PHOTO_LIMITS.ALLOWED_TYPES.includes(file.type as any)) {
+      if (!PHOTO_LIMITS.ALLOWED_TYPES.includes(file.type as typeof PHOTO_LIMITS.ALLOWED_TYPES[number])) {
         toast.error(`${file.name} is not a supported image format`);
         return false;
       }
@@ -364,8 +364,17 @@ export default function CompleteProfilePage() {
                 </label>
                 <Select
                   value={formData.gender}
-                  onChange={(value) => setFormData(prev => ({ ...prev, gender: value as string }))}
-                  options={GENDER_OPTIONS as any}
+                  onChange={(value) => {
+                    const newGender = value as string;
+                    // Automatically set sexual preference based on gender
+                    const autoPreference = newGender === 'male' ? 'female' : newGender === 'female' ? 'male' : '';
+                    setFormData(prev => ({ 
+                      ...prev, 
+                      gender: newGender,
+                      sexualPreference: autoPreference
+                    }));
+                  }}
+                  options={[...GENDER_OPTIONS]}
                   placeholder="Select"
                   className={errors.gender ? 'border-red-300' : ''}
                 />
@@ -381,7 +390,7 @@ export default function CompleteProfilePage() {
                 <Select
                   value={formData.sexualPreference}
                   onChange={(value) => setFormData(prev => ({ ...prev, sexualPreference: value as string }))}
-                  options={SEXUAL_PREFERENCE_OPTIONS as any}
+                  options={[...SEXUAL_PREFERENCE_OPTIONS]}
                   placeholder="Select"
                   className={errors.sexualPreference ? 'border-red-300' : ''}
                 />

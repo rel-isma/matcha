@@ -117,15 +117,12 @@ export const API_ENDPOINTS = {
 export const GENDER_OPTIONS = [
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' },
-  { value: 'non-binary', label: 'Non-binary' },
-  { value: 'other', label: 'Other' },
 ] as const;
 
 // Sexual preference options
 export const SEXUAL_PREFERENCE_OPTIONS = [
   { value: 'male', label: 'Men' },
   { value: 'female', label: 'Women' },
-  { value: 'both', label: 'Everyone' },
 ] as const;
 
 // Interest options

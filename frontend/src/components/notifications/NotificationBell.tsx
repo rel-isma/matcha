@@ -114,15 +114,15 @@ const NotificationDropdown = ({ onClose }: NotificationDropdownProps) => {
   const getNotificationIcon = (type: Notification['type']) => {
     switch (type) {
       case 'like_received':
-        return <Heart className="w-5 h-5 text-pink-500" />;
+        return <Heart className="w-4 h-4 text-pink-500" />;
       case 'match':
-        return <Heart className="w-5 h-5 text-pink-500 fill-pink-500" />;
+        return <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />;
       case 'profile_view':
-        return <Eye className="w-5 h-5 text-primary-500" />;
+        return <Eye className="w-4 h-4 text-primary-500" />;
       case 'unlike':
-        return <HeartOff className="w-5 h-5 text-gray-400 dark:text-gray-500" />;
+        return <HeartOff className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
       default:
-        return <Bell className="w-5 h-5 text-gray-400 dark:text-gray-500" />;
+        return <Bell className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
     }
   };
 
@@ -279,7 +279,7 @@ const NotificationItem = ({ notification, onClick, onDelete, icon }: Notificatio
         {/* Avatar with icon badge */}
         <div className="flex-shrink-0 relative">
           {avatarUrl ? (
-            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700">
+            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700">
               <Image
                 src={avatarUrl}
                 alt={`${notification.fromUsername || 'User'}'s avatar`}
