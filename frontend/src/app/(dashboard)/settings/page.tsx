@@ -16,6 +16,7 @@ import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, INTEREST_OPTIONS, PHOTO_LIMI
 import { authApi } from '@/lib/api';
 import { profileApi } from '@/lib/profileApi';
 import toast from 'react-hot-toast';
+import { useProfilePicture } from '@/hooks/useProfilePicture';
 
 interface UserFormData {
   firstName: string;
@@ -45,6 +46,7 @@ interface LocationFormData {
 
 export default function SettingsPage() {
   const { user, updateUser } = useAuth();
+  const { profilePicture } = useProfilePicture();
   const { profile, updateProfile, uploadPicture, deletePicture, addInterests, removeInterest } = useProfile();
   
   const [activeTab, setActiveTab] = useState('personal');
@@ -55,6 +57,7 @@ export default function SettingsPage() {
     new: false,
     confirm: false
   });
+  const [isForgotPasswordLoading, setIsForgotPasswordLoading] = useState(false);
 
   // Form data states
   const [userFormData, setUserFormData] = useState<UserFormData>({
@@ -94,63 +97,182 @@ export default function SettingsPage() {
     blockedAt: Date;
   }>>([]);
 
+  // Track original values to detect changes
+  const [originalUserData, setOriginalUserData] = useState<UserFormData>({
+    firstName: '',
+    lastName: '',
+    email: ''
+  });
+  const [originalProfileData, setOriginalProfileData] = useState<ProfileFormData>({
+    gender: '',
+    sexualPreference: '',
+    bio: '',
+    dateOfBirth: ''
+  });
+  const [originalLocationData, setOriginalLocationData] = useState<LocationFormData>({
+    latitude: null,
+    longitude: null,
+    locationSource: 'gps',
+    neighborhood: ''
+  });
+
   // Initialize form data when user/profile loads
   useEffect(() => {
     if (user) {
-      setUserFormData({
+      const userData = {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || ''
-      });
+      };
+      setUserFormData(userData);
+      setOriginalUserData(userData);
     }
   }, [user]);
 
   useEffect(() => {
     if (profile) {
-      setProfileFormData({
+      const profileData = {
         gender: profile.gender || '',
         sexualPreference: profile.sexualPreference || '',
         bio: profile.bio || '',
         dateOfBirth: profile.dateOfBirth || ''
-      });
+      };
+      setProfileFormData(profileData);
+      setOriginalProfileData(profileData);
 
-      setLocationFormData({
+      const locationData = {
         latitude: profile.latitude || null,
         longitude: profile.longitude || null,
-        locationSource: 'gps',
+        locationSource: 'gps' as const,
         neighborhood: profile.neighborhood || ''
-      });
+      };
+      setLocationFormData(locationData);
+      setOriginalLocationData(locationData);
     }
   }, [profile]);
 
+  // Helper functions to detect changes
+  const hasUserDataChanged = () => {
+    return JSON.stringify(userFormData) !== JSON.stringify(originalUserData);
+  };
+
+  const hasProfileDataChanged = () => {
+    return JSON.stringify(profileFormData) !== JSON.stringify(originalProfileData);
+  };
+
+  const hasLocationDataChanged = () => {
+    return JSON.stringify(locationFormData) !== JSON.stringify(originalLocationData);
+  };
+
+  const getChangedUserFields = () => {
+    const changes: string[] = [];
+    if (userFormData.firstName !== originalUserData.firstName) changes.push('first name');
+    if (userFormData.lastName !== originalUserData.lastName) changes.push('last name');
+    if (userFormData.email !== originalUserData.email) changes.push('email');
+    return changes;
+  };
+
+  const getChangedProfileFields = () => {
+    const changes: string[] = [];
+    if (profileFormData.gender !== originalProfileData.gender) changes.push('gender');
+    if (profileFormData.sexualPreference !== originalProfileData.sexualPreference) changes.push('preference');
+    if (profileFormData.bio !== originalProfileData.bio) changes.push('bio');
+    if (profileFormData.dateOfBirth !== originalProfileData.dateOfBirth) changes.push('date of birth');
+    return changes;
+  };
+
+  console.log("profile_interests: ", profile?.interests);
   const handlePersonalInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setErrors({});
 
+    // Check if anything has changed
+    const userChanged = hasUserDataChanged();
+    const profileChanged = hasProfileDataChanged();
+    
+    if (!userChanged && !profileChanged) {
+      toast('No changes detected', { icon: 'ℹ️' });
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate required fields
+    const validationErrors: {[key: string]: string} = {};
+    
+    if (!userFormData.firstName.trim()) {
+      validationErrors.firstName = 'First name is required';
+    }
+    
+    if (!userFormData.lastName.trim()) {
+      validationErrors.lastName = 'Last name is required';
+    }
+    
+    if (!userFormData.email.trim()) {
+      validationErrors.email = 'Email is required';
+    }
+    
+    // Only validate dateOfBirth if it's not already set in the profile
+    if (!profile?.dateOfBirth && !profileFormData.dateOfBirth) {
+      validationErrors.dateOfBirth = 'Date of birth is required';
+    }
+    
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      // Update user information first
-      const userResponse = await authApi.updateUser(userFormData);
+      const successMessages: string[] = [];
       
-      if (!userResponse.success) {
-        setErrors({ personal: userResponse.message || 'Failed to update personal information' });
-        setIsLoading(false);
-        return;
+      // Update user information if changed
+      if (userChanged) {
+        const userResponse = await authApi.updateUser(userFormData);
+        
+        if (!userResponse.success) {
+          setErrors({ personal: userResponse.message || 'Failed to update personal information' });
+          setIsLoading(false);
+          return;
+        }
+        
+        const changedFields = getChangedUserFields();
+        if (changedFields.length > 0) {
+          successMessages.push(`Updated ${changedFields.join(', ')}`);
+        }
+        
+        // Update original data
+        setOriginalUserData({ ...userFormData });
+        
+        // Update auth context
+        await updateUser();
       }
 
-      // Then update profile information
-      const profileResponse = await updateProfile(profileFormData);
-      
-      if (!profileResponse) {
-        setErrors({ personal: 'Failed to update profile information' });
-        setIsLoading(false);
-        return;
+      // Update profile information if changed
+      if (profileChanged) {
+        const profileResponse = await updateProfile(profileFormData);
+        console.log('Profile update response:', profileFormData);
+        
+        if (!profileResponse) {
+          setErrors({ personal: 'Failed to update profile information' });
+          setIsLoading(false);
+          return;
+        }
+        
+        const changedFields = getChangedProfileFields();
+        if (changedFields.length > 0) {
+          successMessages.push(`Updated ${changedFields.join(', ')}`);
+        }
+        
+        // Update original data
+        setOriginalProfileData({ ...profileFormData });
       }
 
-      // Update auth context
-      await updateUser();
-      toast.success('Personal information updated successfully!');
-    } catch (error) {
+      // Show success message
+      if (successMessages.length > 0) {
+        toast.success(successMessages.join(' and '));
+      }
+    } catch {
       setErrors({ personal: 'An error occurred while updating personal information' });
     } finally {
       setIsLoading(false);
@@ -292,7 +414,7 @@ export default function SettingsPage() {
       
       const success = await addInterests(interestNames);
       if (success) {
-        toast.success(`${interestNames.length} interest(s) added successfully!`);
+        toast.success('Interests added successfully!');
       } else {
         toast.error('Failed to add interests');
       }
@@ -325,6 +447,12 @@ export default function SettingsPage() {
     e.preventDefault();
     if (!locationFormData) return;
     
+    // Check if location has changed
+    if (!hasLocationDataChanged()) {
+      toast('No changes detected', { icon: 'ℹ️' });
+      return;
+    }
+    
     try {
       setIsLoading(true);
       setErrors({});
@@ -337,11 +465,12 @@ export default function SettingsPage() {
       });
 
       if (success) {
+        setOriginalLocationData({ ...locationFormData });
         toast.success('Location updated successfully!');
       } else {
         toast.error('Failed to update location');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred while updating location');
     } finally {
       setIsLoading(false);
@@ -368,6 +497,30 @@ export default function SettingsPage() {
       toast.error('An error occurred while loading blocked users');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Handle forgot password directly
+  const handleForgotPassword = async () => {
+    if (!userFormData.email) {
+      toast.error('Email address is required');
+      return;
+    }
+
+    setIsForgotPasswordLoading(true);
+
+    try {
+      const result = await authApi.forgotPassword(userFormData.email);
+      
+      if (result.success) {
+        toast.success(`Password reset link sent to ${userFormData.email}`);
+      } else {
+        toast.error(result.message || 'Failed to send password reset email');
+      }
+    } catch {
+      toast.error('An error occurred while sending the password reset email');
+    } finally {
+      setIsForgotPasswordLoading(false);
     }
   };
 
@@ -422,9 +575,22 @@ export default function SettingsPage() {
               className="flex-1"
             >
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
-                  <User className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                </div>
+                {/* i want here not icon user i want avatar {profilePicture} and use Image not img */}
+                {profilePicture ? (
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-orange-300 dark:border-gray-700">
+                    <Image
+                      src={profilePicture || STATIC_BASE_URL + '/default-avatar.png'  }
+                      alt="Profile Picture"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <User className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  </div>
+                )}
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
                     Account Settings
@@ -691,13 +857,17 @@ export default function SettingsPage() {
                       </label>
                       <Input
                         type="date"
-                        value={profileFormData.dateOfBirth}
+                        value={profileFormData.dateOfBirth ? profileFormData.dateOfBirth.split('T')[0] : ''}
                         onChange={(e) => setProfileFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
                         max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
                         min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
-                        required
+                        placeholder="Select your date of birth"
+                        className={errors.dateOfBirth ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}
                       />
-                      {profileFormData.dateOfBirth && (
+                      {errors.dateOfBirth && (
+                        <p className="text-sm text-red-600 mt-1">{errors.dateOfBirth}</p>
+                      )}
+                      {profileFormData.dateOfBirth && !errors.dateOfBirth && (
                         <p className="text-sm text-gray-500 mt-1">
                           Age: {Math.floor((new Date().getTime() - new Date(profileFormData.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old
                         </p>
@@ -725,7 +895,7 @@ export default function SettingsPage() {
                   <div className="flex flex-col sm:flex-row justify-end gap-3">
                     <Button
                       type="submit"
-                      disabled={isLoading}
+                      disabled={isLoading || (!hasUserDataChanged() && !hasProfileDataChanged())}
                       className="w-full sm:w-auto flex items-center justify-center gap-2"
                     >
                       <Save size={16} />
@@ -786,7 +956,7 @@ export default function SettingsPage() {
                   <div className="flex flex-col sm:flex-row justify-end gap-3">
                     <Button
                       type="submit"
-                      disabled={isLoading || !locationFormData.neighborhood}
+                      disabled={isLoading || !hasLocationDataChanged() || !locationFormData.neighborhood}
                       className="w-full sm:w-auto flex items-center justify-center gap-2"
                     >
                       <Save size={16} />
@@ -805,13 +975,18 @@ export default function SettingsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
+            className="space-y-6"
           >
+            {/* Change Password Card */}
             <Card className="shadow-xl border-0 bg-white/50 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Lock size={20} />
                   Change Password
                 </CardTitle>
+                <p className="text-sm text-gray-600">
+                  Update your password to keep your account secure
+                </p>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handlePasswordFormSubmit} className="space-y-6">
@@ -900,6 +1075,41 @@ export default function SettingsPage() {
                     </Button>
                   </div>
                 </form>
+              </CardContent>
+            </Card>
+
+            {/* Password Recovery Card */}
+            <Card className="shadow-xl border-0 bg-white/50 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail size={20} />
+                  Password Recovery
+                </CardTitle>
+                <p className="text-sm text-gray-600">
+                  Forgot your password? Reset it using your email address
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-800 mb-1">
+                      Reset Password via Email
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      Click the button below to send a password reset link to <span className="font-medium">{userFormData.email}</span>. Check your email and follow the instructions to reset your password.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleForgotPassword}
+                    disabled={isForgotPasswordLoading || !userFormData.email}
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-orange-50 border-orange-300 text-orange-600 hover:text-orange-700 disabled:opacity-50"
+                  >
+                    <Mail size={16} />
+                    {isForgotPasswordLoading ? 'Sending...' : 'Send Reset Link'}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -1071,40 +1281,40 @@ export default function SettingsPage() {
                     <div className="flex flex-wrap gap-2 sm:gap-3">
                       {profile.interests.map((interest) => (
                         <Badge
-                          key={interest.id}
-                          className="text-xs sm:text-sm bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-200 rounded-full px-3 sm:px-4 py-2 flex items-center gap-2 hover:from-orange-200 hover:to-amber-200 transition-all duration-200"
+                          key={interest.id || interest.name}
+                          className="text-xs sm:text-sm bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-200 rounded-full px-3 sm:px-4 py-2 flex items-center gap-2 hover:from-orange-200 hover:to-amber-200 transition-all duration-200 cursor-pointer"
+                          onClick={() => handleRemoveInterest(String(interest.id || interest.name))}
                         >
                           {interest.name}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveInterest(interest.id)}
-                            className="ml-1 text-orange-600 hover:text-orange-800 transition-colors"
-                          >
+                          <span className="ml-1 text-orange-600 hover:text-orange-800 transition-colors">
                             <X size={12} />
-                          </button>
+                          </span>
                         </Badge>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Add New Interests */}
+                {/* All Interests to Add */}
                 <div>
-                  <Select
-                    label="Add New Interests"
-                    options={INTEREST_OPTIONS.filter(option => 
-                      !profile?.interests?.some(interest => interest.name === option.label)
-                    )}
-                    value={[]}
-                    onChange={(value) => {
-                      const selectedInterests = Array.isArray(value) ? value : [value];
-                      handleAddInterests(selectedInterests);
-                    }}
-                    placeholder="Search and select interests..."
-                    searchable
-                    multiSelect
-                    maxHeight={300}
-                  />
+                  <h3 className="text-base font-semibold text-gray-700 mb-4">Add New Interests</h3>
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
+                    {INTEREST_OPTIONS.filter(option => {
+                      // Only show interests not already in user's interests
+                      return !profile?.interests?.some(interest => interest.name.toLowerCase() === option.label.toLowerCase());
+                    }).map(option => (
+                      <Badge
+                        key={option.value}
+                        className="text-xs sm:text-sm bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 border border-orange-200 rounded-full px-3 sm:px-4 py-2 flex items-center gap-2 hover:from-orange-200 hover:to-amber-200 transition-all duration-200 cursor-pointer"
+                        onClick={() => handleAddInterests([option.value])}
+                      >
+                        {option.label}
+                        <span className="ml-1 text-orange-500 hover:text-orange-700 transition-colors">
+                          +
+                        </span>
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>

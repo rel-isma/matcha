@@ -70,8 +70,6 @@ export const useProfile = (): UseProfileReturn => {
       const result = await profileApi.updateMyProfile(data);
       
       if (result.success && result.data) {
-        setProfile(result.data);
-        toast.success('Profile updated successfully');
         return true;
       } else {
         toast.error(result.message || 'Failed to update profile');
@@ -131,12 +129,20 @@ export const useProfile = (): UseProfileReturn => {
   // Add interests
   const addInterests = async (interests: string[]): Promise<boolean> => {
     try {
+      console.log('Add interests :', interests);
       const result = await profileApi.addInterests(interests);
       
       if (result.success) {
-        // Refresh profile to get updated interests
-        await fetchProfile();
-        toast.success('Interests added successfully');
+        if (profile) {
+          const newInterests: Interest[] = interests.map((name, index) => ({
+            id: index,
+            name
+          }));
+          setProfile({
+            ...profile,
+            interests: [...profile.interests, ...newInterests]
+          });
+        }
         return true;
       } else {
         toast.error(result.message || 'Failed to add interests');
@@ -154,14 +160,12 @@ export const useProfile = (): UseProfileReturn => {
       const result = await profileApi.removeInterest(interestId);
       
       if (result.success) {
-        // Update profile state to remove the interest
         if (profile) {
           setProfile({
             ...profile,
             interests: profile.interests.filter(interest => interest.id.toString() !== interestId)
           });
         }
-        toast.success('Interest removed successfully');
         return true;
       } else {
         toast.error(result.message || 'Failed to remove interest');

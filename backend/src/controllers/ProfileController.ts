@@ -626,8 +626,7 @@ export class ProfileController {
 
       return res.json({
         success: true,
-        message: 'Interests added successfully',
-        data: updatedProfile
+        message: 'Interests added successfully'
       });
     } catch (error) {
       console.error('Add interests error:', error);

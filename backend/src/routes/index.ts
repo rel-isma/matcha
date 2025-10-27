@@ -7,7 +7,7 @@ import { generalLimiter } from '../middleware/rateLimiter';
 const router = Router();
 
 // Apply general rate limiting to all routes
-router.use(generalLimiter);
+// router.use(generalLimiter);
 
 // API routes
 router.use('/auth', authRoutes);
