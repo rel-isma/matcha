@@ -23,6 +23,7 @@ export default function UserProfilePage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -42,6 +43,7 @@ export default function UserProfilePage() {
 
   const fetchProfile = useCallback(async () => {
     try {
+      setIsLoading(true);
       setError(null);
       
       const response = await profileApi.getPublicProfile(username);
@@ -64,6 +66,8 @@ export default function UserProfilePage() {
     } catch (error) {
       setError('Failed to load profile');
       console.error('Error fetching profile:', error);
+    } finally {
+      setIsLoading(false);
     }
   }, [username]);
 
@@ -205,6 +209,20 @@ export default function UserProfilePage() {
   const genderLabel = GENDER_OPTIONS.find(g => g.value === profile?.gender)?.label;
   const preferenceLabel = SEXUAL_PREFERENCE_OPTIONS.find(p => p.value === profile?.sexualPreference)?.label;
   
+  // Loading state - show while fetching profile
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-accent/30 border-t-accent mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-foreground mb-2">Loading Profile...</h2>
+          <p className="text-muted-foreground">Please wait while we fetch the profile details</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Error state - show only after loading is complete and there's an error
   if (error || !profile) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -394,7 +412,7 @@ export default function UserProfilePage() {
                   onClick={handleBlock}
                   disabled={actionLoading === 'block'}
                   variant="outline"
-                  className="border-2 border-destructive/30 text-destructive hover:bg-destructive/10 hover:border-destructive px-6 py-2.5 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 disabled:opacity-50"
+                  className="bg-destructive/20 border-2 border-destructive/50 text-destructive hover:bg-destructive/30 hover:border-destructive px-6 py-2.5 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
                 >
                   {actionLoading === 'block' ? (
                     <div className="flex items-center gap-2">
@@ -412,7 +430,7 @@ export default function UserProfilePage() {
                 <Button
                   onClick={() => setShowReportModal(true)}
                   variant="outline"
-                  className="border-2 border-border text-muted-foreground hover:bg-muted hover:border-accent px-6 py-2.5 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300"
+                  className="bg-card border-2 border-border text-foreground hover:bg-muted hover:border-accent hover:text-accent px-6 py-2.5 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 hover:scale-105"
                 >
                   <Shield size={18} />
                   Report

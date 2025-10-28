@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
 
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.isValid) {
-      setError(passwordValidation.errors.join(', '));
+      setError(passwordValidation.message || 'Password does not meet requirements');
       return;
     }
 
@@ -81,14 +81,14 @@ export default function ResetPasswordPage() {
             </svg>
           </div>
           
-          <h1 className="text-2xl font-bold text-secondary-800 mb-2">Password Reset Successful!</h1>
-          <p className="text-secondary-600 text-sm">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Password Reset Successful!</h1>
+          <p className="text-muted-foreground text-sm">
             Your password has been successfully reset. You can now log in with your new password.
           </p>
         </div>
 
-        <div className="bg-green-50 rounded-lg p-6 text-center">
-          <p className="text-green-800 mb-4">
+        <div className="bg-accent/10 rounded-lg p-6 text-center">
+          <p className="text-foreground mb-4">
             Redirecting you to the login page in a few seconds...
           </p>
           <Link href="/login">
@@ -112,14 +112,14 @@ export default function ResetPasswordPage() {
             </svg>
           </div>
           
-          <h1 className="text-2xl font-bold text-secondary-800 mb-2">Invalid Reset Link</h1>
-          <p className="text-secondary-600 text-sm">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Invalid Reset Link</h1>
+          <p className="text-muted-foreground text-sm">
             This password reset link is invalid or has expired.
           </p>
         </div>
 
-        <div className="bg-red-50 rounded-lg p-6 text-center">
-          <p className="text-red-800 mb-4">
+        <div className="bg-destructive/10 rounded-lg p-6 text-center">
+          <p className="text-destructive mb-4">
             Please request a new password reset link.
           </p>
           <div className="space-y-3">
@@ -157,8 +157,8 @@ export default function ResetPasswordPage() {
         
         {/* Page Title */}
         <div>
-          <h2 className="text-2xl font-bold text-secondary-800 mb-2">Create New Password</h2>
-          <p className="text-secondary-600 text-sm">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Create New Password</h2>
+          <p className="text-muted-foreground text-sm">
             Please enter your new password below.
           </p>
         </div>
@@ -190,9 +190,9 @@ export default function ResetPasswordPage() {
           required
         />
 
-        <div className="bg-primary-50 rounded-lg p-4 text-sm">
-          <h3 className="font-semibold text-secondary-800 mb-2">Password Requirements:</h3>
-          <ul className="text-secondary-600 space-y-1 list-disc list-inside">
+        <div className="bg-accent/10 rounded-lg p-4 text-sm">
+          <h3 className="font-semibold text-foreground mb-2">Password Requirements:</h3>
+          <ul className="text-muted-foreground space-y-1 list-disc list-inside">
             <li>At least 8 characters long</li>
             <li>Contains uppercase and lowercase letters</li>
             <li>Contains at least one number</li>
@@ -215,7 +215,7 @@ export default function ResetPasswordPage() {
       <div className="text-center">
         <Link 
           href="/login" 
-          className="text-sm text-primary-600 hover:text-primary-700 font-medium underline"
+          className="text-sm text-accent hover:text-primary-600 font-medium underline"
         >
           Back to sign in
         </Link>

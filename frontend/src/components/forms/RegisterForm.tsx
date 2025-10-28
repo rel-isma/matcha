@@ -250,31 +250,6 @@ const RegisterForm = () => {
               required
             />
 
-            {/* Terms and Conditions */}
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
-                <input
-                  id="agree-terms"
-                  name="agree-terms"
-                  type="checkbox"
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                  required
-                />
-              </div>
-              <div className="ml-3 text-sm">
-                <label htmlFor="agree-terms" className="text-gray-600 leading-relaxed">
-                  I agree to the{' '}
-                  <Link href="/terms" className="text-primary-600 hover:text-primary-700 font-medium underline">
-                    Terms and Conditions
-                  </Link>
-                  {' '}and{' '}
-                  <Link href="/privacy" className="text-primary-600 hover:text-primary-700 font-medium underline">
-                    Privacy Policy
-                  </Link>
-                </label>
-              </div>
-            </div>
-
             <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 type="button"

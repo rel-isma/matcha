@@ -163,7 +163,7 @@ export function GPSPicker({
   return (
     <div className={cn("space-y-3", className)}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-foreground mb-2">
           {label}
         </label>
       )}
@@ -177,26 +177,26 @@ export function GPSPicker({
           className={cn(
             "w-full flex items-center justify-between p-4 border-2 rounded-xl transition-all duration-200",
             hasValidLocation
-              ? "border-green-300 bg-green-50 text-green-800"
-              : "border-orange-300 bg-orange-50 hover:bg-orange-100 text-orange-800",
+              ? "border-accent/30 bg-accent/10 text-accent"
+              : "border-border bg-card hover:bg-muted text-foreground",
             isGettingLocation && "opacity-70 cursor-not-allowed",
-            error && "border-red-300 bg-red-50"
+            error && "border-destructive/30 bg-destructive/10"
           )}
         >
           <div className="flex items-center gap-3">
             {isGettingLocation ? (
-              <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
             ) : hasValidLocation ? (
-              <CheckCircle className="w-5 h-5 text-green-600" />
+              <CheckCircle className="w-5 h-5 text-accent" />
             ) : (
-              <Crosshair className="w-5 h-5 text-orange-600" />
+              <Crosshair className="w-5 h-5 text-accent" />
             )}
             <div className="text-left">
               <div className="font-medium">
                 {displayText}
               </div>
               {!isGettingLocation && (
-                <div className="text-xs text-gray-600 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   {hasValidLocation
                     ? "GPS location set"
                     : mode === 'profile'
@@ -207,21 +207,21 @@ export function GPSPicker({
               )}
             </div>
           </div>
-          <MapPin className="w-5 h-5 text-gray-400" />
+          <MapPin className="w-5 h-5 text-muted-foreground" />
         </button>
 
         {/* Location Details */}
         {hasValidLocation && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <div className="flex items-center gap-2 text-green-800">
+          <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-3">
+            <div className="flex items-center gap-2 text-accent">
               <CheckCircle className="w-4 h-4" />
               <span className="text-sm font-medium">
                 {mode === 'profile' ? "GPS Location Set" : "GPS Location Active"}
               </span>
             </div>
-            <div className="text-sm text-green-700 mt-1">
+            <div className="text-sm text-foreground mt-1">
               {value.neighborhood && <div>📍 {value.neighborhood}</div>}
-              <div className="text-xs text-green-600 mt-1">
+              <div className="text-xs text-muted-foreground mt-1">
                 Coordinates: {value.latitude?.toFixed(6)}, {value.longitude?.toFixed(6)}
               </div>
             </div>
@@ -231,14 +231,14 @@ export function GPSPicker({
 
       {/* Error Display */}
       {error && (
-        <div className="flex items-center gap-2 text-red-600 text-sm">
+        <div className="flex items-center gap-2 text-destructive text-sm">
           <AlertCircle className="w-4 h-4" />
           <span>{error}</span>
         </div>
       )}
       
       {/* Information */}
-      <div className="text-xs text-gray-500">
+      <div className="text-xs text-muted-foreground">
         <p>
           {mode === 'profile' 
             ? "🔒 If GPS is not available, your approximate location will be set automatically after completing your profile."

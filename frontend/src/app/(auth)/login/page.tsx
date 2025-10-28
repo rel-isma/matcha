@@ -21,12 +21,12 @@ export default function LoginPage() {
         
         {/* Page Title */}
         <div>
-          <h2 className="text-2xl font-bold text-secondary-800 mb-2">Sign in</h2>
-          <p className="text-secondary-600 text-sm">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Sign in</h2>
+          <p className="text-muted-foreground text-sm">
             Don&apos;t have an account?{' '}
             <Link 
               href="/register" 
-              className="font-medium text-primary-600 hover:text-primary-700 underline transition-colors"
+              className="font-medium text-accent hover:text-primary-600 underline transition-colors"
             >
               Create now
             </Link>

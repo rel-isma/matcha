@@ -703,24 +703,20 @@ export default function SettingsPage() {
       {/* Tab Navigation */}
       <div className="border-b border-border mb-6">
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex -mb-px space-x-8">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-3 px-1 border-b-2 font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
-                  activeTab === tab.id
-                    ? 'border-accent text-accent bg-accent/10'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-accent/50 hover:bg-accent/5'
-                }`}
-              >
-                <Icon size={18} />
-                {tab.label}
-              </button>
-            );
-          })}
+        <nav className="hidden md:flex space-x-8 overflow-x-auto">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
+                activeTab === tab.id
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-accent/50'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </nav>
 
         {/* Mobile Tab Navigation */}
@@ -760,8 +756,8 @@ export default function SettingsPage() {
           >
             <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-foreground">
-                  <User size={20} />
+                <CardTitle className="text-xl sm:text-2xl font-bold text-accent flex items-center gap-2">
+                  <User size={24} />
                   Personal Information
                 </CardTitle>
               </CardHeader>
@@ -917,8 +913,8 @@ export default function SettingsPage() {
           >
             <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-foreground">
-                  <MapPin size={20} />
+                <CardTitle className="text-xl sm:text-2xl font-bold text-accent flex items-center gap-2">
+                  <MapPin size={24} />
                   Your GPS Location
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
@@ -980,8 +976,8 @@ export default function SettingsPage() {
             {/* Change Password Card */}
             <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-foreground">
-                  <Lock size={20} />
+                <CardTitle className="text-xl sm:text-2xl font-bold text-accent flex items-center gap-2">
+                  <Lock size={24} />
                   Change Password
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
@@ -1081,7 +1077,7 @@ export default function SettingsPage() {
             {/* Password Recovery Card */}
             <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-foreground">
+                <CardTitle className="flex items-center gap-2 text-accent">
                   <Mail size={20} />
                   Password Recovery
                 </CardTitle>
