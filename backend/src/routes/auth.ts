@@ -9,6 +9,7 @@ import {
 } from '../middleware/validation';
 import { authLimiter, passwordResetLimiter } from '../middleware/rateLimiter';
 import googleAuthRoutes from './googleAuth';
+import intra42AuthRoutes from './intra42Auth';
 
 const router = Router();
 
@@ -36,5 +37,8 @@ router.post('/logout', authenticateToken, AuthController.logout);
 
 // Google OAuth routes
 router.use('/', googleAuthRoutes);
+
+// 42 Intra OAuth routes
+router.use('/', intra42AuthRoutes);
 
 export default router;

@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, X, Plus, Camera } from 'lucide-react';
+import { ArrowLeft, ArrowRight, X, Plus, Camera, Calendar } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Select } from '@/components/ui/Select';
@@ -432,22 +432,53 @@ export default function CompleteProfilePage() {
               <label className="block text-sm font-medium text-foreground mb-2">
                 Date of Birth
               </label>
-              <input
-                type="date"
-                value={formData.dateOfBirth}
-                onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-accent bg-input text-foreground ${
-                  errors.dateOfBirth ? 'border-destructive' : 'border-border'
-                }`}
-              />
+              <div className="relative group cursor-pointer">
+                <input
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+                  min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
+                  placeholder="Click to select your date of birth"
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-accent bg-input text-foreground cursor-pointer transition-all duration-200 ${
+                    errors.dateOfBirth ? 'border-destructive' : 'border-border hover:border-accent/50 hover:shadow-md'
+                  }`}
+                  style={{
+                    colorScheme: 'dark',
+                  }}
+                  required
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Calendar 
+                    className={`w-5 h-5 transition-all duration-200 ${
+                      formData.dateOfBirth 
+                        ? 'text-accent' 
+                        : 'text-muted-foreground group-hover:text-accent group-hover:scale-110'
+                    }`}
+                  />
+                </div>
+              </div>
               {errors.dateOfBirth && (
-                <p className="mt-1 text-xs text-destructive">{errors.dateOfBirth}</p>
+                <p className="mt-2 text-xs text-destructive flex items-center gap-1">
+                  <span className="inline-block w-1 h-1 bg-destructive rounded-full"></span>
+                  {errors.dateOfBirth}
+                </p>
               )}
               {formData.dateOfBirth && !errors.dateOfBirth && (
-                <p className="mt-1 text-xs text-accent">
-                  You&apos;re {Math.floor((new Date().getTime() - new Date(formData.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex items-center justify-center w-5 h-5 rounded-full bg-accent/20">
+                    <svg className="w-3 h-3 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <p className="text-xs text-accent font-medium">
+                    You&apos;re {Math.floor((new Date().getTime() - new Date(formData.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old
+                  </p>
+                </div>
+              )}
+              {!formData.dateOfBirth && !errors.dateOfBirth && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Click anywhere on the field to open the calendar
                 </p>
               )}
             </div>

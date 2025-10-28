@@ -2,9 +2,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button, Input, GoogleSignInButton } from '../ui';
+import { Button, Input, GoogleSignInButton, Intra42SignInButton } from '../ui';
 import { validateRegisterForm } from '../../lib/validation';
 import { useAuth } from '@/context';
 
@@ -123,38 +122,38 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* Compact Step Indicator */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-gray-600">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className="text-xs sm:text-sm text-gray-600">
           Step {currentStep} of 2
         </div>
-        <div className="flex items-center space-x-2">
-          <div className={`w-2 h-2 rounded-full transition-colors ${
+        <div className="flex items-center space-x-1.5 sm:space-x-2">
+          <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors ${
             currentStep >= 1 ? 'bg-primary-600' : 'bg-gray-300'
           }`} />
-          <div className={`w-6 h-0.5 transition-colors ${
+          <div className={`w-5 sm:w-6 h-0.5 transition-colors ${
             currentStep >= 2 ? 'bg-primary-600' : 'bg-gray-300'
           }`} />
-          <div className={`w-2 h-2 rounded-full transition-colors ${
+          <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors ${
             currentStep >= 2 ? 'bg-primary-600' : 'bg-gray-300'
           }`} />
         </div>
       </div>
 
       {/* Form Content */}
-      <form onSubmit={currentStep === 2 ? handleSubmit : (e) => e.preventDefault()} className="space-y-4">
+      <form onSubmit={currentStep === 2 ? handleSubmit : (e) => e.preventDefault()} className="space-y-3.5 sm:space-y-4">
         {errors.general && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+          <div className="bg-red-50 border border-red-200 text-red-600 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm">
             {errors.general}
           </div>
         )}
 
         {/* Step 1: Basic Information */}
         {currentStep === 1 && (
-          <div className="space-y-4">
+          <div className="space-y-3.5 sm:space-y-4">
             {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               <Input
                 label="First Name"
                 type="text"
@@ -205,21 +204,22 @@ const RegisterForm = () => {
               variant="primary"
               size="lg"
               onClick={handleNext}
-              className="w-full bg-primary-600 hover:bg-primary-700 focus:ring-primary-500"
+              className="w-full bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 text-sm sm:text-base py-2.5 sm:py-3"
             >
               Continue
             </Button>
 
             {/* Social Login */}
-            <div className="space-y-4">
+            <div className="space-y-3.5 sm:space-y-4">
               <div className="relative flex items-center">
                 <div className="flex-grow border-t border-gray-200"></div>
-                <span className="px-4 text-sm text-gray-500">OR</span>
+                <span className="px-3 sm:px-4 text-xs sm:text-sm text-gray-500">OR</span>
                 <div className="flex-grow border-t border-gray-200"></div>
               </div>
 
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <GoogleSignInButton isLogin={false} />
+                <Intra42SignInButton isLogin={false} />
               </div>
             </div>
           </div>
@@ -227,7 +227,7 @@ const RegisterForm = () => {
 
         {/* Step 2: Security */}
         {currentStep === 2 && (
-          <div className="space-y-4">
+          <div className="space-y-3.5 sm:space-y-4">
             <Input
               label="Password"
               type="password"
@@ -250,13 +250,13 @@ const RegisterForm = () => {
               required
             />
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
               <Button
                 type="button"
                 variant="outline"
                 size="lg"
                 onClick={handleBack}
-                className="w-full sm:flex-1 order-2 sm:order-1"
+                className="w-full sm:flex-1 order-2 sm:order-1 text-sm sm:text-base py-2.5 sm:py-3"
               >
                 Back
               </Button>
@@ -266,7 +266,7 @@ const RegisterForm = () => {
                 variant="primary"
                 size="lg"
                 loading={isLoading}
-                className="w-full sm:flex-1 bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 order-1 sm:order-2"
+                className="w-full sm:flex-1 bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 order-1 sm:order-2 text-sm sm:text-base py-2.5 sm:py-3"
               >
                 {isLoading ? 'Creating Account...' : 'Create Account'}
               </Button>

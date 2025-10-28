@@ -20,12 +20,13 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ isLogin = true 
       type="button"
       variant="outline"
       onClick={handleGoogleSignIn}
-      className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors duration-200"
+      className="w-full flex items-center justify-center gap-1.5 sm:gap-2 md:gap-3 py-2.5 sm:py-3 px-2 sm:px-3 md:px-4 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors duration-200"
     >
       {/* Google Icon SVG */}
       <svg 
-        width="20" 
-        height="20" 
+        width="18" 
+        height="18"
+        className="sm:w-5 sm:h-5 flex-shrink-0"
         viewBox="0 0 24 24" 
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -46,8 +47,8 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ isLogin = true 
           fill="#EA4335"
         />
       </svg>
-      <span className="text-gray-700 font-medium">
-        {isLogin ? 'Sign in with Google' : 'Sign up with Google'}
+      <span className="text-gray-700 font-medium text-[10px] sm:text-xs md:text-sm truncate">
+        {isLogin ? 'Google' : 'Google'}
       </span>
     </Button>
   );

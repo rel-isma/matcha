@@ -218,6 +218,67 @@
   .bg-gradient-primary {
     @apply bg-gradient-to-r from-[#F39C12] to-[#e08e0b];
   }
+  
+  /* Custom date picker styles */
+  input[type="date"] {
+    position: relative;
+  }
+  
+  /* Style the calendar icon - make it cover full input for better click area */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+  }
+  
+  /* Style date input text */
+  input[type="date"]::-webkit-datetime-edit {
+    padding: 0;
+  }
+  
+  input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+  }
+  
+  input[type="date"]::-webkit-datetime-edit-text {
+    color: #94a3b8;
+    padding: 0 0.25rem;
+  }
+  
+  input[type="date"]::-webkit-datetime-edit-month-field,
+  input[type="date"]::-webkit-datetime-edit-day-field,
+  input[type="date"]::-webkit-datetime-edit-year-field {
+    color: #f1f5f9;
+    background-color: transparent;
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.25rem;
+  }
+  
+  input[type="date"]::-webkit-datetime-edit-month-field:focus,
+  input[type="date"]::-webkit-datetime-edit-day-field:focus,
+  input[type="date"]::-webkit-datetime-edit-year-field:focus {
+    background-color: #F39C12;
+    color: white;
+    outline: none;
+  }
+  
+  /* Empty state placeholder */
+  input[type="date"]:not(:valid):before {
+    content: attr(placeholder);
+    color: #94a3b8;
+    margin-right: 0.5rem;
+  }
+  
+  input[type="date"]:valid:before {
+    content: '';
+  }
 }
 
 /* Custom keyframes */
