@@ -1,26 +1,35 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function LoadingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-50 to-primary-50 flex items-center justify-center">
-      <div className="text-center space-y-8">
-        {/* Logo */}
-        <div className="flex items-center justify-center space-x-3">
-          <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center">
-            <span className="text-white font-bold text-2xl">M</span>
+      <div className="text-center">
+        {/* Logo and Loading Animation - Centered */}
+        <div className="flex flex-col items-center justify-center space-y-8 mb-8">
+          {/* Logo */}
+          <div className="flex items-center justify-center">
+            <Image 
+              src="/logo/logoSmall.svg" 
+              alt="Matcha Logo" 
+              width={80} 
+              height={80}
+              unoptimized
+              priority
+            />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900">Matcha</h1>
+
+          {/* Loading Animation */}
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-600"></div>
+          </div>
         </div>
 
-        {/* Loading Animation */}
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-600"></div>
-        </div>
-
-        <div className="space-y-2">
+        {/* Loading Text */}
+        <div className="space-y-2 max-w-md mx-auto">
           <h2 className="text-2xl font-semibold text-gray-800">Loading...</h2>
-          <p className="text-gray-600 max-w-md">
+          <p className="text-gray-600">
             Preparing your perfect dating experience
           </p>
         </div>
@@ -42,9 +51,6 @@ export default function LoadingPage() {
             </Link>
             <Link href="/search" className="text-orange-600 hover:text-orange-700 font-medium">
               Search
-            </Link>
-            <Link href="/notifications" className="text-orange-600 hover:text-orange-700 font-medium">
-              Notifications
             </Link>
           </div>
         </div>

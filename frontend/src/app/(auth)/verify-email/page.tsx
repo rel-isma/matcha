@@ -18,6 +18,7 @@ export default function VerifyEmailPage() {
             width={120}
             height={40}
             className="h-8 sm:h-10 w-auto mb-4 sm:mb-8"
+            unoptimized
             priority
           />
         </div>

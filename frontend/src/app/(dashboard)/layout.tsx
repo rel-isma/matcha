@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Toaster } from 'react-hot-toast';
+import Image from 'next/image';
 import { Header, NavBar } from '../../components/navigation';
 import { useAuth } from '../../context/AuthContext';
-import { Spinner } from '../../components/ui';
 
 export default function DashboardLayout({
   children,
@@ -14,7 +14,6 @@ export default function DashboardLayout({
 }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -27,11 +26,41 @@ export default function DashboardLayout({
   // Show loading spinner while checking authentication
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0f1729] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-cream-50 to-primary-50 flex items-center justify-center">
         <div className="text-center">
-          <Spinner size="lg" />
-          <p className="mt-4 text-[#94a3b8]">Loading...</p>
+          {/* Logo and Loading Animation - Centered */}
+          <div className="flex flex-col items-center justify-center space-y-8 mb-8">
+            {/* Logo */}
+            <div className="flex items-center justify-center">
+              <Image 
+                src="/logo/logoSmall.svg" 
+                alt="Matcha Logo" 
+                width={80} 
+                height={80}
+                unoptimized
+                priority
+              />
+            </div>
+
+            {/* Loading Animation */}
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-600"></div>
+            </div>
+          </div>
+
+          {/* Loading Text */}
+          <div className="space-y-2 max-w-md mx-auto">
+            <h2 className="text-2xl font-semibold text-gray-800">Loading...</h2>
+            <p className="text-gray-600">
+              Preparing your dating experience
+            </p>
+          </div>
         </div>
+
+        {/* Decorative Elements */}
+        <div className="fixed top-20 left-10 w-32 h-32 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="fixed top-40 right-10 w-32 h-32 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" style={{animationDelay: '2s'}}></div>
+        <div className="fixed bottom-20 left-20 w-32 h-32 bg-teal-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" style={{animationDelay: '4s'}}></div>
       </div>
     );
   }

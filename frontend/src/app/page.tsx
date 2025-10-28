@@ -48,6 +48,7 @@ export default function MatchaLandingPage() {
                 width={96}
                 height={32}
                 className="h-8 w-auto"
+                unoptimized
                 priority
               />
             </div>
@@ -308,6 +309,7 @@ export default function MatchaLandingPage() {
                 width={120}
                 height={40}
                 className="h-8 w-auto"
+                unoptimized
               />
             </div>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">

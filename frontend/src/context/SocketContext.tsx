@@ -26,9 +26,14 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set());
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
+    // Don't try to connect while auth is still loading
+    if (isLoading) {
+      return;
+    }
+
     if (!user) {
       // Disconnect socket if user logs out
       if (socket) {
@@ -40,7 +45,8 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
     }
 
     // Initialize Socket.IO connection with cookies (withCredentials)
-    const socketInstance = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000', {
+    // Use SOCKET_URL (not API_URL which has /api path)
+    const socketInstance = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000', {
       withCredentials: true, // Send cookies with the connection
       transports: ['websocket', 'polling'],
       reconnection: true,
@@ -80,7 +86,8 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
     return () => {
       socketInstance.disconnect();
     };
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isLoading]);
 
   const joinRoom = (roomId: string) => {
     if (socket) {
