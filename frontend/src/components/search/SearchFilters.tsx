@@ -107,25 +107,25 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
   ];
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-orange-100 relative z-10">
+    <div className="bg-card rounded-xl shadow-md border-2 border-border relative z-10">
       {/* Header with Sort Controls - Always Visible */}
-      <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-3 border-b border-orange-100">
+      <div className={`bg-card p-3 border-b border-border ${isExpanded ? 'rounded-t-xl' : 'rounded-xl'}`}>
         {/* Title and Filter Button */}
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-base font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+          <h2 className="text-base font-bold text-foreground">
             Advanced Search
           </h2>
           
           <div className="flex items-center gap-2">
             {/* Active filters indicator */}
             {hasActiveFilters && (
-              <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
             )}
             
             {/* Filter Button */}
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-lg transition-all duration-200 shadow-md font-medium text-sm"
+              className="flex items-center gap-2 px-3 py-1.5 bg-accent hover:bg-primary-600 text-white rounded-lg transition-all duration-200 shadow-md font-medium text-sm"
             >
               <SlidersHorizontal className="w-4 h-4" />
               {isExpanded ? 'Hide Filters' : 'Filters'}
@@ -135,7 +135,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
 
         {/* Sort Controls - Always Visible */}
         <div className="space-y-1.5 relative">
-          <h3 className="text-xs font-semibold text-orange-800">Sort & Order</h3>
+          <h3 className="text-xs font-semibold text-foreground">Sort & Order</h3>
           <div className="grid grid-cols-2 gap-2">
             <div className="relative z-50">
               <Select
@@ -144,7 +144,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
                 onChange={(value) => updateLocalFilter('sortBy', value)}
                 options={sortOptions}
                 placeholder="Sort by..."
-                className="text-sm bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400"
+                className="text-sm bg-input border-border focus:border-ring focus:ring-ring"
               />
             </div>
             <div className="relative z-40">
@@ -154,7 +154,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
                 onChange={(value) => updateLocalFilter('sortOrder', value)}
                 options={sortOrderOptions}
                 placeholder="Order..."
-                className="text-sm bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400"
+                className="text-sm bg-input border-border focus:border-ring focus:ring-ring"
               />
             </div>
           </div>
@@ -163,12 +163,12 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
 
       {/* Expandable Filter Menu */}
       {isExpanded && (
-        <div className="p-3 bg-gradient-to-b from-orange-25 to-white">
+        <div className="p-3 bg-card rounded-b-xl">
           <div className="space-y-3">
 
             {/* Age Filter */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-orange-800">Age Range</label>
+              <label className="block text-xs font-semibold text-foreground">Age Range</label>
               <div className="grid grid-cols-2 gap-2">
                 <Input
                   type="number"
@@ -177,7 +177,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
                   onChange={(e) => updateLocalFilter('minAge', e.target.value ? parseInt(e.target.value) : undefined)}
                   min={18}
                   max={100}
-                  className="text-sm rounded-lg bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                  className="text-sm rounded-lg bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
                 />
                 <Input
                   type="number"
@@ -186,26 +186,26 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
                   onChange={(e) => updateLocalFilter('maxAge', e.target.value ? parseInt(e.target.value) : undefined)}
                   min={18}
                   max={100}
-                  className="text-sm rounded-lg bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                  className="text-sm rounded-lg bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
                 />
               </div>
             </div>
 
             {/* Location Filter */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-orange-800">Location (City)</label>
+              <label className="block text-xs font-semibold text-foreground">Location (City)</label>
               <Input
                 type="text"
                 placeholder="Enter city name..."
                 value={localFilters.city || ''}
                 onChange={(e) => updateLocalFilter('city', e.target.value || undefined)}
-                className="text-sm rounded-lg bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                className="text-sm rounded-lg bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
               />
             </div>
 
             {/* Fame Rating Filter */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-orange-800">Fame Rating Range</label>
+              <label className="block text-xs font-semibold text-foreground">Fame Rating Range</label>
               <div className="grid grid-cols-2 gap-2">
                 <Input
                   type="number"
@@ -214,7 +214,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
                   onChange={(e) => updateLocalFilter('minFame', e.target.value ? parseInt(e.target.value) : undefined)}
                   min={0}
                   max={100}
-                  className="text-sm rounded-lg bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                  className="text-sm rounded-lg bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
                 />
                 <Input
                   type="number"
@@ -223,14 +223,14 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
                   onChange={(e) => updateLocalFilter('maxFame', e.target.value ? parseInt(e.target.value) : undefined)}
                   min={0}
                   max={100}
-                  className="text-sm rounded-lg bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                  className="text-sm rounded-lg bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
                 />
               </div>
             </div>
 
             {/* Interest Tags Filter */}
             <div className="space-y-2">
-              <label className="block text-xs font-semibold text-orange-800">Interest Tags</label>
+              <label className="block text-xs font-semibold text-foreground">Interest Tags</label>
               
               {/* Add interest */}
               <div className="flex gap-2">
@@ -245,12 +245,12 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
                       addInterest(newInterest);
                     }
                   }}
-                  className="flex-1 text-sm rounded-lg bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                  className="flex-1 text-sm rounded-lg bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
                 />
                 <Button
                   onClick={() => addInterest(newInterest)}
                   disabled={!newInterest}
-                  className="px-3 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-medium text-sm rounded-lg disabled:opacity-50 shadow-md"
+                  className="px-3 py-2 bg-accent hover:bg-primary-600 text-white font-medium text-sm rounded-lg disabled:opacity-50 shadow-md"
                 >
                   Add
                 </Button>
@@ -259,14 +259,14 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
               {/* Popular interests */}
               {availableInterests.length > 0 && (
                 <div>
-                  <p className="text-xs text-orange-600 font-medium mb-1.5">Popular interests:</p>
+                  <p className="text-xs text-accent font-medium mb-1.5">Popular interests:</p>
                   <div className="flex flex-wrap gap-1.5">
                     {availableInterests.slice(0, 8).map((interest) => (
                       <button
                         key={interest}
                         onClick={() => addInterest(interest)}
                         disabled={localFilters.tags?.includes(interest.toLowerCase())}
-                        className="px-2.5 py-1 text-xs bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border border-orange-200"
+                        className="px-2.5 py-1 text-xs bg-input hover:bg-muted text-foreground rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border border-border"
                       >
                         {interest}
                       </button>
@@ -278,17 +278,17 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
               {/* Selected interests */}
               {localFilters.tags && localFilters.tags.length > 0 && (
                 <div>
-                  <p className="text-xs text-orange-600 font-medium mb-1.5">Selected interests:</p>
+                  <p className="text-xs text-accent font-medium mb-1.5">Selected interests:</p>
                   <div className="flex flex-wrap gap-1.5">
                     {localFilters.tags.map((interest) => (
                       <div
                         key={interest}
-                        className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 rounded-full text-xs border border-orange-200"
+                        className="flex items-center gap-1 px-2.5 py-1 bg-accent/20 text-accent rounded-full text-xs border border-accent"
                       >
                         <span>{interest}</span>
                         <button
                           onClick={() => removeInterest(interest)}
-                          className="text-orange-600 hover:text-orange-800 font-bold ml-0.5"
+                          className="text-accent hover:text-primary-600 font-bold ml-0.5"
                         >
                           ×
                         </button>
@@ -300,10 +300,10 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-2 pt-3 border-t border-orange-100">
+            <div className="flex gap-2 pt-3 border-t border-border">
               <Button
                 onClick={resetFilters}
-                className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-all duration-200 border border-gray-200 text-sm"
+                className="flex-1 px-3 py-2 bg-muted hover:bg-secondary-500 text-foreground font-medium rounded-lg transition-all duration-200 border border-border text-sm"
               >
                 Reset All
               </Button>
@@ -312,8 +312,8 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
                 disabled={!hasActiveFilters}
                 className={`flex-1 px-3 py-2 font-semibold rounded-lg transition-all duration-200 shadow-lg text-sm ${
                   hasActiveFilters 
-                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white cursor-pointer' 
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    ? 'bg-accent hover:bg-primary-600 text-white cursor-pointer' 
+                    : 'bg-muted text-muted-foreground cursor-not-allowed'
                 }`}
               >
                 {hasActiveFilters ? 'Apply Search' : 'Set Filters First'}

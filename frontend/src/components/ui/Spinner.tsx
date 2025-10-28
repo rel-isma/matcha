@@ -52,8 +52,8 @@ const Loading = ({ text = 'Loading...', className }: LoadingProps) => {
   return (
     <div className={`flex items-center justify-center p-8 ${className || ''}`}>
       <div className="text-center">
-        <Spinner size="lg" className="text-orange-500 mb-3" />
-        <p className="text-secondary-600 text-sm">{text}</p>
+        <Spinner size="lg" className="text-[#F39C12] mb-3" />
+        <p className="text-[#94a3b8] text-sm">{text}</p>
       </div>
     </div>
   );

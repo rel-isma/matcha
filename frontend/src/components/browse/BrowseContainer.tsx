@@ -236,18 +236,18 @@ export const BrowseContainer: React.FC = () => {
         {/* Results */}
         {profiles.length === 0 ? (
           <div className="text-center py-16">
-            <div className="flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full mx-auto mb-6">
-              <svg className="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center justify-center w-20 h-20 bg-card border border-border rounded-full mx-auto mb-6">
+              <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-secondary-800 mb-3">No profiles found</h3>
-            <p className="text-secondary-600 mb-6 max-w-md mx-auto">
+            <h3 className="text-2xl font-bold text-foreground mb-3">No profiles found</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               Try adjusting your filters or check back later for new profiles that match your preferences.
             </p>
             <button 
               onClick={handleResetFilters}
-              className="bg-primary-500 hover:bg-primary-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+              className="bg-accent hover:bg-primary-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
             >
               Reset Filters
             </button>
@@ -274,7 +274,7 @@ export const BrowseContainer: React.FC = () => {
                 <button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 disabled:from-secondary-300 disabled:to-secondary-400 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed"
+                  className="bg-accent hover:bg-primary-600 disabled:bg-muted text-white font-semibold px-8 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed"
                 >
                   {loadingMore ? (
                     <div className="flex items-center gap-3">

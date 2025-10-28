@@ -22,7 +22,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   const profilePicture = profile.pictures.find(p => p.isProfilePic) || profile.pictures[0];
   console.log('profile:', profile); 
   return (
-    <div className="relative w-full h-full max-w-sm mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden aspect-[3/4] group">
+    <div className="relative w-full h-full max-w-sm mx-auto bg-card rounded-3xl shadow-2xl overflow-hidden aspect-[3/4] group">
       {/* Photo Container - Full card */}
       <div 
         className="relative w-full h-full cursor-pointer"
@@ -37,8 +37,8 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             sizes="400px"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-            <User className="w-24 h-24 text-gray-400" strokeWidth={1.5} />
+          <div className="w-full h-full bg-gradient-to-br from-muted to-secondary-400 flex items-center justify-center">
+            <User className="w-24 h-24 text-muted-foreground" strokeWidth={1.5} />
           </div>
         )}
         
@@ -47,7 +47,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         
         {/* Match indicator - top right */}
         {profile.hasLikedBack && (
-          <div className="absolute top-6 right-6 bg-gradient-to-r from-primary-400 to-primary-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-xl border-2 border-white/30">
+          <div className="absolute top-6 right-6 bg-accent text-white text-sm font-bold px-4 py-2 rounded-full shadow-xl border-2 border-white/30">
             ✨ MATCH
           </div>
         )}
@@ -102,7 +102,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           {/* Common interests count */}
           {profile.commonInterests && profile.commonInterests > 0 && (
             <div className="mt-1">
-              <span className="bg-gradient-to-r from-orange-500/80 to-amber-500/80 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full border border-white/30">
+              <span className="bg-accent/80 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full border border-white/30">
                 {profile.commonInterests} common interest{profile.commonInterests > 1 ? 's' : ''}
               </span>
             </div>
@@ -132,11 +132,11 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
                 onLike(profile.userId);
               }
             }}
-            className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-primary-500/80 transition-all duration-300 shadow-lg"
+            className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-accent/80 transition-all duration-300 shadow-lg"
           >
             <Heart
               className={`w-5 h-5 transition-all duration-300 ${
-                profile.isLiked ? 'text-orange-500 fill-current' : 'text-white fill-none'
+                profile.isLiked ? 'text-accent fill-current' : 'text-white fill-none'
               }`}
             />
           </button>

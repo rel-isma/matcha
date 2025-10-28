@@ -12,16 +12,16 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const getButtonClasses = (variant: string, size: string, className?: string): string => {
-  const baseClasses = 'inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 disabled:pointer-events-none disabled:opacity-50';
+  const baseClasses = 'inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#F39C12]/50 disabled:pointer-events-none disabled:opacity-50';
   
   const variants = {
-    default: 'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 shadow-md hover:shadow-lg',
-    primary: 'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 shadow-md hover:shadow-lg',
+    default: 'bg-[#F39C12] text-white hover:bg-[#e08e0b] active:bg-[#c27d08] shadow-md hover:shadow-lg',
+    primary: 'bg-[#F39C12] text-white hover:bg-[#e08e0b] active:bg-[#c27d08] shadow-md hover:shadow-lg',
     destructive: 'bg-red-500 text-white hover:bg-red-600 active:bg-red-700 shadow-md hover:shadow-lg',
-    outline: 'border-2 border-primary-500 text-primary-600 hover:bg-primary-50 active:bg-primary-100',
-    secondary: 'bg-secondary-100 text-secondary-800 hover:bg-secondary-200 active:bg-secondary-300',
-    ghost: 'text-secondary-700 hover:bg-secondary-100 active:bg-secondary-200',
-    link: 'text-primary-500 underline-offset-4 hover:underline p-0 h-auto',
+    outline: 'border-2 border-[#F39C12] text-[#F39C12] hover:bg-[#F39C12] hover:text-white active:bg-[#e08e0b]',
+    secondary: 'bg-[#1e293b] text-[#f1f5f9] hover:bg-[#334155] active:bg-[#475569] border border-[#334155]',
+    ghost: 'text-[#94a3b8] hover:bg-[#1e293b] hover:text-[#f1f5f9] active:bg-[#334155]',
+    link: 'text-[#F39C12] underline-offset-4 hover:underline p-0 h-auto',
   };
   
   const sizes = {

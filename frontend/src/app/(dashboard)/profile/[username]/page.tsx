@@ -208,15 +208,15 @@ export default function UserProfilePage() {
   if (error || !profile) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <User size={64} className="mx-auto text-gray-400 mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+        <div className="text-center bg-card border-2 border-border rounded-xl p-8">
+          <User size={64} className="mx-auto text-accent mb-4" />
+          <h1 className="text-2xl font-bold text-foreground mb-4">
             {error || 'Profile Not Found'}
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             This profile doesn&apos;t exist or has been removed.
           </p>
-          <Button onClick={() => router.push('/browse')}>
+          <Button onClick={() => router.push('/browse')} className="bg-accent hover:bg-primary-600">
             Back to Browse
           </Button>
         </div>
@@ -234,7 +234,7 @@ export default function UserProfilePage() {
       <Button
         variant="ghost"
         onClick={() => router.back()}
-        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-800"
+        className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft size={20} />
         Back
@@ -250,7 +250,7 @@ export default function UserProfilePage() {
         className="relative mb-8"
       >
         {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 rounded-2xl opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-accent/30 to-accent/20 rounded-2xl"></div>
 
         <div className="relative p-4 md:p-6">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
@@ -263,7 +263,7 @@ export default function UserProfilePage() {
               className="relative cursor-pointer"
               onClick={() => profile.pictures.length > 0 && setShowImageModal(true)}
             >
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden ring-4 ring-orange-200 shadow-2xl bg-gradient-to-br from-orange-100 to-amber-50">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden ring-4 ring-accent/30 shadow-2xl bg-gradient-to-br from-accent/20 to-accent/10">
                 {profilePicture ? (
                   <Image
                     src={profilePicture}
@@ -275,16 +275,16 @@ export default function UserProfilePage() {
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
-                    <User size={48} className="text-orange-400" />
+                    <User size={48} className="text-accent" />
                   </div>
                 )}
               </div>
               {/* Online Status */}
-              <div className={`absolute bottom-2 right-2 w-6 h-6 rounded-full border-4 border-white shadow-lg ${
-                isOnline ? 'bg-green-500' : 'bg-gray-400'
+              <div className={`absolute bottom-2 right-2 w-6 h-6 rounded-full border-4 border-card shadow-lg ${
+                isOnline ? 'bg-green-500' : 'bg-muted'
               }`}></div>
               {profile.pictures.length > 1 && (
-                <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded-full">
+                <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
                   {profile.pictures.length} photos
                 </div>
               )}
@@ -298,18 +298,18 @@ export default function UserProfilePage() {
               className="flex-1 text-center md:text-left"
             >
               {/* Username */}
-              <div className="text-orange-500 font-medium text-sm md:text-base mb-1">
+              <div className="text-accent font-medium text-sm md:text-base mb-1">
                 @{profile.username}
               </div>
               
               {/* Full Name & Age */}
-              <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-2">
                 {profile.firstName} {profile.lastName}
-                {age && <span className="text-xl md:text-2xl text-gray-600 ml-2">{age}</span>}
+                {age && <span className="text-xl md:text-2xl text-muted-foreground ml-2">{age}</span>}
               </h1>
               
               {/* Status & Location */}
-              <div className="flex items-center justify-center md:justify-start gap-4 text-sm text-gray-600 mb-4">
+              <div className="flex items-center justify-center md:justify-start gap-4 text-sm text-muted-foreground mb-4">
                 <div className="flex items-center gap-1">
                   <Clock size={14} />
                   <span>{getLastSeenText(profile.lastSeen || null, isOnline)}</span>
@@ -327,7 +327,7 @@ export default function UserProfilePage() {
 
               {/* Bio */}
               {profile.bio && (
-                <p className="text-gray-700 text-sm md:text-base leading-relaxed mb-6 max-w-2xl">
+                <p className="text-muted-foreground text-sm md:text-base leading-relaxed mb-6 max-w-2xl">
                   {profile.bio}
                 </p>
               )}
@@ -336,19 +336,19 @@ export default function UserProfilePage() {
               {(isConnected || hasLikedMe || isLiked) && (
                 <div className="flex flex-wrap gap-2 mb-4 justify-center md:justify-start">
                   {isConnected && (
-                    <span className="px-3 py-1 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-300 rounded-full text-xs font-medium flex items-center gap-1">
+                    <span className="px-3 py-1 bg-accent/20 text-accent border border-accent rounded-full text-xs font-medium flex items-center gap-1">
                       <HeartHandshake size={12} />
                       Connected
                     </span>
                   )}
                   {hasLikedMe && !isConnected && (
-                    <span className="px-3 py-1 bg-orange-100 text-orange-700 border border-orange-300 rounded-full text-xs font-medium flex items-center gap-1">
+                    <span className="px-3 py-1 bg-accent/20 text-accent border border-accent/50 rounded-full text-xs font-medium flex items-center gap-1">
                       <Heart size={12} className="fill-current" />
                       Liked you
                     </span>
                   )}
                   {isLiked && (
-                    <span className="px-3 py-1 bg-amber-100 text-amber-800 border border-amber-300 rounded-full text-xs font-medium flex items-center gap-1">
+                    <span className="px-3 py-1 bg-accent/20 text-accent border border-accent/50 rounded-full text-xs font-medium flex items-center gap-1">
                       <Heart size={12} className="fill-current" />
                       You liked
                     </span>
@@ -363,8 +363,8 @@ export default function UserProfilePage() {
                   disabled={actionLoading === 'like'}
                   className={`px-6 py-2.5 rounded-full shadow-lg flex items-center justify-center gap-2 font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 ${
                     isLiked
-                      ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white'
-                      : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white'
+                      ? 'bg-destructive hover:bg-red-600 text-white'
+                      : 'bg-accent hover:bg-primary-600 text-white'
                   }`}
                 >
                   {actionLoading === 'like' ? (
@@ -383,7 +383,7 @@ export default function UserProfilePage() {
                 {isConnected && (
                   <Button
                     onClick={handleStartChat}
-                    className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-6 py-2.5 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 hover:scale-105"
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 hover:scale-105"
                   >
                     <MessageCircle size={18} />
                     Chat
@@ -394,11 +394,11 @@ export default function UserProfilePage() {
                   onClick={handleBlock}
                   disabled={actionLoading === 'block'}
                   variant="outline"
-                  className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-6 py-2.5 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 disabled:opacity-50"
+                  className="border-2 border-destructive/30 text-destructive hover:bg-destructive/10 hover:border-destructive px-6 py-2.5 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 disabled:opacity-50"
                 >
                   {actionLoading === 'block' ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 border-2 border-destructive border-t-transparent rounded-full animate-spin"></div>
                       <span>Blocking...</span>
                     </div>
                   ) : (
@@ -412,7 +412,7 @@ export default function UserProfilePage() {
                 <Button
                   onClick={() => setShowReportModal(true)}
                   variant="outline"
-                  className="border-2 border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 px-6 py-2.5 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300"
+                  className="border-2 border-border text-muted-foreground hover:bg-muted hover:border-accent px-6 py-2.5 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300"
                 >
                   <Shield size={18} />
                   Report
@@ -427,14 +427,14 @@ export default function UserProfilePage() {
               transition={{ duration: 0.6, delay: 0.6 }}
               className="hidden md:flex flex-col gap-4 text-center"
             >
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 min-w-[120px]">
-                <div className="text-2xl font-bold text-orange-600">{profile.fameRating}</div>
-                <div className="text-xs text-gray-600 font-medium">Fame</div>
-                <div className={`text-xs text-orange-600 font-medium`}>{fameInfo.level}</div>
+              <div className="bg-card border-2 border-accent/30 rounded-xl p-4 min-w-[120px]">
+                <div className="text-2xl font-bold text-accent">{profile.fameRating}</div>
+                <div className="text-xs text-muted-foreground font-medium">Fame</div>
+                <div className={`text-xs text-accent font-medium`}>{fameInfo.level}</div>
               </div>
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4">
-                <div className="text-2xl font-bold text-orange-600">{profile.pictures.length}</div>
-                <div className="text-xs text-gray-600 font-medium">Photos</div>
+              <div className="bg-card border-2 border-accent/30 rounded-xl p-4">
+                <div className="text-2xl font-bold text-accent">{profile.pictures.length}</div>
+                <div className="text-xs text-muted-foreground font-medium">Photos</div>
               </div>
             </motion.div>
           </div>
@@ -446,13 +446,13 @@ export default function UserProfilePage() {
             transition={{ duration: 0.6, delay: 0.8 }}
             className="md:hidden mt-6 grid grid-cols-2 gap-4"
           >
-            <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-3 text-center">
-              <div className="text-xl font-bold text-orange-600">{profile.fameRating}</div>
-              <div className="text-xs text-gray-600 font-medium">Fame ({fameInfo.level})</div>
+            <div className="bg-card border-2 border-accent/30 rounded-xl p-3 text-center">
+              <div className="text-xl font-bold text-accent">{profile.fameRating}</div>
+              <div className="text-xs text-muted-foreground font-medium">Fame ({fameInfo.level})</div>
             </div>
-            <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-3 text-center">
-              <div className="text-xl font-bold text-orange-600">{profile.pictures.length}</div>
-              <div className="text-xs text-gray-600 font-medium">Photos</div>
+            <div className="bg-card border-2 border-accent/30 rounded-xl p-3 text-center">
+              <div className="text-xl font-bold text-accent">{profile.pictures.length}</div>
+              <div className="text-xs text-muted-foreground font-medium">Photos</div>
             </div>
           </motion.div>
         </div>
@@ -465,7 +465,7 @@ export default function UserProfilePage() {
         transition={{ duration: 0.6, delay: 0.3 }}
         className="mb-8"
       >
-        <div className="border-b border-orange-200">
+        <div className="border-b border-border">
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8 overflow-x-auto">
             {['Information', 'Gallery'].map((tab) => (
@@ -474,8 +474,8 @@ export default function UserProfilePage() {
                 onClick={() => setActiveTab(tab)}
                 className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
                   activeTab === tab
-                    ? 'border-orange-500 text-orange-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-700 hover:border-orange-300'
+                    ? 'border-accent text-accent'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-accent/50'
                 }`}
               >
                 {tab}
@@ -492,8 +492,8 @@ export default function UserProfilePage() {
                   onClick={() => setActiveTab(tab)}
                   className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     activeTab === tab
-                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-accent hover:bg-primary-600 text-white shadow-md'
+                      : 'bg-muted text-muted-foreground hover:bg-secondary-600'
                   }`}
                 >
                   <span className="whitespace-nowrap">{tab}</span>
@@ -515,87 +515,87 @@ export default function UserProfilePage() {
             transition={{ duration: 0.6, delay: 0.4 }}
             id="information"
           >
-            <h2 className="text-2xl font-bold text-orange-600 mb-8">Information</h2>
+            <h2 className="text-2xl font-bold text-accent mb-8">Information</h2>
             
             <div className="grid md:grid-cols-2 gap-x-12 gap-y-1">
               {/* Left Column */}
               <div className="space-y-1">
-                <div className="flex items-center justify-between py-4 border-b border-orange-200">
+                <div className="flex items-center justify-between py-4 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <User size={16} className="text-orange-500" />
-                    <dt className="text-gray-700 font-medium">Full Name</dt>
+                    <User size={16} className="text-accent" />
+                    <dt className="text-muted-foreground font-medium">Full Name</dt>
                   </div>
-                  <dd className="text-gray-800 font-medium">{profile.firstName} {profile.lastName}</dd>
+                  <dd className="text-foreground font-medium">{profile.firstName} {profile.lastName}</dd>
                 </div>
                 
                 {genderLabel && (
-                  <div className="flex items-center justify-between py-4 border-b border-orange-200">
+                  <div className="flex items-center justify-between py-4 border-b border-border">
                     <div className="flex items-center gap-3">
-                      <User size={16} className="text-orange-500" />
-                      <dt className="text-gray-700 font-medium">Gender</dt>
+                      <User size={16} className="text-accent" />
+                      <dt className="text-muted-foreground font-medium">Gender</dt>
                     </div>
-                    <dd className="text-gray-800 font-medium">{genderLabel}</dd>
+                    <dd className="text-foreground font-medium">{genderLabel}</dd>
                   </div>
                 )}
                 
                 {age && (
-                  <div className="flex items-center justify-between py-4 border-b border-orange-200">
+                  <div className="flex items-center justify-between py-4 border-b border-border">
                     <div className="flex items-center gap-3">
-                      <Calendar size={16} className="text-orange-500" />
-                      <dt className="text-gray-700 font-medium">Age</dt>
+                      <Calendar size={16} className="text-accent" />
+                      <dt className="text-muted-foreground font-medium">Age</dt>
                     </div>
-                    <dd className="text-gray-800 font-medium">{age} years old</dd>
+                    <dd className="text-foreground font-medium">{age} years old</dd>
                   </div>
                 )}
                 
                 {profile.neighborhood && (
-                  <div className="flex items-center justify-between py-4 border-b border-orange-200">
+                  <div className="flex items-center justify-between py-4 border-b border-border">
                     <div className="flex items-center gap-3">
-                      <MapPin size={16} className="text-orange-500" />
-                      <dt className="text-gray-700 font-medium">Location</dt>
+                      <MapPin size={16} className="text-accent" />
+                      <dt className="text-muted-foreground font-medium">Location</dt>
                     </div>
-                    <dd className="text-gray-800 font-medium">{profile.neighborhood}</dd>
+                    <dd className="text-foreground font-medium">{profile.neighborhood}</dd>
                   </div>
                 )}
               </div>
 
               {/* Right Column */}
               <div className="space-y-1">
-                <div className="flex items-center justify-between py-4 border-b border-orange-200">
+                <div className="flex items-center justify-between py-4 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <Award size={16} className="text-orange-500" />
-                    <dt className="text-gray-700 font-medium">Fame Rating</dt>
+                    <Award size={16} className="text-accent" />
+                    <dt className="text-muted-foreground font-medium">Fame Rating</dt>
                   </div>
                   <div className="text-right">
-                    <div className="text-gray-800 font-medium">{profile.fameRating}</div>
-                    <div className="text-xs text-orange-600 font-medium">{fameInfo.level}</div>
+                    <div className="text-foreground font-medium">{profile.fameRating}</div>
+                    <div className="text-xs text-accent font-medium">{fameInfo.level}</div>
                   </div>
                 </div>
                 
                 {preferenceLabel && (
-                  <div className="flex items-center justify-between py-4 border-b border-orange-200">
+                  <div className="flex items-center justify-between py-4 border-b border-border">
                     <div className="flex items-center gap-3">
-                      <Heart size={16} className="text-orange-500" />
-                      <dt className="text-gray-700 font-medium">Looking for</dt>
+                      <Heart size={16} className="text-accent" />
+                      <dt className="text-muted-foreground font-medium">Looking for</dt>
                     </div>
-                    <dd className="text-gray-800 font-medium">{preferenceLabel}</dd>
+                    <dd className="text-foreground font-medium">{preferenceLabel}</dd>
                   </div>
                 )}
                 
-                <div className="flex items-center justify-between py-4 border-b border-orange-200">
+                <div className="flex items-center justify-between py-4 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <Camera size={16} className="text-orange-500" />
-                    <dt className="text-gray-700 font-medium">Photos</dt>
+                    <Camera size={16} className="text-accent" />
+                    <dt className="text-muted-foreground font-medium">Photos</dt>
                   </div>
-                  <dd className="text-gray-800 font-medium">{profile.pictures.length}</dd>
+                  <dd className="text-foreground font-medium">{profile.pictures.length}</dd>
                 </div>
                 
-                <div className="flex items-center justify-between py-4 border-b border-orange-200">
+                <div className="flex items-center justify-between py-4 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <Clock size={16} className="text-orange-500" />
-                    <dt className="text-gray-700 font-medium">Status</dt>
+                    <Clock size={16} className="text-accent" />
+                    <dt className="text-muted-foreground font-medium">Status</dt>
                   </div>
-                  <dd className={`font-medium ${isOnline ? 'text-green-600' : 'text-gray-600'}`}>
+                  <dd className={`font-medium ${isOnline ? 'text-green-500' : 'text-muted-foreground'}`}>
                     {getLastSeenText(profile.lastSeen || null, isOnline)}
                   </dd>
                 </div>
@@ -605,12 +605,12 @@ export default function UserProfilePage() {
             {/* Interests Tags */}
             {profile.interests.length > 0 && (
               <div className="mt-12">
-                <h3 className="text-xl font-bold text-orange-600 mb-6">Interests</h3>
+                <h3 className="text-xl font-bold text-accent mb-6">Interests</h3>
                 <div className="flex flex-wrap gap-3">
                   {profile.interests.map((interest) => (
                     <span
                       key={interest.id}
-                      className="px-4 py-2 bg-orange-100 border border-orange-300 text-orange-700 rounded-lg"
+                      className="px-4 py-2 bg-accent/20 border border-accent text-accent rounded-lg hover:bg-accent/30 transition-colors"
                     >
                       {interest.name}
                     </span>
@@ -629,14 +629,14 @@ export default function UserProfilePage() {
             transition={{ duration: 0.6, delay: 0.5 }}
             id="gallery"
           >
-            <h2 className="text-2xl font-bold text-orange-600 mb-8">Gallery</h2>
+            <h2 className="text-2xl font-bold text-accent mb-8">Gallery</h2>
             
             {profile.pictures.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {profile.pictures.map((picture, index) => (
                   <div key={picture.id} className="relative">
                     <motion.div
-                      className="aspect-[3/4] rounded-lg overflow-hidden border border-orange-200 hover:border-orange-400 transition-colors cursor-pointer"
+                      className="aspect-[3/4] rounded-lg overflow-hidden border-2 border-border hover:border-accent transition-colors cursor-pointer"
                       whileHover={{ scale: 1.02 }}
                       transition={{ duration: 0.2 }}
                       onClick={() => {
@@ -655,7 +655,7 @@ export default function UserProfilePage() {
                     </motion.div>
                     {picture.isProfilePic && (
                       <div className="absolute top-2 left-2 z-10">
-                        <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded shadow-md">
+                        <span className="px-2 py-1 bg-accent text-white text-xs rounded shadow-md">
                           Main
                         </span>
                       </div>
@@ -664,10 +664,10 @@ export default function UserProfilePage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16">
-                <Camera size={64} className="mx-auto text-orange-400 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No photos uploaded</h3>
-                <p className="text-gray-500">This user hasn&apos;t uploaded any photos yet</p>
+              <div className="text-center py-16 bg-card border-2 border-border rounded-xl">
+                <Camera size={64} className="mx-auto text-accent mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">No photos uploaded</h3>
+                <p className="text-muted-foreground">This user hasn&apos;t uploaded any photos yet</p>
               </div>
             )}
           </motion.div>
@@ -756,14 +756,14 @@ export default function UserProfilePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
             onClick={() => setShowMatchModal(false)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className="bg-white rounded-2xl p-8 max-w-md w-full text-center"
+              className="bg-card rounded-2xl p-8 max-w-md w-full text-center border-2 border-accent/30"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Celebration Header */}
@@ -772,7 +772,7 @@ export default function UserProfilePage() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                  className="w-20 h-20 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full flex items-center justify-center mx-auto mb-4"
+                  className="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-4"
                 >
                   <HeartHandshake className="text-white" size={40} />
                 </motion.div>
@@ -781,7 +781,7 @@ export default function UserProfilePage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-3xl font-bold text-gray-900 mb-2"
+                  className="text-3xl font-bold text-foreground mb-2"
                 >
                   🎉 It&apos;s a Match!
                 </motion.h2>
@@ -790,9 +790,9 @@ export default function UserProfilePage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-gray-600 text-lg"
+                  className="text-muted-foreground text-lg"
                 >
-                  You and <span className="font-semibold text-orange-600">{profile.firstName}</span> liked each other!
+                  You and <span className="font-semibold text-accent">{profile.firstName}</span> liked each other!
                 </motion.p>
               </div>
 
@@ -804,9 +804,9 @@ export default function UserProfilePage() {
                 className="flex justify-center items-center gap-4 mb-6"
               >
                 {/* Current User - You'd need to get this from user context */}
-                <div className="w-16 h-16 rounded-full overflow-hidden ring-4 ring-orange-200 bg-gradient-to-br from-orange-100 to-amber-50">
+                <div className="w-16 h-16 rounded-full overflow-hidden ring-4 ring-accent/30 bg-gradient-to-br from-accent/20 to-accent/10">
                   <div className="flex items-center justify-center h-full">
-                    <User size={24} className="text-orange-400" />
+                    <User size={24} className="text-accent" />
                   </div>
                 </div>
                 
@@ -816,11 +816,11 @@ export default function UserProfilePage() {
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.6, type: "spring", stiffness: 300 }}
                 >
-                  <Heart className="text-red-500 fill-current" size={24} />
+                  <Heart className="text-destructive fill-current" size={24} />
                 </motion.div>
                 
                 {/* Other User */}
-                <div className="w-16 h-16 rounded-full overflow-hidden ring-4 ring-orange-200 bg-gradient-to-br from-orange-100 to-amber-50">
+                <div className="w-16 h-16 rounded-full overflow-hidden ring-4 ring-accent/30 bg-gradient-to-br from-accent/20 to-accent/10">
                   {profilePicture ? (
                     <Image
                       src={profilePicture}
@@ -832,7 +832,7 @@ export default function UserProfilePage() {
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
-                      <User size={24} className="text-orange-400" />
+                      <User size={24} className="text-accent" />
                     </div>
                   )}
                 </div>
@@ -843,9 +843,9 @@ export default function UserProfilePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
-                className="bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-200 rounded-xl p-4 mb-6"
+                className="bg-accent/20 border border-accent rounded-xl p-4 mb-6"
               >
-                <p className="text-orange-800 text-sm font-medium">
+                <p className="text-accent text-sm font-medium">
                   Start a conversation and get to know each other better!
                 </p>
               </motion.div>
@@ -862,7 +862,7 @@ export default function UserProfilePage() {
                     setShowMatchModal(false);
                     handleStartChat();
                   }}
-                  className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full bg-accent hover:bg-primary-600 text-white py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   <MessageCircle size={18} className="mr-2" />
                   Start Chatting
@@ -871,7 +871,7 @@ export default function UserProfilePage() {
                 <Button
                   onClick={() => setShowMatchModal(false)}
                   variant="outline"
-                  className="w-full border-2 border-gray-300 text-gray-600 hover:bg-gray-50 py-3 rounded-full font-semibold"
+                  className="w-full border-2 border-border text-muted-foreground hover:bg-muted py-3 rounded-full font-semibold"
                 >
                   Continue Browsing
                 </Button>
@@ -888,34 +888,34 @@ export default function UserProfilePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
             onClick={() => setShowBlockModal(false)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-xl p-6 max-w-md w-full"
+              className="bg-card rounded-xl p-6 max-w-md w-full border-2 border-destructive/30"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 mb-4">
-                <Ban className="text-red-500" size={24} />
-                <h3 className="text-xl font-bold text-gray-900">Block User</h3>
+                <Ban className="text-destructive" size={24} />
+                <h3 className="text-xl font-bold text-foreground">Block User</h3>
               </div>
               
-              <p className="text-gray-700 mb-6">
-                Are you sure you want to block <span className="font-semibold">{profile.firstName}</span>?
+              <p className="text-muted-foreground mb-6">
+                Are you sure you want to block <span className="font-semibold text-foreground">{profile.firstName}</span>?
               </p>
               
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <p className="text-red-700 text-sm font-medium mb-2">This will:</p>
-                <ul className="text-red-600 text-sm space-y-1">
+              <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 mb-6">
+                <p className="text-destructive text-sm font-medium mb-2">This will:</p>
+                <ul className="text-destructive text-sm space-y-1">
                   <li>• Remove them from your search results</li>
                   <li>• Remove any existing likes or connections</li>
                   <li>• Disable chat between you</li>
                   <li>• Prevent them from seeing your profile</li>
                 </ul>
-                <p className="text-red-600 text-xs mt-3 italic">
+                <p className="text-destructive text-xs mt-3 italic">
                   This action can be reversed by unblocking them later.
                 </p>
               </div>
@@ -924,7 +924,7 @@ export default function UserProfilePage() {
                 <Button
                   onClick={() => setShowBlockModal(false)}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 border-border"
                   disabled={actionLoading === 'block'}
                 >
                   Cancel
@@ -932,7 +932,7 @@ export default function UserProfilePage() {
                 <Button
                   onClick={confirmBlock}
                   disabled={actionLoading === 'block'}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white disabled:opacity-50"
+                  className="flex-1 bg-destructive hover:bg-red-600 text-white disabled:opacity-50"
                 >
                   {actionLoading === 'block' ? (
                     <div className="flex items-center gap-2 justify-center">
@@ -956,28 +956,28 @@ export default function UserProfilePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
             onClick={() => setShowReportModal(false)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
+              className="bg-card rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto border-2 border-border"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 mb-4">
-                <AlertTriangle className="text-red-500" size={24} />
-                <h3 className="text-xl font-bold text-gray-900">Report User</h3>
+                <AlertTriangle className="text-destructive" size={24} />
+                <h3 className="text-xl font-bold text-foreground">Report User</h3>
               </div>
               
-              <p className="text-gray-600 mb-6">
+              <p className="text-muted-foreground mb-6">
                 Why are you reporting {profile.firstName}? This will help us keep our community safe.
               </p>
               
               {/* Common report reasons */}
               <div className="mb-4">
-                <p className="text-sm font-medium text-gray-700 mb-3">Common reasons:</p>
+                <p className="text-sm font-medium text-foreground mb-3">Common reasons:</p>
                 <div className="space-y-2">
                   {[
                     'Fake profile / Catfishing',
@@ -992,8 +992,8 @@ export default function UserProfilePage() {
                       onClick={() => setReportReason(reason)}
                       className={`w-full text-left p-2 text-sm rounded border transition-colors ${
                         reportReason === reason
-                          ? 'bg-red-50 border-red-300 text-red-700'
-                          : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                          ? 'bg-destructive/10 border-destructive text-destructive'
+                          : 'bg-input border-border text-muted-foreground hover:bg-muted'
                       }`}
                     >
                       {reason}
@@ -1006,10 +1006,10 @@ export default function UserProfilePage() {
                 value={reportReason}
                 onChange={(e) => setReportReason(e.target.value)}
                 placeholder="Please provide additional details about why you're reporting this user..."
-                className="w-full p-3 border border-gray-300 rounded-lg resize-none h-24 focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                className="w-full p-3 bg-input border border-border rounded-lg resize-none h-24 focus:ring-2 focus:ring-ring focus:border-transparent text-sm text-foreground placeholder-muted-foreground"
               />
               
-              <div className="text-xs text-gray-500 mt-2 mb-4">
+              <div className="text-xs text-muted-foreground mt-2 mb-4">
                 Minimum 10 characters required. Your report will be reviewed by our moderation team.
               </div>
               
@@ -1020,14 +1020,14 @@ export default function UserProfilePage() {
                     setReportReason('');
                   }}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 border-border"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleReport}
                   disabled={!reportReason.trim() || reportReason.trim().length < 10 || actionLoading === 'report'}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+                  className="flex-1 bg-destructive hover:bg-red-600 text-white"
                 >
                   {actionLoading === 'report' ? (
                     <div className="flex items-center gap-2 justify-center">

@@ -52,26 +52,26 @@ const Modal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
       
       {/* Modal */}
-      <div className={`relative bg-white rounded-xl shadow-2xl animate-scale-in ${sizeClasses[size]} w-full max-h-[90vh] overflow-hidden`}>
+      <div className={`relative bg-[#1e293b] rounded-xl shadow-2xl animate-scale-in border border-[#334155] ${sizeClasses[size]} w-full max-h-[90vh] overflow-hidden`}>
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between p-6 border-b border-secondary-100">
+          <div className="flex items-center justify-between p-6 border-b border-[#334155]">
             {title && (
-              <h2 className="text-xl font-semibold text-secondary-900">
+              <h2 className="text-xl font-semibold text-[#f1f5f9]">
                 {title}
               </h2>
             )}
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="p-1 rounded-full hover:bg-secondary-100 transition-colors"
+                className="p-1 rounded-full hover:bg-[#334155] transition-colors"
               >
-                <svg className="w-5 h-5 text-secondary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5 text-[#94a3b8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>

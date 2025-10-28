@@ -27,10 +27,10 @@ export default function DashboardLayout({
   // Show loading spinner while checking authentication
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0f1729] flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-[#94a3b8]">Loading...</p>
         </div>
       </div>
     );
@@ -47,7 +47,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
+    <div className="min-h-screen bg-[#0f1729]">
       {/* Header - Desktop and Mobile */}
       <Header />
       
@@ -67,45 +67,45 @@ export default function DashboardLayout({
         toastOptions={{
           duration: 2000,
           style: {
-            background: '#fff',
-            color: '#374151',
-            border: '1px solid #fed7aa',
+            background: '#1e293b',
+            color: '#f1f5f9',
+            border: '1px solid #334155',
             borderRadius: '0.75rem',
             fontSize: '14px',
             fontWeight: '500',
-            boxShadow: '0 10px 15px -3px rgba(249, 115, 22, 0.1), 0 4px 6px -2px rgba(249, 115, 22, 0.05)',
+            boxShadow: '0 10px 15px -3px rgba(243, 156, 18, 0.1), 0 4px 6px -2px rgba(243, 156, 18, 0.05)',
           },
           success: {
             style: {
-              border: '1px solid #f97316',
-              backgroundColor: '#fff7ed',
-              color: '#9a3412',
+              border: '1px solid #F39C12',
+              backgroundColor: '#1e293b',
+              color: '#f1f5f9',
             },
             iconTheme: {
-              primary: '#f97316',
-              secondary: '#fff7ed',
+              primary: '#F39C12',
+              secondary: '#1e293b',
             },
           },
           error: {
             style: {
               border: '1px solid #ef4444',
-              backgroundColor: '#fef2f2',
-              color: '#991b1b',
+              backgroundColor: '#1e293b',
+              color: '#f1f5f9',
             },
             iconTheme: {
               primary: '#ef4444',
-              secondary: '#fef2f2',
+              secondary: '#1e293b',
             },
           },
           loading: {
             style: {
-              border: '1px solid #f59e0b',
-              backgroundColor: '#fffbeb',
-              color: '#92400e',
+              border: '1px solid #F39C12',
+              backgroundColor: '#1e293b',
+              color: '#f1f5f9',
             },
             iconTheme: {
-              primary: '#f59e0b',
-              secondary: '#fffbeb',
+              primary: '#F39C12',
+              secondary: '#1e293b',
             },
           },
         }}

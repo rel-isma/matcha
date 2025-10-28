@@ -37,7 +37,7 @@ export default function Header() {
   };
 
   return (
-    <header className="hidden md:block bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-200 sticky top-0 z-50">
+    <header className="hidden md:block bg-card border-b border-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -58,19 +58,19 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
               href="/browse" 
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors duration-200"
+              className="text-muted-foreground hover:text-accent font-medium transition-colors duration-200"
             >
               Browse
             </Link>
             <Link 
               href="/search" 
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors duration-200"
+              className="text-muted-foreground hover:text-accent font-medium transition-colors duration-200"
             >
               Search
             </Link>
             <Link 
               href="/chat" 
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors duration-200 relative"
+              className="text-muted-foreground hover:text-accent font-medium transition-colors duration-200 relative"
             >
               Chat
             </Link>
@@ -85,9 +85,9 @@ export default function Header() {
             <div className="relative" ref={profileMenuRef}>
               <button
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="flex items-center space-x-2 p-2 hover:bg-orange-100 rounded-lg transition-colors duration-200"
+                className="flex items-center space-x-2 p-2 hover:bg-muted rounded-lg transition-colors duration-200"
               >
-                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-orange-200 bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-border bg-gradient-to-br from-accent/20 to-primary-600/10 flex items-center justify-center">
                   {profilePicture ? (
                     <Image
                       src={profilePicture}
@@ -101,25 +101,25 @@ export default function Header() {
                       }}
                     />
                   ) : (
-                    <span className="text-orange-600 font-medium text-sm">
+                    <span className="text-accent font-medium text-sm">
                       {user?.firstName?.charAt(0) || 'U'}
                     </span>
                   )}
                 </div>
                 <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium text-gray-800">
+                  <p className="text-sm font-medium text-foreground">
                     {user?.firstName || 'User'}
                   </p>
                 </div>
-                <ChevronDown className="w-4 h-4 text-gray-600" />
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
               </button>
 
               {/* Profile Dropdown Menu */}
               {isProfileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-orange-200 py-2 z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border border-border py-2 z-50">
                   <Link
                     href="/profile"
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 transition-colors duration-200"
+                    className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors duration-200"
                     onClick={() => setIsProfileMenuOpen(false)}
                   >
                     <User className="w-4 h-4 mr-3" />
@@ -127,16 +127,16 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/settings"
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 transition-colors duration-200"
+                    className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors duration-200"
                     onClick={() => setIsProfileMenuOpen(false)}
                   >
                     <Settings className="w-4 h-4 mr-3" />
                     Settings
                   </Link>
-                  <div className="border-t border-orange-100 mt-2 pt-2">
+                  <div className="border-t border-border mt-2 pt-2">
                     <button
                       onClick={handleLogout}
-                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                      className="flex items-center w-full px-4 py-2 text-sm text-destructive hover:bg-muted transition-colors duration-200"
                     >
                       <LogOut className="w-4 h-4 mr-3" />
                       Sign Out
