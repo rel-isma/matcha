@@ -1,84 +1,11 @@
 // App constants
-export const APP_NAME = 'Matcha';
-export const APP_VERSION = '1.0.0';
+export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'Matcha';
+export const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0';
 
-// Dynamic API URL detection based on current host
-const getApiBaseUrl = () => {
-  // If we have an explicit environment variable, use it
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
-  }
-  
-  // For client-side, detect the current host
-  if (typeof window !== 'undefined') {
-    const currentHost = window.location.hostname;
-    const currentPort = window.location.port;
-    
-    // If accessing via private IP, use private IP for backend
-    if (currentHost === '10.30.246.128') {
-      return 'http://10.30.246.128:5000/api';
-    }
-    
-    // Default to localhost
-    return 'http://localhost:5000/api';
-  }
-  
-  // Server-side fallback
-  return 'http://localhost:5000/api';
-};
-
-// Dynamic Static Files URL detection (for uploads, profile pictures, etc.)
-const getStaticBaseUrl = () => {
-  // If we have an explicit environment variable, use it
-  if (process.env.NEXT_PUBLIC_STATIC_URL) {
-    return process.env.NEXT_PUBLIC_STATIC_URL;
-  }
-  
-  // For client-side, detect the current host
-  if (typeof window !== 'undefined') {
-    const currentHost = window.location.hostname;
-    
-    // If accessing via private IP, use private IP for backend
-    if (currentHost === '10.30.246.128') {
-      return 'http://10.30.246.128:5000';
-    }
-    
-    // Default to localhost
-    return 'http://localhost:5000';
-  }
-  
-  // Server-side fallback
-  return 'http://localhost:5000';
-};
-
-// Dynamic Socket URL detection based on current host
-const getSocketUrl = () => {
-  // If we have an explicit environment variable, use it
-  if (process.env.NEXT_PUBLIC_SOCKET_URL) {
-    return process.env.NEXT_PUBLIC_SOCKET_URL;
-  }
-  
-  // For client-side, detect the current host
-  if (typeof window !== 'undefined') {
-    const currentHost = window.location.hostname;
-    
-    // If accessing via private IP, use private IP for backend
-    if (currentHost === '10.30.246.128') {
-      return 'http://10.30.246.128:5000';
-    }
-    
-    // Default to localhost
-    return 'http://localhost:5000';
-  }
-  
-  // Server-side fallback
-  return 'http://localhost:5000';
-};
-
-// API endpoints (for future backend integration)
-export const API_BASE_URL = getApiBaseUrl();
-export const STATIC_BASE_URL = getStaticBaseUrl();
-export const SOCKET_URL = getSocketUrl();
+// API URLs from environment variables
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+export const STATIC_BASE_URL = process.env.NEXT_PUBLIC_STATIC_URL || 'http://localhost:5000';
+export const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
 
 export const API_ENDPOINTS = {
   AUTH: {
