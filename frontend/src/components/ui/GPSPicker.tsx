@@ -177,8 +177,8 @@ export function GPSPicker({
           className={cn(
             "w-full flex items-center justify-between p-4 border-2 rounded-xl transition-all duration-200",
             hasValidLocation
-              ? "border-accent/30 bg-accent/10 text-accent"
-              : "border-border bg-card hover:bg-muted text-foreground",
+              ? "border-green-500/40 bg-green-500/10 text-green-600 dark:text-green-400"
+              : "border-border bg-card hover:bg-muted text-foreground hover:border-accent/30",
             isGettingLocation && "opacity-70 cursor-not-allowed",
             error && "border-destructive/30 bg-destructive/10"
           )}
@@ -187,9 +187,9 @@ export function GPSPicker({
             {isGettingLocation ? (
               <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
             ) : hasValidLocation ? (
-              <CheckCircle className="w-5 h-5 text-accent" />
+              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
             ) : (
-              <Crosshair className="w-5 h-5 text-accent" />
+              <Crosshair className="w-5 h-5 text-muted-foreground" />
             )}
             <div className="text-left">
               <div className="font-medium">
@@ -212,8 +212,8 @@ export function GPSPicker({
 
         {/* Location Details */}
         {hasValidLocation && (
-          <div className="bg-accent/10 border-2 border-accent/30 rounded-lg p-3">
-            <div className="flex items-center gap-2 text-accent">
+          <div className="bg-card border-2 border-border rounded-lg p-3">
+            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
               <CheckCircle className="w-4 h-4" />
               <span className="text-sm font-medium">
                 {mode === 'profile' ? "GPS Location Set" : "GPS Location Active"}

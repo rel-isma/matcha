@@ -425,7 +425,7 @@ export default function ProfilePage() {
                       {profile.interests.map((interest) => (
                         <span
                           key={interest.id}
-                          className="px-4 py-2 bg-accent/20 border border-accent text-accent rounded-lg hover:bg-accent/30 transition-colors"
+                          className="px-4 py-2 bg-card border-2 border-border text-foreground rounded-lg hover:bg-muted hover:border-accent/50 transition-all duration-200 shadow-sm hover:shadow-md"
                         >
                           {interest.name}
                         </span>

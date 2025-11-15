@@ -241,7 +241,7 @@ const NotificationItem = ({ notification, onClick, onDelete, icon }: Notificatio
         </div>
         
         <div className="flex-1 min-w-0">
-          <p className={`text-xs ${!notification.isRead ? 'font-semibold' : ''}`}>
+          <p className={`text-sm text-foreground ${!notification.isRead ? 'font-semibold' : ''}`}>
             {notification.message}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
