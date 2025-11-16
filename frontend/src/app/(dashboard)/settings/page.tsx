@@ -1353,44 +1353,45 @@ export default function SettingsPage() {
                     <h3 className="text-base font-semibold text-foreground">
                       Blocked Users ({blockedUsers.length})
                     </h3>
-                    <div className="grid gap-4">
+                    <div className="grid gap-3 sm:gap-4">
                       {blockedUsers.map((user) => (
                         <div
                           key={user.userId}
-                          className="flex items-center justify-between p-4 bg-accent/20 border border-accent/30 rounded-lg hover:bg-accent/30 transition-all duration-200"
+                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border rounded-lg hover:border-accent/50 hover:shadow-md transition-all duration-200"
                         >
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
                             {/* Profile Picture */}
-                            <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-muted to-secondary-600 flex items-center justify-center">
+                            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-muted flex items-center justify-center shrink-0 border-2 border-border">
                               {user.profilePicture ? (
                                 <Image
                                   src={user.profilePicture.startsWith('http') ? user.profilePicture : `${STATIC_BASE_URL}${user.profilePicture}`}
                                   alt={`${user.firstName}'s profile`}
                                   fill
                                   className="object-cover"
+                                  unoptimized
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                     (e.currentTarget.parentNode as HTMLElement).innerHTML = `
-                                      <div class="w-full h-full flex items-center justify-center">
+                                      <div class="w-full h-full flex items-center justify-center bg-muted">
                                         <span class="text-muted-foreground font-medium text-sm">${user.firstName.charAt(0)}</span>
                                       </div>
                                     `;
                                   }}
                                 />
                               ) : (
-                                <span className="text-muted-foreground font-medium text-sm">
+                                <span className="text-muted-foreground font-medium text-lg">
                                   {user.firstName.charAt(0)}
                                 </span>
                               )}
                             </div>
                             
                             {/* User Info */}
-                            <div>
-                              <h4 className="font-semibold text-foreground">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-foreground text-sm sm:text-base truncate">
                                 {user.firstName} {user.lastName}
                               </h4>
-                              <p className="text-sm text-muted-foreground">@{user.username}</p>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs sm:text-sm text-muted-foreground truncate">@{user.username}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
                                 Blocked on {new Date(user.blockedAt).toLocaleDateString()}
                               </p>
                             </div>
@@ -1401,10 +1402,10 @@ export default function SettingsPage() {
                             type="button"
                             onClick={() => handleUnblockUser(user.userId, user.firstName)}
                             disabled={isLoading}
-                            className="bg-accent hover:bg-primary-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-semibold transition-all duration-200 hover:scale-105 disabled:opacity-50"
+                            className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 font-semibold transition-all duration-200 hover:scale-105 disabled:opacity-50 shrink-0"
                           >
                             <X size={16} />
-                            Unblock
+                            <span>Unblock</span>
                           </Button>
                         </div>
                       ))}
