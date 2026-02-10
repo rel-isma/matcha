@@ -259,3 +259,33 @@ export interface SearchFilters {
   page?: number;
   limit?: number;
 }
+
+// Message and Chat types
+export interface Message {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  content: string;
+  isRead: boolean;
+  readAt?: string;
+  createdAt: string;
+}
+
+export interface Conversation {
+  userId: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  isOnline: boolean;
+  lastSeen?: string;
+  profilePicture?: string;
+  lastMessage?: string;
+  lastMessageSenderId?: string;
+  lastMessageAt?: string;
+  unreadCount: number;
+}
+
+export interface SendMessageInput {
+  recipientId: string;
+  content: string;
+}

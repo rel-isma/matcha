@@ -248,3 +248,33 @@ export interface CreateNotificationInput {
   link?: string;
   fromUserId?: string;
 }
+
+// Message and Chat types
+export interface Message {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  content: string;
+  isRead: boolean;
+  readAt?: Date;
+  createdAt: Date;
+}
+
+export interface Conversation {
+  userId: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  isOnline: boolean;
+  lastSeen?: Date;
+  profilePicture?: string;
+  lastMessage?: string;
+  lastMessageSenderId?: string;
+  lastMessageAt?: Date;
+  unreadCount: number;
+}
+
+export interface SendMessageInput {
+  recipientId: string;
+  content: string;
+}

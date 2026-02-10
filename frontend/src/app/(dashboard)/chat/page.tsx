@@ -1,21 +1,26 @@
 'use client';
 
 import React from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import ChatContainer from '@/components/chat/ChatContainer';
 
 export default function ChatPage() {
-  return (
-    <div className="py-4 md:py-6">      
-      <div className="text-center">
-        <div className="flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mx-auto mb-4">
-          <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-semibold text-secondary-800 mb-2">Chat Content Coming Soon</h2>
-        <p className="text-secondary-600">
-          We're developing a seamless messaging experience for you and your matches.
-        </p>
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
       </div>
+    );
+  }
+
+  return (
+    <div className="h-[calc(100vh-120px)] py-4 md:py-6">
+      <ChatContainer 
+        currentUserId={user.id} 
+        currentUsername={user.username}
+      />
     </div>
   );
 }
