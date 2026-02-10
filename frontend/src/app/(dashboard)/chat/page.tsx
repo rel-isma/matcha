@@ -2,10 +2,13 @@
 
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useSearchParams } from 'next/navigation';
 import ChatContainer from '@/components/chat/ChatContainer';
 
 export default function ChatPage() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const targetUsername = searchParams.get('user');
 
   if (!user) {
     return (
@@ -20,6 +23,7 @@ export default function ChatPage() {
       <ChatContainer 
         currentUserId={user.id} 
         currentUsername={user.username}
+        initialUsername={targetUsername || undefined}
       />
     </div>
   );

@@ -11,9 +11,10 @@ import MessageInput from './MessageInput';
 interface ChatContainerProps {
   currentUserId: string;
   currentUsername: string;
+  initialUsername?: string; // Username to auto-select from URL
 }
 
-export default function ChatContainer({ currentUserId, currentUsername }: ChatContainerProps) {
+export default function ChatContainer({ currentUserId, currentUsername, initialUsername }: ChatContainerProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -21,6 +22,7 @@ export default function ChatContainer({ currentUserId, currentUsername }: ChatCo
   const [typingUser, setTypingUser] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   const { socket } = useSocket();
 
@@ -30,10 +32,12 @@ export default function ChatContainer({ currentUserId, currentUsername }: ChatCo
       const response = await chatApi.getConversations();
       if (response.success && response.data) {
         setConversations(response.data);
+        return response.data;
       }
     } catch (err) {
       console.error('Error loading conversations:', err);
     }
+    return [];
   }, []);
 
   // Load messages for a conversation
@@ -55,11 +59,6 @@ export default function ChatContainer({ currentUserId, currentUsername }: ChatCo
     }
   }, []);
 
-  // Initial load
-  useEffect(() => {
-    loadConversations();
-  }, [loadConversations]);
-
   // Handle conversation selection
   const handleSelectConversation = useCallback((userId: string) => {
     setSelectedConversation(userId);
@@ -70,6 +69,29 @@ export default function ChatContainer({ currentUserId, currentUsername }: ChatCo
       socket.emit('chat:join', userId);
     }
   }, [loadMessages, socket]);
+
+  // Initial load and handle URL parameter
+  useEffect(() => {
+    const initializeChat = async () => {
+      const loadedConversations = await loadConversations();
+      
+      // If initialUsername is provided and we haven't processed it yet
+      if (initialUsername && !initialLoadDone && loadedConversations) {
+        // Find conversation by username
+        const targetConversation = loadedConversations.find(
+          (conv: Conversation) => conv.username === initialUsername
+        );
+        
+        if (targetConversation) {
+          // Auto-select the conversation
+          handleSelectConversation(targetConversation.userId);
+        }
+        setInitialLoadDone(true);
+      }
+    };
+    
+    initializeChat();
+  }, [loadConversations, initialUsername, initialLoadDone, handleSelectConversation]);
 
   // Socket event handlers
   useEffect(() => {
