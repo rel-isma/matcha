@@ -256,18 +256,18 @@ export const SearchContainer: React.FC = () => {
           </div>
         ) : !hasSearched ? (
           <div className="text-center py-16">
-            <div className="flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full mx-auto mb-6">
-              <svg className="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center justify-center w-20 h-20 bg-card border border-border rounded-full mx-auto mb-6">
+              <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-secondary-800 mb-3">Ready to Search</h3>
-            <p className="text-secondary-600 mb-6 max-w-md mx-auto">
+            <h3 className="text-2xl font-bold text-foreground mb-3">Ready to Search</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               Set your search criteria using the filters above, then click &quot;Apply Search&quot; to find profiles that match exactly what you&apos;re looking for.
             </p>
             
-            <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 max-w-md mx-auto mb-8">
-              <div className="flex items-center gap-2 text-primary-700">
+            <div className="bg-card border border-accent/30 rounded-lg p-4 max-w-md mx-auto mb-8">
+              <div className="flex items-center gap-2 text-accent">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -279,18 +279,18 @@ export const SearchContainer: React.FC = () => {
           </div>
         ) : profiles.length === 0 ? (
           <div className="text-center py-16">
-            <div className="flex items-center justify-center w-20 h-20 bg-gradient-to-br from-secondary-100 to-secondary-200 rounded-full mx-auto mb-6">
-              <svg className="w-10 h-10 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center justify-center w-20 h-20 bg-card border border-border rounded-full mx-auto mb-6">
+              <svg className="w-10 h-10 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.47-.881-6.084-2.34" />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-secondary-800 mb-3">No matches found</h3>
-            <p className="text-secondary-600 mb-6 max-w-md mx-auto">
+            <h3 className="text-2xl font-bold text-foreground mb-3">No matches found</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               Try adjusting your search criteria to find more profiles that match your preferences.
             </p>
             <button 
               onClick={handleResetFilters}
-              className="bg-primary-500 hover:bg-primary-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+              className="bg-accent hover:bg-primary-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
             >
               Clear Filters
             </button>
@@ -298,13 +298,13 @@ export const SearchContainer: React.FC = () => {
         ) : (
           <div className="space-y-6">
             {/* Results Summary */}
-            <div className="flex items-center justify-between bg-white rounded-xl border border-secondary-200 p-4">
+            <div className="flex items-center justify-between bg-card border border-border rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
-                <span className="text-secondary-700">
+                <div className="w-2 h-2 bg-accent rounded-full"></div>
+                <span className="text-foreground">
                   <span className="font-semibold">{profiles.length}</span> profiles found
                   {hasActiveFilters && (
-                    <span className="text-secondary-500 ml-2">
+                    <span className="text-muted-foreground ml-2">
                       with {Object.keys(filters).filter(key => filters[key as keyof SearchFiltersType] !== undefined).length} filters applied
                     </span>
                   )}
@@ -331,7 +331,7 @@ export const SearchContainer: React.FC = () => {
                 <button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 disabled:from-secondary-300 disabled:to-secondary-400 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed"
+                  className="bg-accent hover:bg-primary-600 disabled:bg-muted text-white font-semibold px-8 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed"
                 >
                   {loadingMore ? (
                     <div className="flex items-center gap-3">

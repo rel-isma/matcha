@@ -199,6 +199,27 @@ export class UserModel {
     return result.rows[0];
   }
 
+  static async createIntra42User(userData: CreateUserInput): Promise<User> {
+    const query = `
+      INSERT INTO users (email, username, first_name, last_name, password, is_verified, verification_token)
+      VALUES ($1, $2, $3, $4, $5, true, NULL)
+      RETURNING id, email, username, first_name as "firstName", last_name as "lastName", 
+                is_verified as "isVerified", is_profile_completed as "isProfileCompleted",
+                created_at as "createdAt", updated_at as "updatedAt"
+    `;
+    
+    const values = [
+      userData.email,
+      userData.username,
+      userData.firstName,
+      userData.lastName,
+      'INTRA42_OAUTH_USER' // Placeholder password for 42 Intra users
+    ];
+
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  }
+
   static async verifyGoogleUser(email: string): Promise<boolean> {
     const query = `
       UPDATE users 

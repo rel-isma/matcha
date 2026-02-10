@@ -3,7 +3,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, X, Plus, Camera } from 'lucide-react';
+import { ArrowLeft, ArrowRight, X, Plus, Camera, Calendar } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
@@ -28,6 +29,7 @@ interface FormData {
 
 export default function CompleteProfilePage() {
   const router = useRouter();
+  const { updateUser } = useAuth();
   const { updateProfile, uploadPicture, addInterests } = useProfile();
   
   const [currentStep, setCurrentStep] = useState(1);
@@ -197,6 +199,9 @@ export default function CompleteProfilePage() {
         throw new Error('Failed to add interests');
       }
 
+      // Step 4: Update user data in AuthContext to reflect completed profile
+      await updateUser();
+
       toast.success('Profile completed successfully!');
       // Redirect to browse page after completing profile
       router.push(ROUTES.BROWSE);
@@ -215,9 +220,9 @@ export default function CompleteProfilePage() {
         {/* Mobile Layout */}
         <div className="md:hidden">
           {/* Main Content Card */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/60 relative">
+          <div className="bg-card backdrop-blur-xl rounded-3xl p-8 shadow-2xl border-2 border-border relative">
             {/* Card background glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-blue-50/50 rounded-3xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-accent/5 to-accent/10 rounded-3xl"></div>
             
             {/* Form content */}
             <div className="relative z-10">
@@ -225,8 +230,8 @@ export default function CompleteProfilePage() {
             </div>
             
             {/* Decorative corner elements */}
-            <div className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-br from-pink-300 to-rose-400 rounded-full opacity-30 animate-pulse"></div>
-            <div className="absolute bottom-4 left-4 w-6 h-6 bg-gradient-to-br from-purple-300 to-indigo-400 rounded-full opacity-25 animate-pulse" style={{animationDelay: '1s'}}></div>
+            <div className="absolute top-4 right-4 w-8 h-8 bg-accent/30 rounded-full opacity-30 animate-pulse"></div>
+            <div className="absolute bottom-4 left-4 w-6 h-6 bg-accent/20 rounded-full opacity-25 animate-pulse" style={{animationDelay: '1s'}}></div>
           </div>
 
           {/* Navigation with circular progress */}
@@ -235,7 +240,7 @@ export default function CompleteProfilePage() {
               variant="outline"
               onClick={handlePrevious}
               disabled={currentStep === 1}
-              className="px-6 py-3 rounded-full border-2 border-orange-300/60 bg-white/80 backdrop-blur hover:bg-white/90 hover:border-orange-400 disabled:opacity-50 disabled:border-gray-300/40 disabled:bg-gray-100/40 transition-all duration-200 font-medium text-gray-800 shadow-lg"
+              className="px-6 py-3 rounded-full border-2 border-accent/60 bg-card backdrop-blur hover:bg-muted hover:border-accent disabled:opacity-50 disabled:border-border disabled:bg-muted transition-all duration-200 font-medium text-foreground shadow-lg"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -248,8 +253,8 @@ export default function CompleteProfilePage() {
                   key={index + 1}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     (index + 1) <= currentStep 
-                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 shadow-sm' 
-                      : 'bg-white/40 backdrop-blur'
+                      ? 'bg-accent shadow-sm' 
+                      : 'bg-muted backdrop-blur'
                   }`}
                 />
               ))}
@@ -259,14 +264,14 @@ export default function CompleteProfilePage() {
               <Button
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-full shadow-lg font-semibold transition-all duration-200 hover:shadow-xl"
+                className="px-8 py-3 bg-accent hover:bg-primary-600 text-white rounded-full shadow-lg font-semibold transition-all duration-200 hover:shadow-xl"
               >
                 {isLoading ? 'Creating...' : 'Complete'}
               </Button>
             ) : (
               <Button
                 onClick={handleNext}
-                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-full shadow-lg font-semibold transition-all duration-200 hover:shadow-xl"
+                className="px-6 py-3 bg-accent hover:bg-primary-600 text-white rounded-full shadow-lg font-semibold transition-all duration-200 hover:shadow-xl"
               >
                 Next
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -278,9 +283,9 @@ export default function CompleteProfilePage() {
         {/* Desktop Layout */}
         <div className="hidden md:block">
           {/* Main Content Card */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-12 shadow-2xl border border-white/60 mb-8 relative overflow-hidden min-h-[500px] flex items-center">
+          <div className="bg-card backdrop-blur-xl rounded-3xl p-12 shadow-2xl border-2 border-border mb-8 relative overflow-hidden min-h-[500px] flex items-center">
             {/* Card background glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-blue-50/50 rounded-3xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-accent/5 to-accent/10 rounded-3xl"></div>
             
             {/* Form content - centered */}
             <div className="relative z-10 w-full">
@@ -288,8 +293,8 @@ export default function CompleteProfilePage() {
             </div>
             
             {/* Decorative corner elements */}
-            <div className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-br from-pink-300 to-rose-400 rounded-full opacity-30 animate-pulse"></div>
-            <div className="absolute bottom-4 left-4 w-6 h-6 bg-gradient-to-br from-purple-300 to-indigo-400 rounded-full opacity-25 animate-pulse" style={{animationDelay: '1s'}}></div>
+            <div className="absolute top-4 right-4 w-8 h-8 bg-accent/30 rounded-full opacity-30 animate-pulse"></div>
+            <div className="absolute bottom-4 left-4 w-6 h-6 bg-accent/20 rounded-full opacity-25 animate-pulse" style={{animationDelay: '1s'}}></div>
           </div>
 
           {/* Desktop Navigation with circular progress */}
@@ -298,7 +303,7 @@ export default function CompleteProfilePage() {
                 variant="outline"
                 onClick={handlePrevious}
                 disabled={currentStep === 1}
-                className="px-8 py-4 rounded-full border-2 border-orange-300/60 bg-white/80 backdrop-blur hover:bg-white/90 hover:border-orange-400 disabled:opacity-50 disabled:border-gray-300/40 disabled:bg-gray-100/40 transition-all duration-200 font-medium text-gray-800 shadow-lg"
+                className="px-8 py-4 rounded-full border-2 border-accent/60 bg-card backdrop-blur hover:bg-muted hover:border-accent disabled:opacity-50 disabled:border-border disabled:bg-muted transition-all duration-200 font-medium text-foreground shadow-lg"
               >
                 <ArrowLeft className="w-5 h-5 mr-3" />
                 Previous
@@ -311,8 +316,8 @@ export default function CompleteProfilePage() {
                     key={index + 1}
                     className={`w-4 h-4 rounded-full transition-all duration-300 ${
                       (index + 1) <= currentStep 
-                        ? 'bg-gradient-to-r from-orange-500 to-amber-500 shadow-lg' 
-                        : 'bg-white/40 backdrop-blur'
+                        ? 'bg-accent shadow-lg' 
+                        : 'bg-muted backdrop-blur'
                     }`}
                   />
                 ))}
@@ -322,14 +327,14 @@ export default function CompleteProfilePage() {
                 <Button
                   onClick={handleSubmit}
                   disabled={isLoading}
-                  className="px-12 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-full shadow-lg text-lg font-semibold transition-all duration-200 hover:shadow-xl"
+                  className="px-12 py-4 bg-accent hover:bg-primary-600 text-white rounded-full shadow-lg text-lg font-semibold transition-all duration-200 hover:shadow-xl"
                 >
                   {isLoading ? 'Creating Profile...' : 'Complete Profile'}
                 </Button>
               ) : (
                 <Button
                   onClick={handleNext}
-                  className="px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-full shadow-lg font-semibold transition-all duration-200 hover:shadow-xl"
+                  className="px-10 py-4 bg-accent hover:bg-primary-600 text-white rounded-full shadow-lg font-semibold transition-all duration-200 hover:shadow-xl"
                 >
                   Next Step
                   <ArrowRight className="w-5 h-5 ml-3" />
@@ -349,17 +354,17 @@ export default function CompleteProfilePage() {
         {currentStep === 1 && (
           <div className="space-y-3">
             <div className="text-center mb-4">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-accent via-accent/90 to-primary-600 bg-clip-text text-transparent mb-2">
                 About You
               </h2>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Tell us about yourself to help us find your perfect matches
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Gender
                 </label>
                 <Select
@@ -376,15 +381,15 @@ export default function CompleteProfilePage() {
                   }}
                   options={[...GENDER_OPTIONS]}
                   placeholder="Select"
-                  className={errors.gender ? 'border-red-300' : ''}
+                  className={errors.gender ? 'border-destructive' : ''}
                 />
                 {errors.gender && (
-                  <p className="mt-1 text-xs text-red-500">{errors.gender}</p>
+                  <p className="mt-1 text-xs text-destructive">{errors.gender}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Looking for
                 </label>
                 <Select
@@ -392,16 +397,16 @@ export default function CompleteProfilePage() {
                   onChange={(value) => setFormData(prev => ({ ...prev, sexualPreference: value as string }))}
                   options={[...SEXUAL_PREFERENCE_OPTIONS]}
                   placeholder="Select"
-                  className={errors.sexualPreference ? 'border-red-300' : ''}
+                  className={errors.sexualPreference ? 'border-destructive' : ''}
                 />
                 {errors.sexualPreference && (
-                  <p className="mt-1 text-xs text-red-500">{errors.sexualPreference}</p>
+                  <p className="mt-1 text-xs text-destructive">{errors.sexualPreference}</p>
                 )}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 About You
               </label>
               <textarea
@@ -409,40 +414,71 @@ export default function CompleteProfilePage() {
                 onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
                 placeholder="Tell us about yourself..."
                 rows={4}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none ${
-                  errors.bio ? 'border-red-300' : 'border-gray-200'
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-accent resize-none bg-input text-foreground placeholder:text-muted-foreground ${
+                  errors.bio ? 'border-destructive' : 'border-border'
                 }`}
               />
               <div className="flex justify-between items-center mt-2">
                 {errors.bio && (
-                  <p className="text-xs text-red-500">{errors.bio}</p>
+                  <p className="text-xs text-destructive">{errors.bio}</p>
                 )}
-                <p className="text-xs text-gray-500 ml-auto">
+                <p className="text-xs text-muted-foreground ml-auto">
                   {formData.bio.length}/500
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Date of Birth
               </label>
-              <input
-                type="date"
-                value={formData.dateOfBirth}
-                onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-                  errors.dateOfBirth ? 'border-red-300' : 'border-gray-200'
-                }`}
-              />
+              <div className="relative group cursor-pointer">
+                <input
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+                  min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
+                  placeholder="Click to select your date of birth"
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-accent bg-input text-foreground cursor-pointer transition-all duration-200 ${
+                    errors.dateOfBirth ? 'border-destructive' : 'border-border hover:border-accent/50 hover:shadow-md'
+                  }`}
+                  style={{
+                    colorScheme: 'dark',
+                  }}
+                  required
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Calendar 
+                    className={`w-5 h-5 transition-all duration-200 ${
+                      formData.dateOfBirth 
+                        ? 'text-accent' 
+                        : 'text-muted-foreground group-hover:text-accent group-hover:scale-110'
+                    }`}
+                  />
+                </div>
+              </div>
               {errors.dateOfBirth && (
-                <p className="mt-1 text-xs text-red-500">{errors.dateOfBirth}</p>
+                <p className="mt-2 text-xs text-destructive flex items-center gap-1">
+                  <span className="inline-block w-1 h-1 bg-destructive rounded-full"></span>
+                  {errors.dateOfBirth}
+                </p>
               )}
               {formData.dateOfBirth && !errors.dateOfBirth && (
-                <p className="mt-1 text-xs text-green-600">
-                  You&apos;re {Math.floor((new Date().getTime() - new Date(formData.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex items-center justify-center w-5 h-5 rounded-full bg-accent/20">
+                    <svg className="w-3 h-3 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <p className="text-xs text-accent font-medium">
+                    You&apos;re {Math.floor((new Date().getTime() - new Date(formData.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old
+                  </p>
+                </div>
+              )}
+              {!formData.dateOfBirth && !errors.dateOfBirth && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Click anywhere on the field to open the calendar
                 </p>
               )}
             </div>
@@ -453,10 +489,10 @@ export default function CompleteProfilePage() {
         {currentStep === 2 && (
           <div className="space-y-3">
             <div className="text-center mb-4">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-accent via-accent/90 to-primary-600 bg-clip-text text-transparent mb-2">
                 Your Location
               </h2>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Using your GPS location helps us connect you with people nearby
               </p>
             </div>
@@ -471,8 +507,8 @@ export default function CompleteProfilePage() {
 
             {formData.location && !errors.location && (
               <div className="text-center">
-                <div className="inline-flex items-center px-3 py-1 bg-orange-50 border border-orange-200 rounded-full">
-                  <span className="text-sm text-orange-700">
+                <div className="inline-flex items-center px-3 py-1 bg-accent/10 border border-accent/30 rounded-full">
+                  <span className="text-sm text-accent">
                     Location set!
                   </span>
                 </div>
@@ -485,16 +521,16 @@ export default function CompleteProfilePage() {
         {currentStep === 3 && (
           <div className="space-y-3">
             <div className="text-center mb-4">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-accent via-accent/90 to-primary-600 bg-clip-text text-transparent mb-2">
                 Your Interests
               </h2>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Select a few of your interests to match with users who have similar things in common
               </p>
             </div>
 
             {errors.interests && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg">
+              <div className="bg-destructive/10 border border-destructive/30 text-destructive px-3 py-2 rounded-lg">
                 <p className="text-sm">{errors.interests}</p>
               </div>
             )}
@@ -511,7 +547,7 @@ export default function CompleteProfilePage() {
                           interests: prev.interests.filter(i => i !== interest)
                         }));
                       }}
-                      className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm rounded-full cursor-pointer hover:from-orange-600 hover:to-amber-600"
+                      className="inline-flex items-center px-3 py-1 bg-accent hover:bg-primary-600 text-white text-sm rounded-full cursor-pointer transition-all duration-200"
                     >
                       {interest}
                       <X size={14} className="ml-1" />
@@ -536,14 +572,14 @@ export default function CompleteProfilePage() {
                           toast.error('You can select up to 10 interests');
                         }
                       }}
-                      className="text-left px-3 py-2 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 text-sm"
+                      className="text-left px-3 py-2 border border-border rounded-lg hover:border-accent/50 hover:bg-accent/10 text-sm text-foreground"
                     >
                       {option.label}
                     </button>
                   ))}
               </div>
 
-              <p className="text-xs text-gray-500 text-center">
+              <p className="text-xs text-muted-foreground text-center">
                 {formData.interests.length}/10 selected
               </p>
             </div>
@@ -554,23 +590,23 @@ export default function CompleteProfilePage() {
         {currentStep === 4 && (
           <div className="space-y-3">
             <div className="text-center mb-4">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-accent via-accent/90 to-primary-600 bg-clip-text text-transparent mb-2">
                 Your Photos
               </h2>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Add your best photos to get a higher amount of daily matches
               </p>
             </div>
 
             {errors.pictures && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg">
+              <div className="bg-destructive/10 border border-destructive/30 text-destructive px-3 py-2 rounded-lg">
                 <p className="text-sm">{errors.pictures}</p>
               </div>
             )}
 
             <div className="space-y-3">
               {/* Upload Area */}
-              <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hover:border-orange-300 max-w-md mx-auto">
+              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-accent/50 max-w-md mx-auto">
                 <input
                   type="file"
                   id="photo-upload"
@@ -580,11 +616,11 @@ export default function CompleteProfilePage() {
                   className="hidden"
                 />
                 <label htmlFor="photo-upload" className="cursor-pointer">
-                  <div className="w-12 h-12 mx-auto mb-2 bg-orange-100 rounded-full flex items-center justify-center">
-                    <Camera size={24} className="text-orange-500" />
+                  <div className="w-12 h-12 mx-auto mb-2 bg-accent/10 rounded-full flex items-center justify-center">
+                    <Camera size={24} className="text-accent" />
                   </div>
-                  <p className="text-sm font-medium text-gray-700">Add photos</p>
-                  <p className="text-xs text-gray-500">Up to {PHOTO_LIMITS.MAX_PHOTOS} photos</p>
+                  <p className="text-sm font-medium text-foreground">Add photos</p>
+                  <p className="text-xs text-muted-foreground">Up to {PHOTO_LIMITS.MAX_PHOTOS} photos</p>
                 </label>
               </div>
 
@@ -592,7 +628,7 @@ export default function CompleteProfilePage() {
               {formData.pictures.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-md mx-auto">
                   {Array.from({ length: 4 }).map((_, index) => (
-                    <div key={index} className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
+                    <div key={index} className="aspect-square bg-muted rounded-lg overflow-hidden relative">
                       {formData.pictures[index] ? (
                         <>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -603,20 +639,20 @@ export default function CompleteProfilePage() {
                           />
                           <button
                             onClick={() => removePicture(index)}
-                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                            className="absolute top-1 right-1 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-destructive/90"
                           >
                             ×
                           </button>
                           {index === 0 && (
-                            <div className="absolute bottom-1 left-1 bg-orange-500 text-white text-xs px-1 rounded">
+                            <div className="absolute bottom-1 left-1 bg-accent text-white text-xs px-1 rounded">
                               Main
                             </div>
                           )}
                         </>
                       ) : (
                         <label htmlFor="photo-upload" className="w-full h-full flex items-center justify-center cursor-pointer">
-                          <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                            <Plus size={16} className="text-orange-500" />
+                          <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center">
+                            <Plus size={16} className="text-accent" />
                           </div>
                         </label>
                       )}
@@ -632,33 +668,33 @@ export default function CompleteProfilePage() {
         {currentStep === 5 && (
           <div className="space-y-3">
             <div className="text-center mb-4">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-accent via-accent/90 to-primary-600 bg-clip-text text-transparent mb-2">
                 Review Your Profile
               </h2>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Take a moment to review your information before completing
               </p>
             </div>
 
             <div className="space-y-3">
-              <div className="bg-orange-50 rounded-lg p-3">
-                <h4 className="font-medium text-gray-800 mb-2">Basic Info</h4>
-                <p className="text-sm text-gray-600">
+              <div className="bg-accent/10 rounded-lg p-3">
+                <h4 className="font-medium text-foreground mb-2">Basic Info</h4>
+                <p className="text-sm text-muted-foreground">
                   {GENDER_OPTIONS.find(g => g.value === formData.gender)?.label}, looking for{' '}
                   {SEXUAL_PREFERENCE_OPTIONS.find(s => s.value === formData.sexualPreference)?.label}
                 </p>
-                <p className="text-sm text-gray-600 mt-1">{formData.bio}</p>
+                <p className="text-sm text-muted-foreground mt-1">{formData.bio}</p>
               </div>
 
-              <div className="bg-amber-50 rounded-lg p-3">
-                <h4 className="font-medium text-gray-800 mb-2">
+              <div className="bg-accent/10 rounded-lg p-3">
+                <h4 className="font-medium text-foreground mb-2">
                   Interests ({formData.interests.length})
                 </h4>
                 <div className="flex flex-wrap gap-1">
                   {formData.interests.map((interest) => (
                     <span
                       key={interest}
-                      className="inline-block px-2 py-1 bg-orange-200 text-orange-800 text-xs rounded-full"
+                      className="inline-block px-2 py-1 bg-accent/20 text-accent text-xs rounded-full"
                     >
                       {interest}
                     </span>
@@ -666,13 +702,13 @@ export default function CompleteProfilePage() {
                 </div>
               </div>
 
-              <div className="bg-orange-50 rounded-lg p-3">
-                <h4 className="font-medium text-gray-800 mb-2">
+              <div className="bg-accent/10 rounded-lg p-3">
+                <h4 className="font-medium text-foreground mb-2">
                   Photos ({formData.pictures.length})
                 </h4>
                 <div className="grid grid-cols-4 gap-2">
                   {formData.pictures.map((file, index) => (
-                    <div key={index} className="aspect-square rounded overflow-hidden bg-gray-100">
+                    <div key={index} className="aspect-square rounded overflow-hidden bg-muted">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={URL.createObjectURL(file)}

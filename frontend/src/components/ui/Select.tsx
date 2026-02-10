@@ -122,7 +122,7 @@ export const Select: React.FC<SelectProps> = ({
     <div className={`relative ${className}`} ref={selectRef}>
       {/* Label */}
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-[#f1f5f9] mb-2">
           {label}
         </label>
       )}
@@ -133,15 +133,15 @@ export const Select: React.FC<SelectProps> = ({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={`
-          relative w-full bg-white border rounded-lg px-4 py-3
-          text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500
-          focus:border-orange-500 transition-all duration-200 shadow-sm hover:shadow-md
+          relative w-full bg-[#1e293b] border rounded-lg px-4 py-3
+          text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F39C12]
+          focus:border-[#F39C12] transition-all duration-200 shadow-sm hover:shadow-md
           ${error 
             ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-            : 'border-gray-300 hover:border-orange-400'
+            : 'border-[#334155] hover:border-[#F39C12]'
           }
-          ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-50' : ''}
-          ${isOpen ? 'ring-2 ring-orange-500 border-orange-500 shadow-md' : ''}
+          ${disabled ? 'opacity-50 cursor-not-allowed bg-[#0f1729]' : ''}
+          ${isOpen ? 'ring-2 ring-[#F39C12] border-[#F39C12] shadow-md' : ''}
         `}
       >
         <div className="flex items-center justify-between">
@@ -154,12 +154,12 @@ export const Select: React.FC<SelectProps> = ({
                   return (
                     <span
                       key={selectedValue}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-200"
+                      className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#F39C12] text-white"
                     >
                       {option?.label}
                       <button
                         onClick={(e) => removeOption(selectedValue, e)}
-                        className="ml-2 hover:text-orange-600 transition-colors duration-150"
+                        className="ml-2 hover:text-gray-200 transition-colors duration-150"
                       >
                         <X size={12} />
                       </button>
@@ -167,13 +167,13 @@ export const Select: React.FC<SelectProps> = ({
                   );
                 })}
                 {value.length > 3 && (
-                  <span className="text-sm text-gray-500 font-medium">
+                  <span className="text-sm text-[#94a3b8] font-medium">
                     +{value.length - 3} more
                   </span>
                 )}
               </div>
             ) : (
-              <span className={`block truncate font-medium ${!value ? 'text-gray-500' : 'text-gray-900'}`}>
+              <span className={`block truncate font-medium ${!value ? 'text-[#94a3b8]' : 'text-[#f1f5f9]'}`}>
                 {getDisplayText()}
               </span>
             )}
@@ -185,7 +185,7 @@ export const Select: React.FC<SelectProps> = ({
             transition={{ duration: 0.2 }}
             className="ml-3 flex-shrink-0"
           >
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-[#94a3b8]" />
           </motion.div>
         </div>
       </button>
@@ -198,20 +198,20 @@ export const Select: React.FC<SelectProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -5 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl ring-1 ring-black ring-opacity-5"
+            className="absolute z-50 mt-2 w-full bg-[#1e293b] border border-[#334155] rounded-xl shadow-xl ring-1 ring-black ring-opacity-5"
           >
             {/* Search input */}
             {searchable && (
-              <div className="p-3 border-b border-gray-100">
+              <div className="p-3 border-b border-[#334155]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
                   <input
                     ref={searchInputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search options..."
-                    className="w-full pl-10 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
+                    className="w-full pl-10 pr-3 py-2 text-sm bg-[#0f1729] text-[#f1f5f9] placeholder:text-[#94a3b8] border border-[#334155] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F39C12] focus:border-[#F39C12] transition-all duration-200"
                   />
                 </div>
               </div>
@@ -223,8 +223,8 @@ export const Select: React.FC<SelectProps> = ({
               style={{ maxHeight: `${maxHeight}px` }}
             >
               {filteredOptions.length === 0 ? (
-                <div className="px-4 py-8 text-center text-sm text-gray-500">
-                  <Search className="mx-auto h-8 w-8 text-gray-300 mb-2" />
+                <div className="px-4 py-8 text-center text-sm text-[#94a3b8]">
+                  <Search className="mx-auto h-8 w-8 text-[#334155] mb-2" />
                   No options found
                 </div>
               ) : (
@@ -234,20 +234,20 @@ export const Select: React.FC<SelectProps> = ({
                     type="button"
                     onClick={() => handleOptionClick(option.value)}
                     className={`
-                      w-full text-left px-4 py-3 text-sm hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50
-                      focus:outline-none focus:bg-gradient-to-r focus:from-orange-50 focus:to-amber-50
+                      w-full text-left px-4 py-3 text-sm hover:bg-[#334155]
+                      focus:outline-none focus:bg-[#334155]
                       flex items-center justify-between transition-all duration-200 font-medium
                       ${index === 0 ? 'rounded-t-xl' : ''}
                       ${index === filteredOptions.length - 1 ? 'rounded-b-xl' : ''}
                       ${isSelected(option.value) 
-                        ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-900 border-l-4 border-orange-500' 
-                        : 'text-gray-700 hover:text-orange-800'
+                        ? 'bg-[#F39C12]/20 text-[#F39C12] border-l-4 border-[#F39C12]' 
+                        : 'text-[#f1f5f9] hover:text-[#F39C12]'
                       }
                     `}
                   >
                     <span className="flex-1">{option.label}</span>
                     {isSelected(option.value) && (
-                      <Check className="h-4 w-4 text-orange-600 ml-2" />
+                      <Check className="h-4 w-4 text-[#F39C12] ml-2" />
                     )}
                   </button>
                 ))

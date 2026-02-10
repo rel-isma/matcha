@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Conversation } from '@/types';
+import { STATIC_BASE_URL } from '@/lib/constants';
 import { formatDistanceToNow } from 'date-fns';
 
 interface ConversationListProps {
@@ -54,7 +55,10 @@ export default function ConversationList({
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-secondary-200">
                   {conversation.profilePicture ? (
                     <img
-                      src={conversation.profilePicture}
+                      src={conversation.profilePicture.startsWith('http') 
+                        ? conversation.profilePicture 
+                        : `${STATIC_BASE_URL}${conversation.profilePicture}`
+                      }
                       alt={conversation.username}
                       className="w-full h-full object-cover"
                     />

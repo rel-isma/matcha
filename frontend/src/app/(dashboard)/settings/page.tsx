@@ -562,7 +562,7 @@ export default function SettingsPage() {
         className="relative mb-8"
       >
         {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 rounded-2xl opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-accent/30 to-accent/20 rounded-2xl"></div>
         
         <div className="relative p-6 md:p-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -577,7 +577,7 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3 mb-2">
                 {/* i want here not icon user i want avatar {profilePicture} and use Image not img */}
                 {profilePicture ? (
-                  <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-orange-300 dark:border-gray-700">
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-accent/30">
                     <Image
                       src={profilePicture || STATIC_BASE_URL + '/default-avatar.png'  }
                       alt="Profile Picture"
@@ -587,23 +587,23 @@ export default function SettingsPage() {
                     />
                   </div>
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    <User className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                    <User className="w-5 h-5 text-muted-foreground" />
                   </div>
                 )}
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                  <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                     Account Settings
                   </h1>
                   {user && (
-                    <p className="text-sm md:text-base text-orange-600 font-medium">
+                    <p className="text-sm md:text-base text-accent font-medium">
                       Welcome back, {user.firstName}!
                     </p>
                   )}
                 </div>
               </div>
               
-              <p className="text-gray-600 text-sm md:text-base max-w-2xl">
+              <p className="text-muted-foreground text-sm md:text-base max-w-2xl">
                 Manage your personal information, profile details, photos, and security preferences to keep your account up to date.
               </p>
             </motion.div>
@@ -615,29 +615,29 @@ export default function SettingsPage() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="hidden md:flex gap-4"
             >
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 text-center min-w-[100px] border border-orange-100">
-                <div className="text-xl font-bold text-orange-600">
+              <div className="bg-card border-2 border-accent/30 rounded-xl p-4 text-center min-w-[100px]">
+                <div className="text-xl font-bold text-accent">
                   {profile?.completeness || 0}%
                 </div>
-                <div className="text-xs text-gray-600 font-medium">
+                <div className="text-xs text-muted-foreground font-medium">
                   Complete
                 </div>
               </div>
               
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 text-center min-w-[100px] border border-orange-100">
-                <div className="text-xl font-bold text-orange-600">
+              <div className="bg-card border-2 border-accent/30 rounded-xl p-4 text-center min-w-[100px]">
+                <div className="text-xl font-bold text-accent">
                   {profile?.pictures?.length || 0}
                 </div>
-                <div className="text-xs text-gray-600 font-medium">
+                <div className="text-xs text-muted-foreground font-medium">
                   Photos
                 </div>
               </div>
               
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 text-center min-w-[100px] border border-orange-100">
-                <div className="text-xl font-bold text-orange-600">
+              <div className="bg-card border-2 border-accent/30 rounded-xl p-4 text-center min-w-[100px]">
+                <div className="text-xl font-bold text-accent">
                   {profile?.interests?.length || 0}
                 </div>
-                <div className="text-xs text-gray-600 font-medium">
+                <div className="text-xs text-muted-foreground font-medium">
                   Interests
                 </div>
               </div>
@@ -650,29 +650,29 @@ export default function SettingsPage() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="md:hidden grid grid-cols-3 gap-3"
             >
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-3 text-center border border-orange-100">
-                <div className="text-lg font-bold text-orange-600">
+              <div className="bg-card border-2 border-accent/30 rounded-lg p-3 text-center">
+                <div className="text-lg font-bold text-accent">
                   {profile?.completeness || 0}%
                 </div>
-                <div className="text-xs text-gray-600 font-medium">
+                <div className="text-xs text-muted-foreground font-medium">
                   Complete
                 </div>
               </div>
               
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-3 text-center border border-orange-100">
-                <div className="text-lg font-bold text-orange-600">
+              <div className="bg-card border-2 border-accent/30 rounded-lg p-3 text-center">
+                <div className="text-lg font-bold text-accent">
                   {profile?.pictures?.length || 0}
                 </div>
-                <div className="text-xs text-gray-600 font-medium">
+                <div className="text-xs text-muted-foreground font-medium">
                   Photos
                 </div>
               </div>
               
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-3 text-center border border-orange-100">
-                <div className="text-lg font-bold text-orange-600">
+              <div className="bg-card border-2 border-accent/30 rounded-lg p-3 text-center">
+                <div className="text-lg font-bold text-accent">
                   {profile?.interests?.length || 0}
                 </div>
-                <div className="text-xs text-gray-600 font-medium">
+                <div className="text-xs text-muted-foreground font-medium">
                   Interests
                 </div>
               </div>
@@ -686,13 +686,13 @@ export default function SettingsPage() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="mt-6"
           >
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+            <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
               <span>Profile Completion</span>
               <span className="font-semibold">{profile?.completeness || 0}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-muted rounded-full h-2">
               <div 
-                className="bg-gradient-to-r from-orange-500 to-amber-500 h-2 rounded-full transition-all duration-500"
+                className="bg-accent h-2 rounded-full transition-all duration-500"
                 style={{ width: `${profile?.completeness || 0}%` }}
               ></div>
             </div>
@@ -701,26 +701,22 @@ export default function SettingsPage() {
       </motion.div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-orange-200 mb-6">
+      <div className="border-b border-border mb-6">
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex -mb-px space-x-8">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-3 px-1 border-b-2 font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
-                  activeTab === tab.id
-                    ? 'border-orange-500 text-orange-600 bg-orange-50/50'
-                    : 'border-transparent text-gray-500 hover:text-orange-600 hover:border-orange-300 hover:bg-orange-50/30'
-                }`}
-              >
-                <Icon size={18} />
-                {tab.label}
-              </button>
-            );
-          })}
+        <nav className="hidden md:flex space-x-8 overflow-x-auto">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
+                activeTab === tab.id
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-accent/50'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </nav>
 
         {/* Mobile Tab Navigation */}
@@ -734,8 +730,8 @@ export default function SettingsPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 shadow-sm ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg transform scale-105'
-                      : 'bg-white/70 backdrop-blur-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 border border-orange-100'
+                      ? 'bg-accent hover:bg-primary-600 text-white shadow-lg transform scale-105'
+                      : 'bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border'
                   }`}
                 >
                   <Icon size={16} />
@@ -758,30 +754,30 @@ export default function SettingsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="shadow-xl border-0 bg-white/50 backdrop-blur-sm">
+            <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User size={20} />
+                <CardTitle className="text-xl sm:text-2xl font-bold text-accent flex items-center gap-2">
+                  <User size={24} />
                   Personal Information
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handlePersonalInfoSubmit} className="space-y-6">
                   {errors.personal && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+                    <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg">
                       {errors.personal}
                     </div>
                   )}
                   
                   {/* Basic Information Section */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-800 border-b border-orange-200 pb-2">
+                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
                       Basic Information
                     </h3>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-foreground mb-2">
                           First Name
                         </label>
                         <Input
@@ -794,7 +790,7 @@ export default function SettingsPage() {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-foreground mb-2">
                           Last Name
                         </label>
                         <Input
@@ -808,7 +804,7 @@ export default function SettingsPage() {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-foreground mb-2">
                         Email Address
                       </label>
                       <Input
@@ -823,13 +819,13 @@ export default function SettingsPage() {
 
                   {/* Profile Details Section */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-800 border-b border-orange-200 pb-2">
+                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
                       Profile Details
                     </h3>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-foreground mb-2">
                           Gender
                         </label>
                         <Select
@@ -840,7 +836,7 @@ export default function SettingsPage() {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-foreground mb-2">
                           Looking For
                         </label>
                         <Select
@@ -852,7 +848,7 @@ export default function SettingsPage() {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-foreground mb-2">
                         Date of Birth
                       </label>
                       <Input
@@ -862,31 +858,31 @@ export default function SettingsPage() {
                         max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
                         min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
                         placeholder="Select your date of birth"
-                        className={errors.dateOfBirth ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}
+                        className={errors.dateOfBirth ? 'border-destructive focus:border-destructive focus:ring-destructive' : ''}
                       />
                       {errors.dateOfBirth && (
-                        <p className="text-sm text-red-600 mt-1">{errors.dateOfBirth}</p>
+                        <p className="text-sm text-destructive mt-1">{errors.dateOfBirth}</p>
                       )}
                       {profileFormData.dateOfBirth && !errors.dateOfBirth && (
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           Age: {Math.floor((new Date().getTime() - new Date(profileFormData.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old
                         </p>
                       )}
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-foreground mb-2">
                         Bio
                       </label>
                       <textarea
                         value={profileFormData.bio}
                         onChange={(e) => setProfileFormData(prev => ({ ...prev, bio: e.target.value }))}
                         placeholder="Tell others about yourself..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors resize-none"
+                        className="w-full px-3 py-2 bg-input border border-border text-foreground placeholder-muted-foreground rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-colors resize-none"
                         rows={4}
                         maxLength={500}
                       />
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         {profileFormData.bio.length}/500 characters
                       </p>
                     </div>
@@ -915,27 +911,27 @@ export default function SettingsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="shadow-xl border-0 bg-white/50 backdrop-blur-sm">
+            <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin size={20} />
-                  Location Settings
+                <CardTitle className="text-xl sm:text-2xl font-bold text-accent flex items-center gap-2">
+                  <MapPin size={24} />
+                  Your GPS Location
                 </CardTitle>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Update your location using GPS only. Precise GPS location helps us find the best matches in your area.
                 </p>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleLocationFormSubmit} className="space-y-6">
                   {errors.location && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+                    <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg">
                       {errors.location}
                     </div>
                   )}
                   
                   {/* GPSLocationPicker Component */}
                   <GPSLocationPicker
-                    label="Your GPS Location"
+                    label="Current Location"
                     value={{
                       latitude: locationFormData.latitude || undefined,
                       longitude: locationFormData.longitude || undefined,
@@ -978,26 +974,26 @@ export default function SettingsPage() {
             className="space-y-6"
           >
             {/* Change Password Card */}
-            <Card className="shadow-xl border-0 bg-white/50 backdrop-blur-sm">
+            <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lock size={20} />
+                <CardTitle className="text-xl sm:text-2xl font-bold text-accent flex items-center gap-2">
+                  <Lock size={24} />
                   Change Password
                 </CardTitle>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Update your password to keep your account secure
                 </p>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handlePasswordFormSubmit} className="space-y-6">
                   {errors.password && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+                    <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg">
                       {errors.password}
                     </div>
                   )}
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Current Password
                     </label>
                     <div className="relative">
@@ -1011,7 +1007,7 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       >
                         {showPasswords.current ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
@@ -1019,7 +1015,7 @@ export default function SettingsPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       New Password
                     </label>
                     <div className="relative">
@@ -1034,7 +1030,7 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       >
                         {showPasswords.new ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
@@ -1042,7 +1038,7 @@ export default function SettingsPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Confirm New Password
                     </label>
                     <div className="relative">
@@ -1057,7 +1053,7 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       >
                         {showPasswords.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
@@ -1079,24 +1075,24 @@ export default function SettingsPage() {
             </Card>
 
             {/* Password Recovery Card */}
-            <Card className="shadow-xl border-0 bg-white/50 backdrop-blur-sm">
+            <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-accent">
                   <Mail size={20} />
                   Password Recovery
                 </CardTitle>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Forgot your password? Reset it using your email address
                 </p>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-accent/20 border border-accent/30 rounded-lg">
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-800 mb-1">
+                    <h4 className="font-semibold text-foreground mb-1">
                       Reset Password via Email
                     </h4>
-                    <p className="text-sm text-gray-600">
-                      Click the button below to send a password reset link to <span className="font-medium">{userFormData.email}</span>. Check your email and follow the instructions to reset your password.
+                    <p className="text-sm text-muted-foreground">
+                      Click the button below to send a password reset link to <span className="font-medium text-accent">{userFormData.email}</span>. Check your email and follow the instructions to reset your password.
                     </p>
                   </div>
                   <Button
@@ -1104,7 +1100,7 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={handleForgotPassword}
                     disabled={isForgotPasswordLoading || !userFormData.email}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-orange-50 border-orange-300 text-orange-600 hover:text-orange-700 disabled:opacity-50"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-card hover:bg-accent/10 border-accent/30 text-accent hover:text-accent disabled:opacity-50"
                   >
                     <Mail size={16} />
                     {isForgotPasswordLoading ? 'Sending...' : 'Send Reset Link'}
@@ -1122,9 +1118,9 @@ export default function SettingsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="shadow-xl border-0 bg-white/50 backdrop-blur-sm">
+            <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader className="pb-4 sm:pb-6">
-                <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent flex items-center gap-2">
+                <CardTitle className="text-xl sm:text-2xl font-bold text-accent flex items-center gap-2">
                   <Camera size={24} />
                   Photos Gallery
                 </CardTitle>
@@ -1133,9 +1129,9 @@ export default function SettingsPage() {
                 {/* Current Photos */}
                 {profile?.pictures && profile.pictures.length > 0 && (
                   <div>
-                    <h3 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                    <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
                       Your Photos
-                      <span className="px-2 py-1 text-xs font-medium bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 rounded-full">
+                      <span className="px-2 py-1 text-xs font-medium bg-accent/20 text-accent rounded-full">
                         {profile.pictures?.length || 0}/{PHOTO_LIMITS.MAX_PHOTOS}
                       </span>
                     </h3>
@@ -1168,7 +1164,7 @@ export default function SettingsPage() {
                           </div>
                           {picture.isProfilePic && (
                             <div className="absolute top-2 left-2">
-                              <Badge className="text-xs bg-gradient-to-r from-orange-500 to-amber-500 text-white border-0 shadow-md">
+                              <Badge className="text-xs bg-accent text-white border-0 shadow-md">
                                 Main Photo
                               </Badge>
                             </div>
@@ -1182,7 +1178,7 @@ export default function SettingsPage() {
                 {/* New Photos Preview */}
                 {newPictures.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-medium text-gray-700 mb-3">
+                    <h3 className="text-sm font-medium text-foreground mb-3">
                       New Photos (ready to upload)
                     </h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
@@ -1222,16 +1218,16 @@ export default function SettingsPage() {
 
                 {/* Upload New Photos */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Add New Photos
                   </label>
-                  <div className="mt-1 flex justify-center px-4 sm:px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-orange-400 transition-colors">
+                  <div className="mt-1 flex justify-center px-4 sm:px-6 pt-5 pb-6 border-2 border-border border-dashed rounded-md hover:border-accent transition-colors bg-card">
                     <div className="space-y-1 text-center">
-                      <Upload className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
-                      <div className="flex flex-col sm:flex-row text-sm text-gray-600">
+                      <Upload className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground" />
+                      <div className="flex flex-col sm:flex-row text-sm text-muted-foreground">
                         <label
                           htmlFor="photo-upload"
-                          className="relative cursor-pointer bg-white rounded-md font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500"
+                          className="relative cursor-pointer bg-card rounded-md font-medium text-accent hover:text-primary-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-ring"
                         >
                           <span>Upload photos</span>
                           <input
@@ -1246,7 +1242,7 @@ export default function SettingsPage() {
                         </label>
                         <p className="sm:pl-1">or drag and drop</p>
                       </div>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         PNG, JPG, JPEG, WEBP up to {PHOTO_LIMITS.MAX_FILE_SIZE / (1024 * 1024)}MB each
                       </p>
                     </div>
@@ -1264,9 +1260,9 @@ export default function SettingsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="shadow-xl border-0 bg-white/50 backdrop-blur-sm">
+            <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader className="pb-4 sm:pb-6">
-                <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent flex items-center gap-2">
+                <CardTitle className="text-xl sm:text-2xl font-bold text-accent flex items-center gap-2">
                   <MapPin size={24} />
                   Interests
                 </CardTitle>
@@ -1275,18 +1271,18 @@ export default function SettingsPage() {
                 {/* Current Interests */}
                 {profile?.interests && profile.interests.length > 0 && (
                   <div>
-                    <h3 className="text-base font-semibold text-gray-700 mb-4">
+                    <h3 className="text-base font-semibold text-foreground mb-4">
                       Your Interests ({profile.interests.length})
                     </h3>
                     <div className="flex flex-wrap gap-2 sm:gap-3">
                       {profile.interests.map((interest) => (
                         <Badge
                           key={interest.id || interest.name}
-                          className="text-xs sm:text-sm bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-200 rounded-full px-3 sm:px-4 py-2 flex items-center gap-2 hover:from-orange-200 hover:to-amber-200 transition-all duration-200 cursor-pointer"
+                          className="text-xs sm:text-sm bg-accent/20 text-accent border border-accent rounded-full px-3 sm:px-4 py-2 flex items-center gap-2 hover:bg-accent/30 transition-all duration-200 cursor-pointer"
                           onClick={() => handleRemoveInterest(String(interest.id || interest.name))}
                         >
                           {interest.name}
-                          <span className="ml-1 text-orange-600 hover:text-orange-800 transition-colors">
+                          <span className="ml-1 text-accent hover:text-primary-600 transition-colors">
                             <X size={12} />
                           </span>
                         </Badge>
@@ -1297,7 +1293,7 @@ export default function SettingsPage() {
 
                 {/* All Interests to Add */}
                 <div>
-                  <h3 className="text-base font-semibold text-gray-700 mb-4">Add New Interests</h3>
+                  <h3 className="text-base font-semibold text-foreground mb-4">Add New Interests</h3>
                   <div className="flex flex-wrap gap-2 sm:gap-3">
                     {INTEREST_OPTIONS.filter(option => {
                       // Only show interests not already in user's interests
@@ -1305,11 +1301,11 @@ export default function SettingsPage() {
                     }).map(option => (
                       <Badge
                         key={option.value}
-                        className="text-xs sm:text-sm bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 border border-orange-200 rounded-full px-3 sm:px-4 py-2 flex items-center gap-2 hover:from-orange-200 hover:to-amber-200 transition-all duration-200 cursor-pointer"
+                        className="text-xs sm:text-sm bg-accent/10 text-accent border border-accent/30 rounded-full px-3 sm:px-4 py-2 flex items-center gap-2 hover:bg-accent/30 transition-all duration-200 cursor-pointer"
                         onClick={() => handleAddInterests([option.value])}
                       >
                         {option.label}
-                        <span className="ml-1 text-orange-500 hover:text-orange-700 transition-colors">
+                        <span className="ml-1 text-accent hover:text-primary-600 transition-colors">
                           +
                         </span>
                       </Badge>
@@ -1328,73 +1324,74 @@ export default function SettingsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="shadow-xl border-0 bg-white/50 backdrop-blur-sm">
+            <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader className="pb-4 sm:pb-6">
-                <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent flex items-center gap-2">
+                <CardTitle className="text-xl sm:text-2xl font-bold text-accent flex items-center gap-2">
                   <Ban size={24} />
                   Blocked Users
                 </CardTitle>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-muted-foreground mt-2">
                   Manage users you have blocked. You can unblock them to allow interaction again.
                 </p>
               </CardHeader>
               <CardContent className="space-y-6">
                 {isLoading ? (
                   <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading blocked users...</p>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Loading blocked users...</p>
                   </div>
                 ) : blockedUsers.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Ban size={48} className="mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No Blocked Users</h3>
-                    <p className="text-gray-500">
+                  <div className="text-center py-12 bg-card border-2 border-border rounded-xl">
+                    <Ban size={48} className="mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No Blocked Users</h3>
+                    <p className="text-muted-foreground">
                       You haven&apos;t blocked any users yet. Users you block will appear here.
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <h3 className="text-base font-semibold text-gray-700">
+                    <h3 className="text-base font-semibold text-foreground">
                       Blocked Users ({blockedUsers.length})
                     </h3>
-                    <div className="grid gap-4">
+                    <div className="grid gap-3 sm:gap-4">
                       {blockedUsers.map((user) => (
                         <div
                           key={user.userId}
-                          className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg hover:from-orange-100 hover:to-amber-100 transition-all duration-200"
+                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border rounded-lg hover:border-accent/50 hover:shadow-md transition-all duration-200"
                         >
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
                             {/* Profile Picture */}
-                            <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-muted flex items-center justify-center shrink-0 border-2 border-border">
                               {user.profilePicture ? (
                                 <Image
                                   src={user.profilePicture.startsWith('http') ? user.profilePicture : `${STATIC_BASE_URL}${user.profilePicture}`}
                                   alt={`${user.firstName}'s profile`}
                                   fill
                                   className="object-cover"
+                                  unoptimized
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                     (e.currentTarget.parentNode as HTMLElement).innerHTML = `
-                                      <div class="w-full h-full flex items-center justify-center">
-                                        <span class="text-gray-500 font-medium text-sm">${user.firstName.charAt(0)}</span>
+                                      <div class="w-full h-full flex items-center justify-center bg-muted">
+                                        <span class="text-muted-foreground font-medium text-sm">${user.firstName.charAt(0)}</span>
                                       </div>
                                     `;
                                   }}
                                 />
                               ) : (
-                                <span className="text-gray-500 font-medium text-sm">
+                                <span className="text-muted-foreground font-medium text-lg">
                                   {user.firstName.charAt(0)}
                                 </span>
                               )}
                             </div>
                             
                             {/* User Info */}
-                            <div>
-                              <h4 className="font-semibold text-gray-900">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-foreground text-sm sm:text-base truncate">
                                 {user.firstName} {user.lastName}
                               </h4>
-                              <p className="text-sm text-gray-600">@{user.username}</p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs sm:text-sm text-muted-foreground truncate">@{user.username}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
                                 Blocked on {new Date(user.blockedAt).toLocaleDateString()}
                               </p>
                             </div>
@@ -1405,10 +1402,10 @@ export default function SettingsPage() {
                             type="button"
                             onClick={() => handleUnblockUser(user.userId, user.firstName)}
                             disabled={isLoading}
-                            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-semibold transition-all duration-200 hover:scale-105 disabled:opacity-50"
+                            className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 font-semibold transition-all duration-200 hover:scale-105 disabled:opacity-50 shrink-0"
                           >
                             <X size={16} />
-                            Unblock
+                            <span>Unblock</span>
                           </Button>
                         </div>
                       ))}

@@ -85,25 +85,25 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-orange-100 relative z-10">
+    <div className="bg-card rounded-2xl shadow-lg border-2 border-border relative z-10">
       {/* Header with Sort Controls - Always Visible */}
-      <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-4 border-b border-orange-100">
+      <div className={`bg-card p-4 border-b border-border ${isExpanded ? 'rounded-t-2xl' : 'rounded-2xl'}`}>
         {/* Title and Filter Button */}
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+          <h2 className="text-lg font-bold text-foreground">
             Browse Profiles
           </h2>
           
           <div className="flex items-center gap-2">
             {/* Active filters indicator */}
             {(localFilters.minAge || localFilters.maxAge || localFilters.maxDistance || localFilters.interests?.length) && (
-              <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
             )}
             
             {/* Filter Button */}
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-xl transition-all duration-200 shadow-md font-medium text-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-primary-600 text-white rounded-xl transition-all duration-200 shadow-md font-medium text-sm"
             >
               <SlidersHorizontal className="w-4 h-4" />
               {isExpanded ? 'Hide Filters' : 'Filters'}
@@ -113,7 +113,7 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
 
         {/* Sort Controls - Always Visible */}
         <div className="space-y-2 relative">
-          <h3 className="text-sm font-semibold text-orange-800">Sort & Order</h3>
+          <h3 className="text-sm font-semibold text-foreground">Sort & Order</h3>
           <div className="grid grid-cols-2 gap-3">
             <div className="relative z-50">
               <Select
@@ -122,7 +122,7 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
                 onChange={(value) => updateLocalFilter('sortBy', value)}
                 options={sortOptions}
                 placeholder="Sort by..."
-                className="text-sm bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400"
+                className="text-sm bg-input border-border focus:border-ring focus:ring-ring"
               />
             </div>
             <div className="relative z-40">
@@ -132,7 +132,7 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
                 onChange={(value) => updateLocalFilter('sortOrder', value)}
                 options={sortOrderOptions}
                 placeholder="Order..."
-                className="text-sm bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400"
+                className="text-sm bg-input border-border focus:border-ring focus:ring-ring"
               />
             </div>
           </div>
@@ -141,12 +141,12 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
 
       {/* Expandable Filter Menu */}
       {isExpanded && (
-        <div className="p-4 bg-gradient-to-b from-orange-25 to-white">
+        <div className="p-4 bg-card rounded-b-2xl">
           <div className="space-y-4">
 
             {/* Age Filter */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-orange-800">Age Range</label>
+              <label className="block text-sm font-semibold text-foreground">Age Range</label>
               <div className="grid grid-cols-2 gap-3">
                 <Input
                   type="number"
@@ -155,7 +155,7 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
                   onChange={(e) => updateLocalFilter('minAge', e.target.value ? parseInt(e.target.value) : undefined)}
                   min={18}
                   max={100}
-                  className="text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                  className="text-sm rounded-xl bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
                 />
                 <Input
                   type="number"
@@ -164,14 +164,14 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
                   onChange={(e) => updateLocalFilter('maxAge', e.target.value ? parseInt(e.target.value) : undefined)}
                   min={18}
                   max={100}
-                  className="text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                  className="text-sm rounded-xl bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
                 />
               </div>
             </div>
 
             {/* Location Filter */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-orange-800">Max Distance (km)</label>
+              <label className="block text-sm font-semibold text-foreground">Max Distance (km)</label>
               <Input
                 type="number"
                 placeholder="Distance in kilometers"
@@ -179,13 +179,13 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
                 onChange={(e) => updateLocalFilter('maxDistance', e.target.value ? parseInt(e.target.value) : undefined)}
                 min={1}
                 max={1000}
-                className="text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                className="text-sm rounded-xl bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
               />
             </div>
 
             {/* Fame Rating Filter */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-orange-800">Fame Rating</label>
+              <label className="block text-sm font-semibold text-foreground">Fame Rating</label>
               <div className="grid grid-cols-2 gap-3">
                 <Input
                   type="number"
@@ -195,7 +195,7 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
                   min={0}
                   max={5}
                   step={0.1}
-                  className="text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                  className="text-sm rounded-xl bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
                 />
                 <Input
                   type="number"
@@ -205,14 +205,14 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
                   min={0}
                   max={5}
                   step={0.1}
-                  className="text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                  className="text-sm rounded-xl bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
                 />
               </div>
             </div>
 
             {/* Common Tags Filter */}
             <div className="space-y-3">
-              <label className="block text-sm font-semibold text-orange-800">Common Tags (Interests)</label>
+              <label className="block text-sm font-semibold text-foreground">Common Tags (Interests)</label>
               
               {/* Add interest */}
               <div className="flex gap-2">
@@ -227,12 +227,12 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
                       addInterest(newInterest);
                     }
                   }}
-                  className="flex-1 text-sm rounded-xl bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400 placeholder-gray-400"
+                  className="flex-1 text-sm rounded-xl bg-input border-border focus:border-ring focus:ring-ring placeholder-muted-foreground"
                 />
                 <Button
                   onClick={() => addInterest(newInterest)}
                   disabled={!newInterest}
-                  className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-medium text-sm rounded-xl disabled:opacity-50 shadow-md"
+                  className="px-4 py-2 bg-accent hover:bg-primary-600 text-white font-medium text-sm rounded-xl disabled:opacity-50 shadow-md"
                 >
                   Add
                 </Button>
@@ -241,14 +241,14 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
               {/* Popular interests */}
               {availableInterests.length > 0 && (
                 <div>
-                  <p className="text-xs text-orange-600 font-medium mb-2">Popular interests:</p>
+                  <p className="text-xs text-accent font-medium mb-2">Popular interests:</p>
                   <div className="flex flex-wrap gap-2">
                     {availableInterests.slice(0, 6).map((interest) => (
                       <button
                         key={interest}
                         onClick={() => addInterest(interest)}
                         disabled={localFilters.interests?.includes(interest)}
-                        className="px-3 py-1.5 text-xs bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border border-orange-200"
+                        className="px-3 py-1.5 text-xs bg-input hover:bg-muted text-foreground rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border border-border"
                       >
                         {interest}
                       </button>
@@ -260,17 +260,17 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
               {/* Selected interests */}
               {localFilters.interests && localFilters.interests.length > 0 && (
                 <div>
-                  <p className="text-xs text-orange-600 font-medium mb-2">Selected interests:</p>
+                  <p className="text-xs text-accent font-medium mb-2">Selected interests:</p>
                   <div className="flex flex-wrap gap-2">
                     {localFilters.interests.map((interest) => (
                       <div
                         key={interest}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 rounded-full text-xs border border-orange-200"
+                        className="flex items-center gap-1 px-3 py-1.5 bg-accent/20 text-accent rounded-full text-xs border border-accent"
                       >
                         <span>{interest}</span>
                         <button
                           onClick={() => removeInterest(interest)}
-                          className="text-orange-600 hover:text-orange-800 font-bold ml-1"
+                          className="text-accent hover:text-primary-600 font-bold ml-1"
                         >
                           ×
                         </button>
@@ -282,16 +282,16 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3 pt-4 border-t border-orange-100">
+            <div className="flex gap-3 pt-4 border-t border-border">
               <Button
                 onClick={resetFilters}
-                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all duration-200 border border-gray-200"
+                className="flex-1 px-4 py-3 bg-muted hover:bg-secondary-500 text-foreground font-medium rounded-xl transition-all duration-200 border border-border"
               >
                 Reset
               </Button>
               <Button
                 onClick={applyFilters}
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg"
+                className="flex-1 px-4 py-3 bg-accent hover:bg-primary-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg"
               >
                 Apply Filters
               </Button>

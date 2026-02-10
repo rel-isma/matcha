@@ -65,26 +65,26 @@ export default function ForgotPasswordPage() {
             </svg>
           </div>
           
-          <h1 className="text-2xl font-bold text-secondary-800 mb-2">Check your email</h1>
-          <p className="text-secondary-600 text-sm">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Check your email</h1>
+          <p className="text-muted-foreground text-sm">
             We&apos;ve sent a password reset link to <strong>{email}</strong>
           </p>
         </div>
 
         {/* Instructions */}
-        <div className="bg-primary-50 rounded-lg p-6">
-          <h2 className="font-semibold text-secondary-800 mb-2">What&apos;s next?</h2>
-          <ul className="text-sm text-secondary-600 space-y-2">
+        <div className="bg-accent/10 rounded-lg p-6">
+          <h2 className="font-semibold text-foreground mb-2">What&apos;s next?</h2>
+          <ul className="text-sm text-muted-foreground space-y-2">
             <li className="flex items-start">
-              <span className="inline-block w-1.5 h-1.5 bg-primary-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+              <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full mt-2 mr-3 flex-shrink-0"></span>
               Check your email inbox (and spam folder)
             </li>
             <li className="flex items-start">
-              <span className="inline-block w-1.5 h-1.5 bg-primary-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+              <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full mt-2 mr-3 flex-shrink-0"></span>
               Click the password reset link in the email
             </li>
             <li className="flex items-start">
-              <span className="inline-block w-1.5 h-1.5 bg-primary-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+              <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full mt-2 mr-3 flex-shrink-0"></span>
               Create a new password
             </li>
           </ul>
@@ -107,7 +107,7 @@ export default function ForgotPasswordPage() {
           <div className="text-center">
             <Link 
               href="/login" 
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium underline"
+              className="text-sm text-accent hover:text-primary-600 font-medium underline"
             >
               Back to sign in
             </Link>
@@ -129,14 +129,15 @@ export default function ForgotPasswordPage() {
             width={120}
             height={40}
             className="h-8 w-auto"
+            unoptimized
             priority
           />
         </div>
         
         {/* Page Title */}
         <div>
-          <h2 className="text-2xl font-bold text-secondary-800 mb-2">Reset password</h2>
-          <p className="text-secondary-600 text-sm">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Reset password</h2>
+          <p className="text-muted-foreground text-sm">
             Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
         </div>
@@ -174,7 +175,7 @@ export default function ForgotPasswordPage() {
       <div className="text-center">
         <Link 
           href="/login" 
-          className="text-sm text-primary-600 hover:text-primary-700 font-medium underline"
+          className="text-sm text-accent hover:text-primary-600 font-medium underline"
         >
           Back to sign in
         </Link>

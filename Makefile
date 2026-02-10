@@ -70,7 +70,7 @@ db-init: ## Initialize database with schema
 	@echo "⏳ Waiting for PostgreSQL to be ready..."
 	@sleep 10
 	@echo "📊 Initializing database schema..."
-	@$(DOCKER_COMPOSE) exec postgres psql -U matcha_user -d matcha_db -f /docker-entrypoint-initdb.d/init.sql
+	@$(DOCKER_COMPOSE) exec postgres psql -U matcha_user -d matcha_db -f /database-entrypoint-initdb.d/init.sql
 	@echo "🛑 Stopping PostgreSQL container..."
 	@$(DOCKER_COMPOSE) stop postgres
 	@echo "✅ Database initialized successfully!"

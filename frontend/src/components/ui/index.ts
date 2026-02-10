@@ -11,3 +11,4 @@ export { ImageUpload } from './ImageUpload';
 export { Spinner, Loading } from './Spinner';
 export { GPSPicker, GPSLocationPicker, ProfileGPSPicker } from './GPSPicker';
 export { default as GoogleSignInButton } from './GoogleSignInButton';
+export { default as Intra42SignInButton } from './Intra42SignInButton';

@@ -58,7 +58,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       setIsLoading(true);
       
       const page = reset ? 1 : currentPage + 1;
-      const response = await notificationApi.get(`/api/notifications?page=${page}&limit=10`);
+      const response = await notificationApi.get(`/notifications?page=${page}&limit=10`);
 
       if (response.data.success) {
         const { notifications: newNotifications, pagination } = response.data.data;
@@ -96,7 +96,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       setIsLoadingMore(true);
       
       const nextPage = currentPage + 1;
-      const response = await notificationApi.get(`/api/notifications?page=${nextPage}&limit=10`);
+      const response = await notificationApi.get(`/notifications?page=${nextPage}&limit=10`);
 
       if (response.data.success) {
         const { notifications: newNotifications, pagination } = response.data.data;
@@ -116,7 +116,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
 
   const markAsRead = async (notificationId: string) => {
     try {
-      await notificationApi.patch(`/api/notifications/${notificationId}/read`);
+      await notificationApi.patch(`/notifications/${notificationId}/read`);
 
       setNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
@@ -129,7 +129,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
 
   const markAllAsRead = async () => {
     try {
-      await notificationApi.patch('/api/notifications/mark-all-read');
+      await notificationApi.patch('/notifications/mark-all-read');
 
       setNotifications((prev) =>
         prev.map((n) => ({ ...n, isRead: true }))
@@ -142,7 +142,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
 
   const deleteNotification = async (notificationId: string) => {
     try {
-      await notificationApi.delete(`/api/notifications/${notificationId}`);
+      await notificationApi.delete(`/notifications/${notificationId}`);
 
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
       

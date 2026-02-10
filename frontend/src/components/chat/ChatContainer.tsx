@@ -2,11 +2,14 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { chatApi } from '@/lib/api';
+import { profileApi } from '@/lib/profileApi';
 import { useSocket } from '@/hooks/useSocket';
 import { Message, Conversation } from '@/types';
+import { STATIC_BASE_URL } from '@/lib/constants';
 import ConversationList from './ConversationList';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
+import toast from 'react-hot-toast';
 
 interface ChatContainerProps {
   currentUserId: string;
@@ -17,6 +20,7 @@ interface ChatContainerProps {
 export default function ChatContainer({ currentUserId, currentUsername, initialUsername }: ChatContainerProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [selectedConversationData, setSelectedConversationData] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [typingUser, setTypingUser] = useState<string>('');
@@ -61,14 +65,18 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
 
   // Handle conversation selection
   const handleSelectConversation = useCallback((userId: string) => {
-    setSelectedConversation(userId);
-    loadMessages(userId);
+    const conversation = conversations.find(c => c.userId === userId);
+    if (conversation) {
+      setSelectedConversation(userId);
+      setSelectedConversationData(conversation);
+      loadMessages(userId);
 
-    // Join chat room via socket
-    if (socket) {
-      socket.emit('chat:join', userId);
+      // Join chat room via socket
+      if (socket) {
+        socket.emit('chat:join', userId);
+      }
     }
-  }, [loadMessages, socket]);
+  }, [conversations, loadMessages, socket]);
 
   // Initial load and handle URL parameter
   useEffect(() => {
@@ -76,22 +84,85 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
       const loadedConversations = await loadConversations();
       
       // If initialUsername is provided and we haven't processed it yet
-      if (initialUsername && !initialLoadDone && loadedConversations) {
+      if (initialUsername && !initialLoadDone) {
         // Find conversation by username
-        const targetConversation = loadedConversations.find(
+        const targetConversation = loadedConversations?.find(
           (conv: Conversation) => conv.username === initialUsername
         );
         
         if (targetConversation) {
-          // Auto-select the conversation
+          // Auto-select the existing conversation
           handleSelectConversation(targetConversation.userId);
+          setInitialLoadDone(true);
+        } else {
+          // No existing conversation - fetch user profile to create new conversation
+          try {
+            console.log('Fetching profile for username:', initialUsername);
+            const response = await profileApi.getPublicProfile(initialUsername);
+            console.log('Profile API response:', response);
+            
+            if (response.success && response.data?.profile) {
+              const profile = response.data.profile;
+              console.log('Found profile:', profile);
+              
+              // Check if conversation with this userId already exists to avoid duplicates
+              const existingConv = loadedConversations?.find(
+                (conv: Conversation) => conv.userId === profile.userId
+              );
+              
+              if (existingConv) {
+                // Conversation already exists, just select it
+                handleSelectConversation(existingConv.userId);
+              } else {
+                // Format profile picture URL
+                let profilePictureUrl = profile.pictures?.[0]?.url;
+                if (profilePictureUrl && !profilePictureUrl.startsWith('http')) {
+                  profilePictureUrl = `${STATIC_BASE_URL}${profilePictureUrl}`;
+                }
+                
+                // Create a virtual conversation for the new chat
+                const newConversation: Conversation = {
+                  userId: profile.userId,
+                  username: profile.username,
+                  firstName: profile.firstName,
+                  lastName: profile.lastName,
+                  isOnline: profile.isOnline || false,
+                  lastSeen: profile.lastSeen,
+                  profilePicture: profilePictureUrl,
+                  unreadCount: 0
+                };
+                
+                // Add to conversations list
+                setConversations(prev => [newConversation, ...prev]);
+                
+                // Auto-select this new conversation
+                setSelectedConversation(profile.userId);
+                setSelectedConversationData(newConversation);
+                setMessages([]);
+                setLoading(false);
+                
+                // Join chat room via socket
+                if (socket) {
+                  socket.emit('chat:join', profile.userId);
+                }
+                
+                toast.success(`Ready to chat with ${profile.firstName}!`);
+              }
+            } else {
+              console.error('Profile fetch failed or no data:', response);
+              toast.error(response.message || 'Could not find user to chat with');
+            }
+          } catch (error) {
+            console.error('Error fetching user profile:', error);
+            toast.error('Failed to start conversation');
+          }
         }
         setInitialLoadDone(true);
       }
     };
     
     initializeChat();
-  }, [loadConversations, initialUsername, initialLoadDone, handleSelectConversation]);
+  }, [loadConversations, initialUsername, initialLoadDone, handleSelectConversation, socket]);
 
   // Socket event handlers
   useEffect(() => {
@@ -136,14 +207,12 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
     };
 
     socket.on('chat:message', handleNewMessage);
-    socket.on('chat:new-message', handleNewMessage);
     socket.on('chat:typing', handleTyping);
     socket.on('chat:stop-typing', handleStopTyping);
     socket.on('chat:messages-read', handleMessagesRead);
 
     return () => {
       socket.off('chat:message', handleNewMessage);
-      socket.off('chat:new-message', handleNewMessage);
       socket.off('chat:typing', handleTyping);
       socket.off('chat:stop-typing', handleStopTyping);
       socket.off('chat:messages-read', handleMessagesRead);
@@ -173,8 +242,6 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
     }
   }, [selectedConversation, socket]);
 
-  const selectedConversationData = conversations.find(c => c.userId === selectedConversation);
-
   return (
     <div className="h-full flex bg-white rounded-lg shadow-sm overflow-hidden">
       {/* Conversations sidebar */}
@@ -199,7 +266,10 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
               <div className="w-10 h-10 rounded-full overflow-hidden bg-secondary-200 flex-shrink-0">
                 {selectedConversationData.profilePicture ? (
                   <img
-                    src={selectedConversationData.profilePicture}
+                    src={selectedConversationData.profilePicture.startsWith('http') 
+                      ? selectedConversationData.profilePicture 
+                      : `${STATIC_BASE_URL}${selectedConversationData.profilePicture}`
+                    }
                     alt={selectedConversationData.username}
                     className="w-full h-full object-cover"
                   />

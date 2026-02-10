@@ -106,6 +106,7 @@ export default function VerifyPage() {
             width={120}
             height={40}
             className="h-10 w-auto mb-8"
+            unoptimized
             priority
           />
         </div>
@@ -114,15 +115,15 @@ export default function VerifyPage() {
           {getStatusIcon()}
         </div>
         
-        <h2 className="text-2xl font-bold text-secondary-800 mb-2">{getTitle()}</h2>
-        <p className="text-secondary-600 text-sm">
+        <h2 className="text-2xl font-bold text-foreground mb-2">{getTitle()}</h2>
+        <p className="text-muted-foreground text-sm">
           {getDescription()}
         </p>
       </div>
 
       {status === 'success' && (
-        <div className="bg-green-50 rounded-lg p-6 text-center">
-          <p className="text-green-800 mb-4">
+        <div className="bg-accent/10 rounded-lg p-6 text-center">
+          <p className="text-foreground mb-4">
             Redirecting you to the login page in a few seconds...
           </p>
           <Link href="/login">
@@ -134,8 +135,8 @@ export default function VerifyPage() {
       )}
 
       {status === 'error' && (
-        <div className="bg-red-50 rounded-lg p-6 text-center">
-          <p className="text-red-800 mb-4">
+        <div className="bg-destructive/10 rounded-lg p-6 text-center">
+          <p className="text-destructive mb-4">
             {message}
           </p>
           <div className="space-y-3">
@@ -156,19 +157,19 @@ export default function VerifyPage() {
       {!token && status === 'waiting' && (
         <>
           {/* Instructions */}
-          <div className="bg-primary-50 rounded-lg p-6">
-            <h2 className="font-semibold text-secondary-800 mb-2">What&apos;s next?</h2>
-            <ul className="text-sm text-secondary-600 space-y-2">
+          <div className="bg-accent/10 rounded-lg p-6">
+            <h2 className="font-semibold text-foreground mb-2">What&apos;s next?</h2>
+            <ul className="text-sm text-muted-foreground space-y-2">
               <li className="flex items-start">
-                <span className="inline-block w-1.5 h-1.5 bg-primary-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full mt-2 mr-3 flex-shrink-0"></span>
                 Check your email inbox (and spam folder)
               </li>
               <li className="flex items-start">
-                <span className="inline-block w-1.5 h-1.5 bg-primary-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full mt-2 mr-3 flex-shrink-0"></span>
                 Click the verification link in the email
               </li>
               <li className="flex items-start">
-                <span className="inline-block w-1.5 h-1.5 bg-primary-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full mt-2 mr-3 flex-shrink-0"></span>
                 Complete your profile setup
               </li>
             </ul>
@@ -178,14 +179,14 @@ export default function VerifyPage() {
           <div className="text-center space-y-4">
             <Link 
               href="/login" 
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium underline block"
+              className="text-sm text-accent hover:text-primary-600 font-medium underline block"
             >
               Back to sign in
             </Link>
             
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-muted-foreground">
               Having trouble? {' '}
-              <Link href="/support" className="text-primary-600 hover:text-primary-700 underline">
+              <Link href="/support" className="text-accent hover:text-primary-600 underline">
                 Contact support
               </Link>
             </div>

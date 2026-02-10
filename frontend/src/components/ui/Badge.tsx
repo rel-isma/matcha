@@ -18,13 +18,13 @@ const Badge = ({
   ...props 
 }: BadgeProps) => {
   const variants = {
-    default: 'bg-orange-100 text-orange-800',
-    secondary: 'bg-secondary-100 text-secondary-800',
-    success: 'bg-green-100 text-green-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    danger: 'bg-red-100 text-red-800',
-    info: 'bg-blue-100 text-blue-800',
-    outline: 'border border-secondary-200 text-secondary-700',
+    default: 'bg-[#F39C12] text-white',
+    secondary: 'bg-[#334155] text-[#f1f5f9]',
+    success: 'bg-green-500 text-white',
+    warning: 'bg-yellow-500 text-white',
+    danger: 'bg-red-500 text-white',
+    info: 'bg-blue-500 text-white',
+    outline: 'border border-[#334155] text-[#f1f5f9]',
   };
 
   const sizes = {

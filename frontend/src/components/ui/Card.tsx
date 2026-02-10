@@ -31,7 +31,7 @@ interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
 const Card = ({ children, className, ...props }: CardProps) => {
   return (
     <div 
-      className={`bg-white rounded-xl shadow-md border border-secondary-100 ${className || ''}`}
+      className={`bg-[#1e293b] rounded-xl shadow-md border border-[#334155] ${className || ''}`}
       {...props}
     >
       {children}
@@ -53,7 +53,7 @@ const CardHeader = ({ children, className, ...props }: CardHeaderProps) => {
 const CardTitle = ({ children, className, ...props }: CardTitleProps) => {
   return (
     <h3 
-      className={`text-lg font-semibold text-secondary-900 ${className || ''}`}
+      className={`text-lg font-semibold text-[#f1f5f9] ${className || ''}`}
       {...props}
     >
       {children}
@@ -75,7 +75,7 @@ const CardContent = ({ children, className, ...props }: CardContentProps) => {
 const CardFooter = ({ children, className, ...props }: CardFooterProps) => {
   return (
     <div 
-      className={`px-6 py-4 bg-secondary-50 rounded-b-xl border-t border-secondary-100 ${className || ''}`}
+      className={`px-6 py-4 bg-[#0f1729] rounded-b-xl border-t border-[#334155] ${className || ''}`}
       {...props}
     >
       {children}
