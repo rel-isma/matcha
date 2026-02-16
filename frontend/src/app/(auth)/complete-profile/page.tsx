@@ -1,4 +1,3 @@
-// Complete Profile Page - Beautiful Modern Design
 'use client';
 
 import React, { useState } from 'react';
@@ -220,12 +219,12 @@ export default function CompleteProfilePage() {
         {/* Mobile Layout */}
         <div className="md:hidden">
           {/* Main Content Card */}
-          <div className="bg-card backdrop-blur-xl rounded-3xl p-8 shadow-2xl border-2 border-border relative">
+          <div className="bg-card backdrop-blur-xl rounded-3xl p-8 shadow-2xl border-2 border-border relative h-[72vh] min-h-[520px] max-h-[720px] flex flex-col">
             {/* Card background glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-accent/5 to-accent/10 rounded-3xl"></div>
             
             {/* Form content */}
-            <div className="relative z-10">
+            <div className="relative z-10 flex-1 overflow-y-auto pr-1">
               {renderStepContent()}
             </div>
             
@@ -283,12 +282,12 @@ export default function CompleteProfilePage() {
         {/* Desktop Layout */}
         <div className="hidden md:block">
           {/* Main Content Card */}
-          <div className="bg-card backdrop-blur-xl rounded-3xl p-12 shadow-2xl border-2 border-border mb-8 relative overflow-hidden min-h-[500px] flex items-center">
+          <div className="bg-card backdrop-blur-xl rounded-3xl p-12 shadow-2xl border-2 border-border mb-8 relative overflow-hidden h-[620px] min-h-[620px] flex flex-col">
             {/* Card background glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-accent/5 to-accent/10 rounded-3xl"></div>
             
             {/* Form content - centered */}
-            <div className="relative z-10 w-full">
+            <div className="relative z-10 w-full flex-1 overflow-y-auto pr-2">
               {renderStepContent()}
             </div>
             

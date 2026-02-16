@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, Open_Sans, Montserrat } from "next/font/google";
 import "./globals.css";
 import { AuthProvider, NotificationProvider, ThemeProvider, SocketProvider } from '@/context';
+import { HeroUIProvider } from '@heroui/react';
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -44,15 +45,17 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable} ${openSans.variable} ${montserrat.variable}`}>
       <body className="font-body bg-cream text-secondary-800 antialiased">
-        <ThemeProvider>
-          <AuthProvider>
-            <SocketProvider>
-              <NotificationProvider>
-                {children}
-              </NotificationProvider>
-            </SocketProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <HeroUIProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <SocketProvider>
+                <NotificationProvider>
+                  {children}
+                </NotificationProvider>
+              </SocketProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </HeroUIProvider>
       </body>
     </html>
   );

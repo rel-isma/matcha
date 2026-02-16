@@ -17,6 +17,8 @@ import { authApi } from '@/lib/api';
 import { profileApi } from '@/lib/profileApi';
 import toast from 'react-hot-toast';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
+import { DateInput } from '@heroui/react';
+import { parseDate } from '@internationalized/date';
 
 interface UserFormData {
   firstName: string;
@@ -116,6 +118,13 @@ export default function SettingsPage() {
     neighborhood: ''
   });
 
+  const formatDateForInput = (dateValue?: string) => {
+    if (!dateValue) return '';
+    const parsed = new Date(dateValue);
+    if (Number.isNaN(parsed.getTime())) return '';
+    return parsed.toISOString().split('T')[0];
+  };
+
   // Initialize form data when user/profile loads
   useEffect(() => {
     if (user) {
@@ -135,7 +144,7 @@ export default function SettingsPage() {
         gender: profile.gender || '',
         sexualPreference: profile.sexualPreference || '',
         bio: profile.bio || '',
-        dateOfBirth: profile.dateOfBirth || ''
+        dateOfBirth: formatDateForInput(profile.dateOfBirth)
       };
       setProfileFormData(profileData);
       setOriginalProfileData(profileData);
@@ -181,7 +190,6 @@ export default function SettingsPage() {
     return changes;
   };
 
-  console.log("profile_interests: ", profile?.interests);
   const handlePersonalInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -770,10 +778,13 @@ export default function SettingsPage() {
                   )}
                   
                   {/* Basic Information Section */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Basic Information
-                    </h3>
+                  <section className="space-y-4 rounded-2xl border border-border/60 bg-muted/30 p-4 sm:p-5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground">
+                        Basic Information
+                      </h3>
+                      <span className="text-xs text-muted-foreground">Public identity</span>
+                    </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <div>
@@ -815,13 +826,23 @@ export default function SettingsPage() {
                         required
                       />
                     </div>
+                  </section>
+
+                  {/* Soft Divider */}
+                  <div className="flex items-center gap-3">
+                    <div className="h-px flex-1 bg-border/60" />
+                    <span className="text-xs text-muted-foreground">Profile details</span>
+                    <div className="h-px flex-1 bg-border/60" />
                   </div>
 
                   {/* Profile Details Section */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Profile Details
-                    </h3>
+                  <section className="space-y-4 rounded-2xl border border-border/60 bg-muted/30 p-4 sm:p-5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground">
+                        Profile Details
+                      </h3>
+                      <span className="text-xs text-muted-foreground">Match preferences</span>
+                    </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <div>
@@ -831,7 +852,8 @@ export default function SettingsPage() {
                         <Select
                           value={profileFormData.gender}
                           onChange={(value) => setProfileFormData(prev => ({ ...prev, gender: value as string }))}
-                          options={[{ value: '', label: 'Select your gender' }, ...GENDER_OPTIONS]}
+                          options={[...GENDER_OPTIONS]}
+                          placeholder="Select your gender"
                         />
                       </div>
                       
@@ -842,7 +864,8 @@ export default function SettingsPage() {
                         <Select
                           value={profileFormData.sexualPreference}
                           onChange={(value) => setProfileFormData(prev => ({ ...prev, sexualPreference: value as string }))}
-                          options={[{ value: '', label: 'Who are you looking for?' }, ...SEXUAL_PREFERENCE_OPTIONS]}
+                          options={[...SEXUAL_PREFERENCE_OPTIONS]}
+                          placeholder="Who are you looking for?"
                         />
                       </div>
                     </div>
@@ -851,18 +874,28 @@ export default function SettingsPage() {
                       <label className="block text-sm font-medium text-foreground mb-2">
                         Date of Birth
                       </label>
-                      <Input
-                        type="date"
-                        value={profileFormData.dateOfBirth ? profileFormData.dateOfBirth.split('T')[0] : ''}
-                        onChange={(e) => setProfileFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                        max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                        min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
-                        placeholder="Select your date of birth"
-                        className={errors.dateOfBirth ? 'border-destructive focus:border-destructive focus:ring-destructive' : ''}
+                      <DateInput
+                        aria-label="Date of birth"
+                        value={profileFormData.dateOfBirth ? parseDate(profileFormData.dateOfBirth) : null}
+                        onChange={(value) =>
+                          setProfileFormData(prev => ({
+                            ...prev,
+                            dateOfBirth: value ? value.toString() : ''
+                          }))
+                        }
+                        minValue={parseDate(new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0])}
+                        maxValue={parseDate(new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0])}
+                        isInvalid={Boolean(errors.dateOfBirth)}
+                        errorMessage={errors.dateOfBirth}
+                        classNames={{
+                          base: 'w-full',
+                          inputWrapper: 'bg-input rounded-lg border border-border hover:border-accent/60 focus-within:border-accent',
+                          input: 'text-foreground',
+                          label: 'text-foreground',
+                          segment: 'text-foreground',
+                          selectorIcon: 'text-muted-foreground'
+                        }}
                       />
-                      {errors.dateOfBirth && (
-                        <p className="text-sm text-destructive mt-1">{errors.dateOfBirth}</p>
-                      )}
                       {profileFormData.dateOfBirth && !errors.dateOfBirth && (
                         <p className="text-sm text-muted-foreground mt-1">
                           Age: {Math.floor((new Date().getTime() - new Date(profileFormData.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years old
@@ -886,7 +919,7 @@ export default function SettingsPage() {
                         {profileFormData.bio.length}/500 characters
                       </p>
                     </div>
-                  </div>
+                  </section>
                   
                   <div className="flex flex-col sm:flex-row justify-end gap-3">
                     <Button
