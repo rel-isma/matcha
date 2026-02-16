@@ -47,6 +47,18 @@ export function GPSPicker({
   }, [hasTriedGPS, mode, autoTryGPS])
 
   const handleGetGPSLocation = async () => {
+    if (typeof window !== 'undefined' && !window.isSecureContext) {
+      const errorMsg = mode === 'profile'
+        ? "GPS requires HTTPS - location will be set automatically"
+        : "GPS requires HTTPS. Please use https:// or localhost."
+      toast.error(errorMsg)
+      setHasTriedGPS(true)
+      if (mode === 'profile') {
+        onSkip?.()
+      }
+      return
+    }
+
     if (!navigator.geolocation) {
       const errorMsg = mode === 'profile' 
         ? "GPS not supported - location will be set automatically"
@@ -63,18 +75,61 @@ export function GPSPicker({
     setHasTriedGPS(true)
 
     try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-          resolve,
-          reject,
-          {
-            enableHighAccuracy: true,
-            timeout: mode === 'profile' ? 8000 : 10000,
-            maximumAge: 300000 // 5 minutes
+      if (navigator.permissions?.query) {
+        const permission = await navigator.permissions.query({ name: 'geolocation' as PermissionName })
+        if (permission.state === 'denied') {
+          const deniedMsg = mode === 'profile'
+            ? "GPS access denied"
+            : "GPS access denied. Please enable location permissions in your browser."
+          toast.error(`${deniedMsg}${mode === 'profile' ? ' - location will be set automatically' : ''}`)
+          if (mode === 'profile') {
+            onSkip?.()
           }
-        )
-      })
+          return
+        }
+      }
 
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        const timeoutMs = mode === 'profile' ? 20000 : 15000
+        const maxAge = 0
+        let settled = false
+
+        const settleResolve = (pos: GeolocationPosition) => {
+          if (settled) return
+          settled = true
+          resolve(pos)
+        }
+
+        const settleReject = (err: GeolocationPositionError) => {
+          if (settled) return
+          settled = true
+          reject(err)
+        }
+
+        const watchId = navigator.geolocation.watchPosition(
+          (pos) => {
+            if (pos.coords.accuracy && pos.coords.accuracy <= 150) {
+              navigator.geolocation.clearWatch(watchId)
+              settleResolve(pos)
+            }
+          },
+          (err) => {
+            navigator.geolocation.clearWatch(watchId)
+            settleReject(err)
+          },
+          { enableHighAccuracy: true, timeout: timeoutMs, maximumAge: maxAge }
+        )
+
+        setTimeout(() => {
+          if (settled) return
+          navigator.geolocation.clearWatch(watchId)
+          navigator.geolocation.getCurrentPosition(
+            settleResolve,
+            settleReject,
+            { enableHighAccuracy: true, timeout: timeoutMs, maximumAge: maxAge }
+          )
+        }, 4000)
+      })
       const { latitude, longitude } = position.coords
       
       // Get city name from coordinates
@@ -108,22 +163,24 @@ export function GPSPicker({
       toast.success("GPS location obtained successfully!")
       
     } catch (error) {
-      console.error('GPS Error:', error)
       let errorMessage = "GPS not available"
-      
-      if (error instanceof GeolocationPositionError) {
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
+
+      const errorWithCode = error as { code?: number; PERMISSION_DENIED?: number; POSITION_UNAVAILABLE?: number; TIMEOUT?: number; name?: string }
+      const errorCode = typeof errorWithCode?.code === 'number' ? errorWithCode.code : undefined
+
+      if (errorCode !== undefined) {
+        switch (errorCode) {
+          case errorWithCode.PERMISSION_DENIED ?? 1:
             errorMessage = mode === 'profile' 
               ? "GPS access denied"
               : "GPS access denied. Please enable location permissions in your browser."
             break
-          case error.POSITION_UNAVAILABLE:
+          case errorWithCode.POSITION_UNAVAILABLE ?? 2:
             errorMessage = mode === 'profile'
               ? "GPS unavailable"
               : "GPS location unavailable. Please check your device settings."
             break
-          case error.TIMEOUT:
+          case errorWithCode.TIMEOUT ?? 3:
             errorMessage = mode === 'profile'
               ? "GPS timeout"
               : "GPS request timed out. Please try again."
@@ -133,6 +190,18 @@ export function GPSPicker({
               ? "GPS not available"
               : "Failed to get GPS location. Please try again."
         }
+      } else if (errorWithCode?.name === 'NotAllowedError') {
+        errorMessage = mode === 'profile'
+          ? "GPS access denied"
+          : "GPS access denied. Please enable location permissions in your browser."
+      } else if (errorWithCode?.name === 'NotFoundError') {
+        errorMessage = mode === 'profile'
+          ? "GPS unavailable"
+          : "GPS location unavailable. Please check your device settings."
+      } else if (errorWithCode?.name === 'TimeoutError') {
+        errorMessage = mode === 'profile'
+          ? "GPS timeout"
+          : "GPS request timed out. Please try again."
       }
       
       toast.error(`${errorMessage}${mode === 'profile' ? ' - location will be set automatically' : ''}`)
