@@ -8,12 +8,14 @@ import { Search, MessageCircle, Home, Bell, User, Settings, LogOut } from 'lucid
 import { useProfilePicture } from '@/hooks/useProfilePicture';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/context/NotificationContext2';
+import { useChatUnread } from '@/hooks/useChatUnread';
 
 export default function NavBar() {
   const pathname = usePathname();
   const { profilePicture } = useProfilePicture();
   const { user, logout } = useAuth();
-  const { unreadCount } = useNotifications();
+  const { unreadCount: notificationCount } = useNotifications();
+  const { unreadCount: chatUnreadCount } = useChatUnread();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -55,9 +57,11 @@ export default function NavBar() {
         <div className="relative">
           <MessageCircle className={`w-6 h-6 ${active ? 'text-accent' : 'text-muted-foreground'}`} />
           {/* Message notification badge */}
-          <span className="absolute -top-1 -right-1 bg-destructive text-white text-xs rounded-full h-4 w-4 flex items-center justify-center leading-none font-medium shadow-lg">
-            3
-          </span>
+          {chatUnreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-[#F39C12] text-white text-xs rounded-full h-4 w-4 flex items-center justify-center leading-none font-medium shadow-lg">
+              {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
+            </span>
+          )}
         </div>
       )
     },
@@ -75,9 +79,9 @@ export default function NavBar() {
         <div className="relative">
           <Bell className={`w-6 h-6 ${active ? 'text-accent' : 'text-muted-foreground'}`} />
           {/* Notification badge */}
-          {unreadCount > 0 && (
+          {notificationCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-destructive text-white text-xs rounded-full h-4 w-4 flex items-center justify-center leading-none font-medium shadow-lg">
-              {unreadCount > 9 ? '9+' : unreadCount}
+              {notificationCount > 9 ? '9+' : notificationCount}
             </span>
           )}
         </div>

@@ -6,6 +6,7 @@ import { profileApi } from '@/lib/profileApi';
 import { useSocket } from '@/hooks/useSocket';
 import { Message, Conversation } from '@/types';
 import { STATIC_BASE_URL } from '@/lib/constants';
+import { chatEvents, CHAT_EVENTS } from '@/lib/chatEvents';
 import ConversationList from './ConversationList';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
@@ -52,8 +53,17 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
       const response = await chatApi.getMessages(otherUserId);
       if (response.success && response.data) {
         setMessages(response.data);
-        // Mark messages as read
+        
+        // Count unread messages from this user
+        const unreadCount = response.data.filter(
+          (msg: Message) => msg.senderId === otherUserId && !msg.isRead
+        ).length;
+        
+        console.log('Unread messages from this user:', unreadCount);
+        
+        // Mark messages as read and notify navbar with the count
         await chatApi.markAsRead(otherUserId);
+        chatEvents.emit(CHAT_EVENTS.MESSAGES_READ, unreadCount);
       }
     } catch (err) {
       console.error('Error loading messages:', err);
@@ -69,6 +79,10 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
     if (conversation) {
       setSelectedConversation(userId);
       setSelectedConversationData(conversation);
+      
+      // Notify navbar about the selected conversation
+      chatEvents.emit(CHAT_EVENTS.CONVERSATION_SELECTED, userId);
+      
       loadMessages(userId);
 
       // Join chat room via socket
@@ -112,7 +126,12 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
               
               if (existingConv) {
                 // Conversation already exists, just select it
-                handleSelectConversation(existingConv.userId);
+                setSelectedConversation(existingConv.userId);
+                setSelectedConversationData(existingConv);
+                loadMessages(existingConv.userId);
+                if (socket) {
+                  socket.emit('chat:join', existingConv.userId);
+                }
               } else {
                 // Format profile picture URL
                 let profilePictureUrl = profile.pictures?.[0]?.url;
@@ -132,10 +151,16 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
                   unreadCount: 0
                 };
                 
-                // Add to conversations list
-                setConversations(prev => [newConversation, ...prev]);
+                console.log('Creating virtual conversation:', newConversation);
                 
-                // Auto-select this new conversation
+                // Add to conversations list first
+                setConversations(prev => {
+                  const updated = [newConversation, ...prev];
+                  console.log('Updated conversations list:', updated);
+                  return updated;
+                });
+                
+                // Then select it (state updates are batched in React 18)
                 setSelectedConversation(profile.userId);
                 setSelectedConversationData(newConversation);
                 setMessages([]);
@@ -146,7 +171,7 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
                   socket.emit('chat:join', profile.userId);
                 }
                 
-                toast.success(`Ready to chat with ${profile.firstName}!`);
+                // toast.success(`Ready to chat with ${profile.firstName}!`);
               }
             } else {
               console.error('Profile fetch failed or no data:', response);
@@ -170,15 +195,29 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
 
     // Handle new messages
     const handleNewMessage = (message: Message) => {
+      console.log('ChatContainer received message:', message, 'selectedConversation:', selectedConversation);
+      
       // Update messages if in active conversation
       if (selectedConversation && 
           (message.senderId === selectedConversation || message.recipientId === selectedConversation)) {
+        console.log('Adding message to chat');
         setMessages(prev => [...prev, message]);
         
         // Mark as read if we're viewing the conversation
         if (message.senderId === selectedConversation) {
           socket.emit('chat:mark-read', selectedConversation);
         }
+      } else {
+        console.log('Message not added - condition failed', {
+          selectedConversation,
+          messageSenderId: message.senderId,
+          messageRecipientId: message.recipientId
+        });
+      }
+
+      // If message is from someone other than current user, notify the navbar
+      if (message.senderId !== currentUserId) {
+        chatEvents.emit(CHAT_EVENTS.NEW_MESSAGE, message);
       }
 
       // Update conversation list
@@ -223,6 +262,7 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
   const handleSendMessage = useCallback((content: string) => {
     if (!selectedConversation || !socket) return;
 
+    console.log('Sending message:', { recipientId: selectedConversation, content });
     socket.emit('chat:message', {
       recipientId: selectedConversation,
       content
@@ -302,6 +342,7 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
               <MessageList
                 messages={messages}
                 currentUserId={currentUserId}
+                otherUserProfilePicture={selectedConversationData?.profilePicture}
                 isTyping={isTyping}
                 typingUsername={typingUser}
               />

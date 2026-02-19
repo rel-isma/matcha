@@ -3,10 +3,12 @@
 import React, { useEffect, useRef } from 'react';
 import { Message } from '@/types';
 import { format, isToday, isYesterday } from 'date-fns';
+import { STATIC_BASE_URL } from '@/lib/constants';
 
 interface MessageListProps {
   messages: Message[];
   currentUserId: string;
+  otherUserProfilePicture?: string;
   isTyping?: boolean;
   typingUsername?: string;
 }
@@ -14,6 +16,7 @@ interface MessageListProps {
 export default function MessageList({
   messages,
   currentUserId,
+  otherUserProfilePicture,
   isTyping,
   typingUsername
 }: MessageListProps) {
@@ -105,11 +108,21 @@ export default function MessageList({
                 >
                   {!isOwn && (
                     <div className="w-8 h-8 flex-shrink-0">
-                      {showAvatar && (
-                        <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-xs font-semibold text-primary-600">
-                          {message.senderId[0].toUpperCase()}
-                        </div>
-                      )}
+                      {/* {showAvatar && (
+                        otherUserProfilePicture ? (
+                          <img
+                            src={otherUserProfilePicture.startsWith('http') 
+                              ? otherUserProfilePicture 
+                              : `${STATIC_BASE_URL}${otherUserProfilePicture}`}
+                            alt="Profile"
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-xs font-semibold text-primary-600">
+                            {message.senderId?.[0]?.toUpperCase() || '?'}
+                          </div>
+                        )
+                      )} */}
                     </div>
                   )}
 
