@@ -570,7 +570,7 @@ export default function SettingsPage() {
         className="relative mb-8"
       >
         {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-accent/30 to-accent/20 rounded-2xl"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-800/80 via-slate-700/60 to-slate-800/80 rounded-2xl"></div>
         
         <div className="relative p-6 md:p-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -585,7 +585,7 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3 mb-2">
                 {/* i want here not icon user i want avatar {profilePicture} and use Image not img */}
                 {profilePicture ? (
-                  <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-accent/30">
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden border border-border/50">
                     <Image
                       src={profilePicture || STATIC_BASE_URL + '/default-avatar.png'  }
                       alt="Profile Picture"
@@ -604,7 +604,7 @@ export default function SettingsPage() {
                     Account Settings
                   </h1>
                   {user && (
-                    <p className="text-sm md:text-base text-accent font-medium">
+                    <p className="text-sm md:text-base text-muted-foreground font-medium">
                       Welcome back, {user.firstName}!
                     </p>
                   )}
@@ -623,8 +623,8 @@ export default function SettingsPage() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="hidden md:flex gap-4"
             >
-              <div className="bg-card border-2 border-accent/30 rounded-xl p-4 text-center min-w-[100px]">
-                <div className="text-xl font-bold text-accent">
+              <div className="bg-card border border-border rounded-xl p-4 text-center min-w-[100px]">
+                <div className="text-xl font-bold text-foreground">
                   {profile?.completeness || 0}%
                 </div>
                 <div className="text-xs text-muted-foreground font-medium">
@@ -632,8 +632,8 @@ export default function SettingsPage() {
                 </div>
               </div>
               
-              <div className="bg-card border-2 border-accent/30 rounded-xl p-4 text-center min-w-[100px]">
-                <div className="text-xl font-bold text-accent">
+              <div className="bg-card border border-border rounded-xl p-4 text-center min-w-[100px]">
+                <div className="text-xl font-bold text-foreground">
                   {profile?.pictures?.length || 0}
                 </div>
                 <div className="text-xs text-muted-foreground font-medium">
@@ -641,8 +641,8 @@ export default function SettingsPage() {
                 </div>
               </div>
               
-              <div className="bg-card border-2 border-accent/30 rounded-xl p-4 text-center min-w-[100px]">
-                <div className="text-xl font-bold text-accent">
+              <div className="bg-card border border-border rounded-xl p-4 text-center min-w-[100px]">
+                <div className="text-xl font-bold text-foreground">
                   {profile?.interests?.length || 0}
                 </div>
                 <div className="text-xs text-muted-foreground font-medium">
@@ -658,8 +658,8 @@ export default function SettingsPage() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="md:hidden grid grid-cols-3 gap-3"
             >
-              <div className="bg-card border-2 border-accent/30 rounded-lg p-3 text-center">
-                <div className="text-lg font-bold text-accent">
+              <div className="bg-card border border-border rounded-lg p-3 text-center">
+                <div className="text-lg font-bold text-foreground">
                   {profile?.completeness || 0}%
                 </div>
                 <div className="text-xs text-muted-foreground font-medium">
@@ -667,8 +667,8 @@ export default function SettingsPage() {
                 </div>
               </div>
               
-              <div className="bg-card border-2 border-accent/30 rounded-lg p-3 text-center">
-                <div className="text-lg font-bold text-accent">
+              <div className="bg-card border border-border rounded-lg p-3 text-center">
+                <div className="text-lg font-bold text-foreground">
                   {profile?.pictures?.length || 0}
                 </div>
                 <div className="text-xs text-muted-foreground font-medium">
@@ -676,8 +676,8 @@ export default function SettingsPage() {
                 </div>
               </div>
               
-              <div className="bg-card border-2 border-accent/30 rounded-lg p-3 text-center">
-                <div className="text-lg font-bold text-accent">
+              <div className="bg-card border border-border rounded-lg p-3 text-center">
+                <div className="text-lg font-bold text-foreground">
                   {profile?.interests?.length || 0}
                 </div>
                 <div className="text-xs text-muted-foreground font-medium">
@@ -700,7 +700,7 @@ export default function SettingsPage() {
             </div>
             <div className="w-full bg-muted rounded-full h-2">
               <div 
-                className="bg-accent h-2 rounded-full transition-all duration-500"
+                className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
                 style={{ width: `${profile?.completeness || 0}%` }}
               ></div>
             </div>
@@ -738,7 +738,7 @@ export default function SettingsPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 shadow-sm ${
                     activeTab === tab.id
-                      ? 'bg-accent hover:bg-primary-600 text-white shadow-lg transform scale-105'
+                      ? 'bg-slate-600 hover:bg-slate-500 text-white shadow-lg transform scale-105'
                       : 'bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border'
                   }`}
                 >

@@ -21,6 +21,7 @@ interface SelectProps {
   searchable?: boolean;
   multiSelect?: boolean;
   className?: string;
+  buttonClassName?: string;
   maxHeight?: number;
 }
 
@@ -35,6 +36,7 @@ export const Select: React.FC<SelectProps> = ({
   searchable = false,
   multiSelect = false,
   className = '',
+  buttonClassName = '',
   maxHeight = 200,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -133,7 +135,7 @@ export const Select: React.FC<SelectProps> = ({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={`
-          relative w-full bg-[#1e293b] border rounded-lg px-4 py-3
+          relative w-full ${buttonClassName || 'bg-[#1e293b]'} border rounded-lg px-4 py-3
           text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F39C12]
           focus:border-[#F39C12] transition-all duration-200 shadow-sm hover:shadow-md
           ${error 

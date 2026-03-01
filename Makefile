@@ -135,14 +135,10 @@ mock-data: ## Create 100 mock profiles for testing (50 male, 50 female)
 	@echo "   • Interests and preferences"
 	@echo "   • Likes, views, and connections"
 	@echo "   • Geographic distribution"
-	@if ! docker ps | grep -q "matcha-backend-dev"; then \
-		echo "⚠️  Backend container not running. Starting services..."; \
-		$(DOCKER_COMPOSE) up -d; \
-		echo "⏳ Waiting for services to start..."; \
-		sleep 15; \
-	fi
-	@echo "🔍 Testing database connection..."
-	@$(DOCKER_COMPOSE) exec backend sh -c "echo 'Testing DB connection...' && node -e 'const pg = require(\"pg\"); const pool = new pg.Pool({user: process.env.DB_USER, host: process.env.DB_HOST, database: process.env.DB_NAME, password: process.env.DB_PASSWORD, port: process.env.DB_PORT}); pool.query(\"SELECT NOW()\").then(res => {console.log(\"✅ DB Connected:\", res.rows[0]); process.exit(0);}).catch(err => {console.error(\"❌ DB Error:\", err.message); process.exit(1);});'"
+	@echo "⏳ Ensuring backend container is running..."
+	@$(DOCKER_COMPOSE) up -d backend
+	@echo "⏳ Waiting for services to be ready..."
+	@timeout /t 10 /nobreak > nul
 	@echo "📊 Running mock data creation..."
 	@$(DOCKER_COMPOSE) exec backend node scripts/createMockData.js
 	@echo ""

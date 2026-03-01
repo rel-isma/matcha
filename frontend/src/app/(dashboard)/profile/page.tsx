@@ -106,11 +106,11 @@ export default function ProfilePage() {
   const preferenceLabel = SEXUAL_PREFERENCE_OPTIONS.find(p => p.value === profile.sexualPreference)?.label;
 
   const getFameLevel = (rating: number) => {
-    if (rating >= 500) return { level: 'Diamond', color: 'text-orange-400' };
-    if (rating >= 300) return { level: 'Platinum', color: 'text-orange-300' };
-    if (rating >= 150) return { level: 'Gold', color: 'text-amber-400' };
-    if (rating >= 50) return { level: 'Silver', color: 'text-amber-300' };
-    return { level: 'Bronze', color: 'text-orange-300' };
+    if (rating >= 500) return { level: 'Diamond', color: 'text-sky-400' };
+    if (rating >= 300) return { level: 'Platinum', color: 'text-purple-400' };
+    if (rating >= 150) return { level: 'Gold', color: 'text-yellow-500' };
+    if (rating >= 50) return { level: 'Silver', color: 'text-slate-300' };
+    return { level: 'Bronze', color: 'text-amber-700' };
   };
 
   const fameInfo = getFameLevel(profile.fameRating);
@@ -131,7 +131,7 @@ export default function ProfilePage() {
             className="relative mb-8"
           >
             {/* Background Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-accent/30 to-accent/20 rounded-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-800/80 via-slate-700/60 to-slate-800/80 rounded-2xl"></div>
 
             <div className="relative p-4 md:p-6">
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
@@ -143,7 +143,7 @@ export default function ProfilePage() {
                   transition={{ duration: 0.6, delay: 0.2 }}
                   className="relative"
                 >
-                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden ring-4 ring-accent/30 shadow-2xl bg-gradient-to-br from-accent/20 to-accent/10">
+                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden ring-4 ring-border/50 shadow-2xl bg-muted">
                     {profilePicture ? (
                       <Image
                         src={profilePicture}
@@ -250,12 +250,12 @@ export default function ProfilePage() {
                   transition={{ duration: 0.6, delay: 0.6 }}
                   className="hidden md:flex flex-col gap-4 text-center"
                 >
-                  <div className="bg-card border-2 border-accent/30 rounded-xl p-4 min-w-[120px]">
-                    <div className="text-2xl font-bold text-accent">{profile.completeness}%</div>
+                  <div className="bg-card border border-border rounded-xl p-4 min-w-[120px]">
+                    <div className="text-2xl font-bold text-foreground">{profile.completeness}%</div>
                     <div className="text-xs text-muted-foreground font-medium">Complete</div>
                   </div>
-                  <div className="bg-card border-2 border-accent/30 rounded-xl p-4">
-                    <div className="text-2xl font-bold text-accent">{profile.fameRating}</div>
+                  <div className="bg-card border border-border rounded-xl p-4">
+                    <div className="text-2xl font-bold text-foreground">{profile.fameRating}</div>
                     <div className="text-xs text-muted-foreground font-medium">Fame</div>
                   </div>
                 </motion.div>
@@ -268,12 +268,12 @@ export default function ProfilePage() {
                 transition={{ duration: 0.6, delay: 0.8 }}
                 className="md:hidden mt-6 grid grid-cols-2 gap-4"
               >
-                <div className="bg-card border-2 border-accent/30 rounded-xl p-3 text-center">
-                  <div className="text-xl font-bold text-accent">{profile.completeness}%</div>
+                <div className="bg-card border border-border rounded-xl p-3 text-center">
+                  <div className="text-xl font-bold text-foreground">{profile.completeness}%</div>
                   <div className="text-xs text-muted-foreground font-medium">Complete</div>
                 </div>
-                <div className="bg-card border-2 border-accent/30 rounded-xl p-3 text-center">
-                  <div className="text-xl font-bold text-accent">{profile.pictures.length}</div>
+                <div className="bg-card border border-border rounded-xl p-3 text-center">
+                  <div className="text-xl font-bold text-foreground">{profile.pictures.length}</div>
                   <div className="text-xs text-muted-foreground font-medium">Photos</div>
                 </div>
               </motion.div>
@@ -337,7 +337,7 @@ export default function ProfilePage() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 id="information"
               >
-                <h2 className="text-2xl font-bold text-accent mb-8">Information</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-8">Information</h2>
                 
                 <div className="grid md:grid-cols-2 gap-x-12 gap-y-1">
                   {/* Left Column */}
@@ -420,12 +420,12 @@ export default function ProfilePage() {
                 {/* Interests Tags */}
                 {profile.interests.length > 0 && (
                   <div className="mt-12">
-                    <h3 className="text-xl font-bold text-accent mb-6">My Interests</h3>
+                    <h3 className="text-xl font-bold text-foreground mb-6">My Interests</h3>
                     <div className="flex flex-wrap gap-3">
                       {profile.interests.map((interest) => (
                         <span
                           key={interest.id}
-                          className="px-4 py-2 bg-card border-2 border-border text-foreground rounded-lg hover:bg-muted hover:border-accent/50 transition-all duration-200 shadow-sm hover:shadow-md"
+                          className="px-4 py-2 bg-card border border-border text-foreground rounded-lg hover:bg-muted hover:border-border transition-all duration-200 shadow-sm hover:shadow-md"
                         >
                           {interest.name}
                         </span>
@@ -444,7 +444,7 @@ export default function ProfilePage() {
                 transition={{ duration: 0.6, delay: 0.5 }}
                 id="gallery"
               >
-                <h2 className="text-2xl font-bold text-accent mb-8">Gallery</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-8">Gallery</h2>
                 
                 {profile.pictures.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -479,7 +479,7 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="text-center py-16 bg-card border-2 border-border rounded-xl">
-                    <Camera size={64} className="mx-auto text-accent mb-4" />
+                    <Camera size={64} className="mx-auto text-muted-foreground mb-4" />
                     <h3 className="text-xl font-semibold text-foreground mb-2">No photos uploaded yet</h3>
                     <p className="text-muted-foreground mb-6">Add some photos to make your profile more attractive</p>
                     <Button
@@ -503,8 +503,8 @@ export default function ProfilePage() {
                 id="profile-views"
               >
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-bold text-accent">Profile Views</h2>
-                  <div className="text-3xl font-bold text-accent">{viewsTotal}</div>
+                  <h2 className="text-2xl font-bold text-foreground">Profile Views</h2>
+                  <div className="text-3xl font-bold text-foreground">{viewsTotal}</div>
                 </div>
                 
                 {viewsLoading ? (
@@ -524,7 +524,7 @@ export default function ProfilePage() {
                       >
                         <div className="flex items-center gap-4">
                           {/* Profile Picture */}
-                          <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-accent/20 to-accent/10 flex-shrink-0">
+                          <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex-shrink-0">
                             {view.viewer?.profilePicture ? (
                               <Image
                                 src={view.viewer.profilePicture.startsWith('http') ? view.viewer.profilePicture : `${STATIC_BASE_URL}${view.viewer.profilePicture}`}
@@ -536,7 +536,7 @@ export default function ProfilePage() {
                               />
                             ) : (
                               <div className="flex items-center justify-center h-full">
-                                <User size={24} className="text-accent" />
+                                <User size={24} className="text-muted-foreground" />
                               </div>
                             )}
                           </div>
@@ -578,7 +578,7 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="text-center py-16 bg-card border-2 border-border rounded-xl">
-                    <Eye size={64} className="mx-auto text-accent mb-4" />
+                    <Eye size={64} className="mx-auto text-muted-foreground mb-4" />
                     <h3 className="text-xl font-semibold text-foreground mb-2">No views yet</h3>
                     <p className="text-muted-foreground mb-6">Views will appear here when people visit your profile</p>
                     <Button
@@ -602,8 +602,8 @@ export default function ProfilePage() {
                 id="likes-received"
               >
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-bold text-accent">Likes Received</h2>
-                  <div className="text-3xl font-bold text-accent">{likesReceived.length}</div>
+                  <h2 className="text-2xl font-bold text-foreground">Likes Received</h2>
+                  <div className="text-3xl font-bold text-foreground">{likesReceived.length}</div>
                 </div>
                 
                 {likesLoading ? (
@@ -623,7 +623,7 @@ export default function ProfilePage() {
                       >
                         <div className="flex items-center gap-4">
                           {/* Profile Picture */}
-                          <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-accent/20 to-accent/10 flex-shrink-0">
+                          <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex-shrink-0">
                             {like.profilePicture ? (
                               <Image
                                 src={like.profilePicture.startsWith('http') ? like.profilePicture : `${STATIC_BASE_URL}${like.profilePicture}`}
@@ -635,7 +635,7 @@ export default function ProfilePage() {
                               />
                             ) : (
                               <div className="flex items-center justify-center h-full">
-                                <User size={24} className="text-accent" />
+                                <User size={24} className="text-muted-foreground" />
                               </div>
                             )}
                           </div>
@@ -666,7 +666,7 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="text-center py-16 bg-card border-2 border-border rounded-xl">
-                    <Heart size={64} className="mx-auto text-accent mb-4" />
+                    <Heart size={64} className="mx-auto text-muted-foreground mb-4" />
                     <h3 className="text-xl font-semibold text-foreground mb-2">No likes yet</h3>
                     <p className="text-muted-foreground mb-6">Likes will appear here when people like your profile</p>
                     <Button

@@ -88,7 +88,7 @@ export default function Header() {
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                 className="flex items-center space-x-2 p-2 hover:bg-muted rounded-lg transition-colors duration-200"
               >
-                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-border bg-gradient-to-br from-accent/20 to-primary-600/10 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full overflow-hidden ring-1 ring-border/40 bg-muted flex items-center justify-center">
                   {profilePicture ? (
                     <Image
                       src={profilePicture}
@@ -102,7 +102,7 @@ export default function Header() {
                       }}
                     />
                   ) : (
-                    <span className="text-accent font-medium text-sm">
+                    <span className="text-foreground font-medium text-sm">
                       {user?.firstName?.charAt(0) || 'U'}
                     </span>
                   )}

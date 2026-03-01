@@ -199,11 +199,11 @@ export default function UserProfilePage() {
   };
 
   const getFameLevel = (rating: number) => {
-    if (rating >= 500) return { level: 'Diamond', color: 'text-purple-500', bgColor: 'bg-purple-100' };
-    if (rating >= 300) return { level: 'Platinum', color: 'text-gray-500', bgColor: 'bg-gray-100' };
+    if (rating >= 500) return { level: 'Diamond', color: 'text-sky-400', bgColor: 'bg-sky-100' };
+    if (rating >= 300) return { level: 'Platinum', color: 'text-purple-400', bgColor: 'bg-purple-100' };
     if (rating >= 150) return { level: 'Gold', color: 'text-yellow-500', bgColor: 'bg-yellow-100' };
-    if (rating >= 50) return { level: 'Silver', color: 'text-gray-400', bgColor: 'bg-gray-50' };
-    return { level: 'Bronze', color: 'text-orange-400', bgColor: 'bg-orange-100' };
+    if (rating >= 50) return { level: 'Silver', color: 'text-slate-300', bgColor: 'bg-gray-50' };
+    return { level: 'Bronze', color: 'text-amber-700', bgColor: 'bg-amber-50' };
   };
 
   const genderLabel = GENDER_OPTIONS.find(g => g.value === profile?.gender)?.label;
@@ -214,7 +214,7 @@ export default function UserProfilePage() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-accent/30 border-t-accent mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-slate-700 border-t-slate-300 mx-auto mb-4"></div>
           <h2 className="text-xl font-semibold text-foreground mb-2">Loading Profile...</h2>
           <p className="text-muted-foreground">Please wait while we fetch the profile details</p>
         </div>
@@ -227,7 +227,7 @@ export default function UserProfilePage() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center bg-card border-2 border-border rounded-xl p-8">
-          <User size={64} className="mx-auto text-accent mb-4" />
+          <User size={64} className="mx-auto text-muted-foreground mb-4" />
           <h1 className="text-2xl font-bold text-foreground mb-4">
             {error || 'Profile Not Found'}
           </h1>
@@ -268,7 +268,7 @@ export default function UserProfilePage() {
         className="relative mb-8"
       >
         {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-accent/30 to-accent/20 rounded-2xl"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-800/80 via-slate-700/60 to-slate-800/80 rounded-2xl"></div>
 
         <div className="relative p-4 md:p-6">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
@@ -281,7 +281,7 @@ export default function UserProfilePage() {
               className="relative cursor-pointer"
               onClick={() => profile.pictures.length > 0 && setShowImageModal(true)}
             >
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden ring-4 ring-accent/30 shadow-2xl bg-gradient-to-br from-accent/20 to-accent/10">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden ring-4 ring-border/50 shadow-2xl bg-muted">
                 {profilePicture ? (
                   <Image
                     src={profilePicture}
@@ -293,7 +293,7 @@ export default function UserProfilePage() {
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
-                    <User size={48} className="text-accent" />
+                    <User size={48} className="text-muted-foreground" />
                   </div>
                 )}
               </div>
@@ -316,7 +316,7 @@ export default function UserProfilePage() {
               className="flex-1 text-center md:text-left"
             >
               {/* Username */}
-              <div className="text-accent font-medium text-sm md:text-base mb-1">
+              <div className="text-muted-foreground font-medium text-sm md:text-base mb-1">
                 @{profile.username}
               </div>
               
@@ -354,19 +354,19 @@ export default function UserProfilePage() {
               {(isConnected || hasLikedMe || isLiked) && (
                 <div className="flex flex-wrap gap-2 mb-4 justify-center md:justify-start">
                   {isConnected && (
-                    <span className="px-3 py-1 bg-accent/20 text-accent border border-accent rounded-full text-xs font-medium flex items-center gap-1">
+                    <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 rounded-full text-xs font-medium flex items-center gap-1">
                       <HeartHandshake size={12} />
                       Connected
                     </span>
                   )}
                   {hasLikedMe && !isConnected && (
-                    <span className="px-3 py-1 bg-accent/20 text-accent border border-accent/50 rounded-full text-xs font-medium flex items-center gap-1">
+                    <span className="px-3 py-1 bg-pink-500/20 text-pink-400 border border-pink-500/30 rounded-full text-xs font-medium flex items-center gap-1">
                       <Heart size={12} className="fill-current" />
                       Liked you
                     </span>
                   )}
                   {isLiked && (
-                    <span className="px-3 py-1 bg-accent/20 text-accent border border-accent/50 rounded-full text-xs font-medium flex items-center gap-1">
+                    <span className="px-3 py-1 bg-slate-600/40 text-slate-300 border border-slate-500/50 rounded-full text-xs font-medium flex items-center gap-1">
                       <Heart size={12} className="fill-current" />
                       You liked
                     </span>
@@ -445,13 +445,13 @@ export default function UserProfilePage() {
               transition={{ duration: 0.6, delay: 0.6 }}
               className="hidden md:flex flex-col gap-4 text-center"
             >
-              <div className="bg-card border-2 border-accent/30 rounded-xl p-4 min-w-[120px]">
-                <div className="text-2xl font-bold text-accent">{profile.fameRating}</div>
+              <div className="bg-card border border-border rounded-xl p-4 min-w-[120px]">
+                <div className="text-2xl font-bold text-foreground">{profile.fameRating}</div>
                 <div className="text-xs text-muted-foreground font-medium">Fame</div>
-                <div className={`text-xs text-accent font-medium`}>{fameInfo.level}</div>
+                <div className={`text-xs font-medium ${fameInfo.color}`}>{fameInfo.level}</div>
               </div>
-              <div className="bg-card border-2 border-accent/30 rounded-xl p-4">
-                <div className="text-2xl font-bold text-accent">{profile.pictures.length}</div>
+              <div className="bg-card border border-border rounded-xl p-4">
+                <div className="text-2xl font-bold text-foreground">{profile.pictures.length}</div>
                 <div className="text-xs text-muted-foreground font-medium">Photos</div>
               </div>
             </motion.div>
@@ -464,12 +464,12 @@ export default function UserProfilePage() {
             transition={{ duration: 0.6, delay: 0.8 }}
             className="md:hidden mt-6 grid grid-cols-2 gap-4"
           >
-            <div className="bg-card border-2 border-accent/30 rounded-xl p-3 text-center">
-              <div className="text-xl font-bold text-accent">{profile.fameRating}</div>
-              <div className="text-xs text-muted-foreground font-medium">Fame ({fameInfo.level})</div>
+            <div className="bg-card border border-border rounded-xl p-3 text-center">
+              <div className="text-xl font-bold text-foreground">{profile.fameRating}</div>
+              <div className="text-xs text-muted-foreground font-medium">Fame (<span className={fameInfo.color}>{fameInfo.level}</span>)</div>
             </div>
-            <div className="bg-card border-2 border-accent/30 rounded-xl p-3 text-center">
-              <div className="text-xl font-bold text-accent">{profile.pictures.length}</div>
+            <div className="bg-card border border-border rounded-xl p-3 text-center">
+              <div className="text-xl font-bold text-foreground">{profile.pictures.length}</div>
               <div className="text-xs text-muted-foreground font-medium">Photos</div>
             </div>
           </motion.div>
@@ -510,8 +510,8 @@ export default function UserProfilePage() {
                   onClick={() => setActiveTab(tab)}
                   className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     activeTab === tab
-                      ? 'bg-accent hover:bg-primary-600 text-white shadow-md'
-                      : 'bg-muted text-muted-foreground hover:bg-secondary-600'
+                      ? 'bg-slate-600 hover:bg-slate-500 text-white shadow-md'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
                   <span className="whitespace-nowrap">{tab}</span>
@@ -533,14 +533,14 @@ export default function UserProfilePage() {
             transition={{ duration: 0.6, delay: 0.4 }}
             id="information"
           >
-            <h2 className="text-2xl font-bold text-accent mb-8">Information</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-8">Information</h2>
             
             <div className="grid md:grid-cols-2 gap-x-12 gap-y-1">
               {/* Left Column */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between py-4 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <User size={16} className="text-accent" />
+                    <User size={16} className="text-muted-foreground" />
                     <dt className="text-muted-foreground font-medium">Full Name</dt>
                   </div>
                   <dd className="text-foreground font-medium">{profile.firstName} {profile.lastName}</dd>
@@ -549,7 +549,7 @@ export default function UserProfilePage() {
                 {genderLabel && (
                   <div className="flex items-center justify-between py-4 border-b border-border">
                     <div className="flex items-center gap-3">
-                      <User size={16} className="text-accent" />
+                      <User size={16} className="text-muted-foreground" />
                       <dt className="text-muted-foreground font-medium">Gender</dt>
                     </div>
                     <dd className="text-foreground font-medium">{genderLabel}</dd>
@@ -559,7 +559,7 @@ export default function UserProfilePage() {
                 {age && (
                   <div className="flex items-center justify-between py-4 border-b border-border">
                     <div className="flex items-center gap-3">
-                      <Calendar size={16} className="text-accent" />
+                      <Calendar size={16} className="text-muted-foreground" />
                       <dt className="text-muted-foreground font-medium">Age</dt>
                     </div>
                     <dd className="text-foreground font-medium">{age} years old</dd>
@@ -569,7 +569,7 @@ export default function UserProfilePage() {
                 {profile.neighborhood && (
                   <div className="flex items-center justify-between py-4 border-b border-border">
                     <div className="flex items-center gap-3">
-                      <MapPin size={16} className="text-accent" />
+                      <MapPin size={16} className="text-muted-foreground" />
                       <dt className="text-muted-foreground font-medium">Location</dt>
                     </div>
                     <dd className="text-foreground font-medium">{profile.neighborhood}</dd>
@@ -581,19 +581,19 @@ export default function UserProfilePage() {
               <div className="space-y-1">
                 <div className="flex items-center justify-between py-4 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <Award size={16} className="text-accent" />
+                    <Award size={16} className="text-muted-foreground" />
                     <dt className="text-muted-foreground font-medium">Fame Rating</dt>
                   </div>
                   <div className="text-right">
                     <div className="text-foreground font-medium">{profile.fameRating}</div>
-                    <div className="text-xs text-accent font-medium">{fameInfo.level}</div>
+                    <div className={`text-xs font-medium ${fameInfo.color}`}>{fameInfo.level}</div>
                   </div>
                 </div>
                 
                 {preferenceLabel && (
                   <div className="flex items-center justify-between py-4 border-b border-border">
                     <div className="flex items-center gap-3">
-                      <Heart size={16} className="text-accent" />
+                      <Heart size={16} className="text-muted-foreground" />
                       <dt className="text-muted-foreground font-medium">Looking for</dt>
                     </div>
                     <dd className="text-foreground font-medium">{preferenceLabel}</dd>
@@ -602,7 +602,7 @@ export default function UserProfilePage() {
                 
                 <div className="flex items-center justify-between py-4 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <Camera size={16} className="text-accent" />
+                    <Camera size={16} className="text-muted-foreground" />
                     <dt className="text-muted-foreground font-medium">Photos</dt>
                   </div>
                   <dd className="text-foreground font-medium">{profile.pictures.length}</dd>
@@ -610,7 +610,7 @@ export default function UserProfilePage() {
                 
                 <div className="flex items-center justify-between py-4 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <Clock size={16} className="text-accent" />
+                    <Clock size={16} className="text-muted-foreground" />
                     <dt className="text-muted-foreground font-medium">Status</dt>
                   </div>
                   <dd className={`font-medium ${isOnline ? 'text-green-500' : 'text-muted-foreground'}`}>
@@ -623,12 +623,12 @@ export default function UserProfilePage() {
             {/* Interests Tags */}
             {profile.interests.length > 0 && (
               <div className="mt-12">
-                <h3 className="text-xl font-bold text-accent mb-6">Interests</h3>
+                <h3 className="text-xl font-bold text-foreground mb-6">Interests</h3>
                 <div className="flex flex-wrap gap-3">
                   {profile.interests.map((interest) => (
                     <span
                       key={interest.id}
-                      className="px-4 py-2 bg-card border-2 border-border text-foreground rounded-lg hover:bg-muted hover:border-accent/50 transition-all duration-200 shadow-sm hover:shadow-md"
+                      className="px-4 py-2 bg-card border border-border text-foreground rounded-lg hover:bg-muted transition-all duration-200 shadow-sm hover:shadow-md"
                     >
                       {interest.name}
                     </span>
@@ -647,7 +647,7 @@ export default function UserProfilePage() {
             transition={{ duration: 0.6, delay: 0.5 }}
             id="gallery"
           >
-            <h2 className="text-2xl font-bold text-accent mb-8">Gallery</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-8">Gallery</h2>
             
             {profile.pictures.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -683,7 +683,7 @@ export default function UserProfilePage() {
               </div>
             ) : (
               <div className="text-center py-16 bg-card border-2 border-border rounded-xl">
-                <Camera size={64} className="mx-auto text-accent mb-4" />
+                <Camera size={64} className="mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">No photos uploaded</h3>
                 <p className="text-muted-foreground">This user hasn&apos;t uploaded any photos yet</p>
               </div>
@@ -781,7 +781,7 @@ export default function UserProfilePage() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className="bg-card rounded-2xl p-8 max-w-md w-full text-center border-2 border-accent/30"
+              className="bg-card rounded-2xl p-8 max-w-md w-full text-center border border-border"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Celebration Header */}
@@ -790,7 +790,7 @@ export default function UserProfilePage() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                  className="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-4"
+                  className="w-20 h-20 bg-pink-500 rounded-full flex items-center justify-center mx-auto mb-4"
                 >
                   <HeartHandshake className="text-white" size={40} />
                 </motion.div>
@@ -810,7 +810,7 @@ export default function UserProfilePage() {
                   transition={{ delay: 0.4 }}
                   className="text-muted-foreground text-lg"
                 >
-                  You and <span className="font-semibold text-accent">{profile.firstName}</span> liked each other!
+                  You and <span className="font-semibold text-foreground">{profile.firstName}</span> liked each other!
                 </motion.p>
               </div>
 
@@ -822,9 +822,9 @@ export default function UserProfilePage() {
                 className="flex justify-center items-center gap-4 mb-6"
               >
                 {/* Current User - You'd need to get this from user context */}
-                <div className="w-16 h-16 rounded-full overflow-hidden ring-4 ring-accent/30 bg-gradient-to-br from-accent/20 to-accent/10">
+                <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-border/40 bg-muted">
                   <div className="flex items-center justify-center h-full">
-                    <User size={24} className="text-accent" />
+                    <User size={24} className="text-muted-foreground" />
                   </div>
                 </div>
                 
@@ -838,7 +838,7 @@ export default function UserProfilePage() {
                 </motion.div>
                 
                 {/* Other User */}
-                <div className="w-16 h-16 rounded-full overflow-hidden ring-4 ring-accent/30 bg-gradient-to-br from-accent/20 to-accent/10">
+                <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-border/40 bg-muted">
                   {profilePicture ? (
                     <Image
                       src={profilePicture}
@@ -850,7 +850,7 @@ export default function UserProfilePage() {
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
-                      <User size={24} className="text-accent" />
+                      <User size={24} className="text-muted-foreground" />
                     </div>
                   )}
                 </div>
@@ -861,9 +861,9 @@ export default function UserProfilePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
-                className="bg-accent/20 border border-accent rounded-xl p-4 mb-6"
+                className="bg-slate-700/50 border border-border rounded-xl p-4 mb-6"
               >
-                <p className="text-accent text-sm font-medium">
+                <p className="text-foreground text-sm font-medium">
                   Start a conversation and get to know each other better!
                 </p>
               </motion.div>

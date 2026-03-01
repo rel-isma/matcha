@@ -44,7 +44,7 @@ export default function DashboardLayout({
 
             {/* Loading Animation */}
             <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-slate-700 border-t-slate-300"></div>
             </div>
           </div>
 
@@ -58,7 +58,7 @@ export default function DashboardLayout({
         </div>
 
         {/* Decorative Elements */}
-        <div className="fixed top-20 left-10 w-32 h-32 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="fixed top-20 left-10 w-32 h-32 bg-slate-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
         <div className="fixed top-40 right-10 w-32 h-32 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" style={{animationDelay: '2s'}}></div>
         <div className="fixed bottom-20 left-20 w-32 h-32 bg-teal-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" style={{animationDelay: '4s'}}></div>
       </div>

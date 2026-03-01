@@ -3,7 +3,6 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { getInitials } from '../../lib/utils';
 
 interface AvatarProps {
   src?: string;
@@ -40,7 +39,7 @@ const Avatar = ({
 
   return (
     <div className={`relative inline-block ${className || ''}`}>
-      <div className={`${sizeClasses[size]} rounded-full overflow-hidden bg-orange-100 flex items-center justify-center relative`}>
+      <div className={`${sizeClasses[size]} rounded-full overflow-hidden bg-muted flex items-center justify-center relative`}>
         {src ? (
           <Image
             src={src}
@@ -50,8 +49,8 @@ const Avatar = ({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <span className="font-medium text-orange-600">
-            {fallbackName ? getInitials(fallbackName.split(' ')[0], fallbackName.split(' ')[1]) : '?'}
+          <span className="font-medium text-foreground">
+            {fallbackName ? (fallbackName.trim().split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)) : '?'}
           </span>
         )}
       </div>
