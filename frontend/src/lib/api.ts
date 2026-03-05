@@ -203,6 +203,98 @@ class AuthApiClient {
   }
 }
 
-// Create and export a singleton instance
+// Chat API Client
+import type { Message, Conversation, SendMessageInput } from '../types';
+
+class ChatApiClient {
+  // Get all conversations
+  async getConversations(): Promise<ApiResponse<Conversation[]>> {
+    try {
+      const response = await api.get('/chat/conversations');
+      return response as ApiResponse<Conversation[]>;
+    } catch (error: unknown) {
+      const authError = error as AuthApiError;
+      return {
+        success: false,
+        message: authError.message || 'Failed to fetch conversations'
+      };
+    }
+  }
+
+  // Get messages for a conversation
+  async getMessages(otherUserId: string, limit: number = 50, offset: number = 0): Promise<ApiResponse<Message[]>> {
+    try {
+      const response = await api.get(`/chat/messages/${otherUserId}`, {
+        params: { limit, offset }
+      });
+      return response as ApiResponse<Message[]>;
+    } catch (error: unknown) {
+      const authError = error as AuthApiError;
+      return {
+        success: false,
+        message: authError.message || 'Failed to fetch messages'
+      };
+    }
+  }
+
+  // Send a message (HTTP fallback, socket is preferred)
+  async sendMessage(data: SendMessageInput): Promise<ApiResponse<Message>> {
+    try {
+      const response = await api.post('/chat/messages', data);
+      return response as ApiResponse<Message>;
+    } catch (error: unknown) {
+      const authError = error as AuthApiError;
+      return {
+        success: false,
+        message: authError.message || 'Failed to send message'
+      };
+    }
+  }
+
+  // Mark messages as read
+  async markAsRead(senderId: string): Promise<ApiResponse> {
+    try {
+      const response = await api.put('/chat/messages/read', { senderId });
+      return response as ApiResponse;
+    } catch (error: unknown) {
+      const authError = error as AuthApiError;
+      return {
+        success: false,
+        message: authError.message || 'Failed to mark messages as read'
+      };
+    }
+  }
+
+  // Get unread message count
+  async getUnreadCount(): Promise<ApiResponse<{ count: number }>> {
+    try {
+      const response = await api.get('/chat/unread-count');
+      return response as ApiResponse<{ count: number }>;
+    } catch (error: unknown) {
+      const authError = error as AuthApiError;
+      return {
+        success: false,
+        message: authError.message || 'Failed to fetch unread count'
+      };
+    }
+  }
+
+  // Delete a message
+  async deleteMessage(messageId: string): Promise<ApiResponse> {
+    try {
+      const response = await api.delete(`/chat/messages/${messageId}`);
+      return response as ApiResponse;
+    } catch (error: unknown) {
+      const authError = error as AuthApiError;
+      return {
+        success: false,
+        message: authError.message || 'Failed to delete message'
+      };
+    }
+  }
+}
+
+// Create and export singleton instances
 export const authApi = new AuthApiClient();
+export const chatApi = new ChatApiClient();
 export default authApi;

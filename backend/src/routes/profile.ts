@@ -60,8 +60,8 @@ router.delete('/me/interests/:interestId',
 // All routes below require completed profile
 router.use(requireProfileCompletion);
 
-// Public profiles
-router.get('/user/:username', 
+// Public profiles (allow dots in username)
+router.get('/user/:username([a-zA-Z0-9._-]+)', 
   usernameParamValidation, 
   handleValidationErrors, 
   ProfileController.getPublicProfile

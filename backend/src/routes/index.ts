@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authRoutes from './auth';
 import profileRoutes from './profile';
 import notificationRoutes from './notifications';
+import chatRoutes from './chat';
 import { generalLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
@@ -13,6 +14,7 @@ const router = Router();
 router.use('/auth', authRoutes);
 router.use('/profile', profileRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/chat', chatRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

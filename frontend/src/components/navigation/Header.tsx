@@ -7,11 +7,14 @@ import { User, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { useChatUnread } from '@/hooks/useChatUnread';
+import { MessageCircle } from 'lucide-react';
 
 export default function Header() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const { profilePicture } = useProfilePicture();
+  const { unreadCount: chatUnreadCount } = useChatUnread();
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   // Auto-close menus when clicking outside
@@ -73,7 +76,15 @@ export default function Header() {
               href="/chat" 
               className="text-muted-foreground hover:text-accent font-medium transition-colors duration-200 relative"
             >
-              Chat
+              <span className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4" />
+                Chat
+                {chatUnreadCount > 0 && (
+                  <span className="absolute -top-1 -right-3 bg-[#F39C12] text-white text-xs rounded-full h-4 w-4 flex items-center justify-center leading-none font-medium shadow-lg">
+                    {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
+                  </span>
+                )}
+              </span>
             </Link>
           </nav>
 

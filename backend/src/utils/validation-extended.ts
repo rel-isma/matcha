@@ -301,7 +301,7 @@ export const userIdParamValidation = [
 export const usernameParamValidation = [
   param('username')
     .isLength({ min: 3, max: 20 })
-    .matches(/^[a-zA-Z0-9_-]+$/)
+    .matches(/^[a-zA-Z0-9._-]+$/)
     .withMessage('Username must be valid'),
 ];
 
