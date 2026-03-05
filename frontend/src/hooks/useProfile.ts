@@ -192,8 +192,19 @@ export const useProfile = (): UseProfileReturn => {
     const hasBio = !!profile.bio && profile.bio.trim().length > 0;
     const hasAtLeastOnePicture = profile.pictures.length > 0;
     const hasInterests = profile.interests.length > 0;
-    
-    return hasGender && hasSexualPreference && hasBio && hasAtLeastOnePicture && hasInterests;
+    const hasLocation =
+      ((profile.latitude !== null && profile.latitude !== undefined) &&
+        (profile.longitude !== null && profile.longitude !== undefined)) ||
+      !!profile.neighborhood;
+
+    return (
+      hasGender &&
+      hasSexualPreference &&
+      hasBio &&
+      hasAtLeastOnePicture &&
+      hasInterests &&
+      hasLocation
+    );
   };
 
   // Fetch profile on mount

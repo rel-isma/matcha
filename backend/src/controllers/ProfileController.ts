@@ -1361,6 +1361,17 @@ export class ProfileController {
         });
       }
 
+      // Enforce "no like without profile picture" rule
+      const likerProfile = await ProfileModel.getProfileByUserId(userId);
+      const hasProfilePicture = !!likerProfile && Array.isArray(likerProfile.pictures) && likerProfile.pictures.length > 0;
+
+      if (!hasProfilePicture) {
+        return res.status(400).json({
+          success: false,
+          message: 'You must add a profile picture before liking other users.'
+        });
+      }
+
       const result = await ProfileModel.likeUser(userId, targetUserId);
 
       // Get the liker's username for notifications
@@ -1568,9 +1579,19 @@ export class ProfileController {
         const hasBio = !!profile.bio && profile.bio.trim().length > 0;
         const hasAtLeastOnePicture = profile.pictures && profile.pictures.length > 0;
         const hasInterests = profile.interests && profile.interests.length > 0;
-        
-        const isComplete = hasGender && hasSexualPreference && hasBio && hasAtLeastOnePicture && hasInterests;
-        
+        const hasLocation =
+          ((profile.latitude !== null && profile.latitude !== undefined) &&
+            (profile.longitude !== null && profile.longitude !== undefined)) ||
+          !!profile.neighborhood;
+
+        const isComplete =
+          hasGender &&
+          hasSexualPreference &&
+          hasBio &&
+          hasAtLeastOnePicture &&
+          hasInterests &&
+          hasLocation;
+
         // Update user's profile completion status
         await UserModel.setProfileCompleted(userId, isComplete);
         
