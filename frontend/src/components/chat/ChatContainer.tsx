@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { chatApi } from '@/lib/api';
 import { profileApi } from '@/lib/profileApi';
 import { useSocket } from '@/hooks/useSocket';
@@ -28,6 +28,10 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
+  /** True when the other user has blocked us (we cannot send messages) */
+  const [isBlockedByThem, setIsBlockedByThem] = useState(false);
+  /** Prevents running initialUsername logic (and showing toast) multiple times when effect re-runs */
+  const processedInitialUsername = useRef<string | null>(null);
 
   const { socket } = useSocket();
 
@@ -50,20 +54,27 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
     try {
       setLoading(true);
       setError(null);
+      setIsBlockedByThem(false);
       const response = await chatApi.getMessages(otherUserId);
       if (response.success && response.data) {
         setMessages(response.data);
-        
-        // Count unread messages from this user
+        setIsBlockedByThem(false);
+
         const unreadCount = response.data.filter(
           (msg: Message) => msg.senderId === otherUserId && !msg.isRead
         ).length;
-        
-        console.log('Unread messages from this user:', unreadCount);
-        
-        // Mark messages as read and notify navbar with the count
+
         await chatApi.markAsRead(otherUserId);
         chatEvents.emit(CHAT_EVENTS.MESSAGES_READ, unreadCount);
+      } else {
+        const blockedMessage =
+          response.message === 'You have been blocked' ||
+          response.message === 'Cannot message this user';
+        if (blockedMessage) {
+          setIsBlockedByThem(true);
+          setMessages([]);
+        }
+        setError(response.message || 'Failed to load messages');
       }
     } catch (err) {
       console.error('Error loading messages:', err);
@@ -73,119 +84,109 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
     }
   }, []);
 
-  // Handle conversation selection
-  const handleSelectConversation = useCallback((userId: string) => {
-    const conversation = conversations.find(c => c.userId === userId);
+  // Handle conversation selection.
+  // Optional second arg: when we have the conversation already (e.g. from initial load),
+  // pass it so we don't rely on state that may not have updated yet (stale closure).
+  const handleSelectConversation = useCallback((userId: string, conversationData?: Conversation) => {
+    const conversation = conversationData ?? conversations.find(c => c.userId === userId);
     if (conversation) {
       setSelectedConversation(userId);
       setSelectedConversationData(conversation);
-      
-      // Notify navbar about the selected conversation
-      chatEvents.emit(CHAT_EVENTS.CONVERSATION_SELECTED, userId);
-      
-      loadMessages(userId);
 
-      // Join chat room via socket
+      chatEvents.emit(CHAT_EVENTS.CONVERSATION_SELECTED, userId);
+      loadMessages(userId);
       if (socket) {
         socket.emit('chat:join', userId);
       }
     }
   }, [conversations, loadMessages, socket]);
 
+  // Handle closing conversation (for mobile)
+  const handleCloseConversation = useCallback(() => {
+    setSelectedConversation(null);
+    setSelectedConversationData(null);
+    setMessages([]);
+    setIsBlockedByThem(false);
+    chatEvents.emit(CHAT_EVENTS.CONVERSATION_SELECTED, null);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      chatEvents.emit(CHAT_EVENTS.CONVERSATION_SELECTED, null);
+    };
+  }, []);
+
   // Initial load and handle URL parameter
   useEffect(() => {
     const initializeChat = async () => {
       const loadedConversations = await loadConversations();
-      
-      // If initialUsername is provided and we haven't processed it yet
-      if (initialUsername && !initialLoadDone) {
-        // Find conversation by username
-        const targetConversation = loadedConversations?.find(
-          (conv: Conversation) => conv.username === initialUsername
-        );
-        
-        if (targetConversation) {
-          // Auto-select the existing conversation
-          handleSelectConversation(targetConversation.userId);
-          setInitialLoadDone(true);
-        } else {
-          // No existing conversation - fetch user profile to create new conversation
-          try {
-            console.log('Fetching profile for username:', initialUsername);
-            const response = await profileApi.getPublicProfile(initialUsername);
-            console.log('Profile API response:', response);
-            
-            if (response.success && response.data?.profile) {
-              const profile = response.data.profile;
-              console.log('Found profile:', profile);
-              
-              // Check if conversation with this userId already exists to avoid duplicates
-              const existingConv = loadedConversations?.find(
-                (conv: Conversation) => conv.userId === profile.userId
-              );
-              
-              if (existingConv) {
-                // Conversation already exists, just select it
-                setSelectedConversation(existingConv.userId);
-                setSelectedConversationData(existingConv);
-                loadMessages(existingConv.userId);
-                if (socket) {
-                  socket.emit('chat:join', existingConv.userId);
-                }
-              } else {
-                // Format profile picture URL
-                let profilePictureUrl = profile.pictures?.[0]?.url;
-                if (profilePictureUrl && !profilePictureUrl.startsWith('http')) {
-                  profilePictureUrl = `${STATIC_BASE_URL}${profilePictureUrl}`;
-                }
-                
-                // Create a virtual conversation for the new chat
-                const newConversation: Conversation = {
-                  userId: profile.userId,
-                  username: profile.username,
-                  firstName: profile.firstName,
-                  lastName: profile.lastName,
-                  isOnline: profile.isOnline || false,
-                  lastSeen: profile.lastSeen,
-                  profilePicture: profilePictureUrl,
-                  unreadCount: 0
-                };
-                
-                console.log('Creating virtual conversation:', newConversation);
-                
-                // Add to conversations list first
-                setConversations(prev => {
-                  const updated = [newConversation, ...prev];
-                  console.log('Updated conversations list:', updated);
-                  return updated;
-                });
-                
-                // Then select it (state updates are batched in React 18)
-                setSelectedConversation(profile.userId);
-                setSelectedConversationData(newConversation);
-                setMessages([]);
-                setLoading(false);
-                
-                // Join chat room via socket
-                if (socket) {
-                  socket.emit('chat:join', profile.userId);
-                }
-                
-                // toast.success(`Ready to chat with ${profile.firstName}!`);
-              }
-            } else {
-              console.error('Profile fetch failed or no data:', response);
-              toast.error(response.message || 'Could not find user to chat with');
-            }
-          } catch (error) {
-            console.error('Error fetching user profile:', error);
-            toast.error('Failed to start conversation');
-          }
-        }
+
+      if (!initialUsername) return;
+
+      // Only process this initialUsername once (effect can re-run; avoid 6x getPublicProfile + 6x toast)
+      if (processedInitialUsername.current === initialUsername) {
         setInitialLoadDone(true);
+        return;
       }
+      processedInitialUsername.current = initialUsername;
+
+      const targetConversation = loadedConversations?.find(
+        (conv: Conversation) => conv.username === initialUsername
+      );
+
+      if (targetConversation) {
+        handleSelectConversation(targetConversation.userId, targetConversation);
+        setInitialLoadDone(true);
+        return;
+      }
+
+      // No existing conversation - fetch user profile to create new conversation
+      try {
+        const response = await profileApi.getPublicProfile(initialUsername);
+
+        if (response.success && response.data?.profile) {
+          const profile = response.data.profile;
+          const existingConv = loadedConversations?.find(
+            (conv: Conversation) => conv.userId === profile.userId
+          );
+
+          if (existingConv) {
+            setSelectedConversation(existingConv.userId);
+            setSelectedConversationData(existingConv);
+            loadMessages(existingConv.userId);
+            if (socket) socket.emit('chat:join', existingConv.userId);
+          } else {
+            let profilePictureUrl = profile.pictures?.[0]?.url;
+            if (profilePictureUrl && !profilePictureUrl.startsWith('http')) {
+              profilePictureUrl = `${STATIC_BASE_URL}${profilePictureUrl}`;
+            }
+            const newConversation: Conversation = {
+              userId: profile.userId,
+              username: profile.username,
+              firstName: profile.firstName,
+              lastName: profile.lastName,
+              isOnline: profile.isOnline || false,
+              lastSeen: profile.lastSeen,
+              profilePicture: profilePictureUrl,
+              unreadCount: 0
+            };
+            setConversations(prev => [newConversation, ...prev]);
+            setSelectedConversation(profile.userId);
+            setSelectedConversationData(newConversation);
+            setMessages([]);
+            setLoading(false);
+            if (socket) socket.emit('chat:join', profile.userId);
+          }
+        } else {
+          toast.error(response.message || 'Could not find user to chat with');
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        toast.error('Failed to start conversation');
+      }
+      setInitialLoadDone(true);
     };
-    
+
     initializeChat();
   }, [loadConversations, initialUsername, initialLoadDone, handleSelectConversation, socket]);
 
@@ -258,16 +259,16 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
     };
   }, [socket, selectedConversation, currentUserId, loadConversations]);
 
-  // Send message
+  // Send message (do not send if we are blocked or we have blocked them)
   const handleSendMessage = useCallback((content: string) => {
     if (!selectedConversation || !socket) return;
+    if (isBlockedByThem || selectedConversationData?.isBlocked) return;
 
-    console.log('Sending message:', { recipientId: selectedConversation, content });
     socket.emit('chat:message', {
       recipientId: selectedConversation,
       content
     });
-  }, [selectedConversation, socket]);
+  }, [selectedConversation, socket, isBlockedByThem, selectedConversationData?.isBlocked]);
 
   // Typing indicators
   const handleTyping = useCallback(() => {
@@ -283,11 +284,14 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
   }, [selectedConversation, socket]);
 
   return (
-    <div className="h-full flex bg-white rounded-lg shadow-sm overflow-hidden">
-      {/* Conversations sidebar */}
-      <div className="w-full md:w-80 lg:w-96 border-r border-secondary-200 flex flex-col">
-        <div className="p-4 border-b border-secondary-200 bg-white">
-          <h2 className="text-lg font-semibold text-secondary-900">Messages</h2>
+    <div className="h-full flex bg-card rounded-lg shadow-sm overflow-hidden border border-border">
+      {/* Conversations sidebar - hidden on mobile when conversation is selected */}
+      <div className={`
+        w-full md:w-80 lg:w-96 border-r border-border flex flex-col
+        ${selectedConversation ? 'hidden md:flex' : 'flex'}
+      `}>
+        <div className="p-4 border-b border-border bg-card">
+          <h2 className="text-lg font-semibold text-foreground">Messages</h2>
         </div>
         <ConversationList
           conversations={conversations}
@@ -297,36 +301,58 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
         />
       </div>
 
-      {/* Chat area */}
-      <div className="flex-1 flex flex-col">
+      {/* Chat area - visible on mobile when conversation is selected */}
+      <div className={`
+        flex-1 flex flex-col
+        ${selectedConversation ? 'flex' : 'hidden md:flex'}
+      `}>
         {selectedConversation && selectedConversationData ? (
           <>
-            {/* Chat header */}
-            <div className="p-4 border-b border-secondary-200 bg-white flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-secondary-200 flex-shrink-0">
-                {selectedConversationData.profilePicture ? (
-                  <img
-                    src={selectedConversationData.profilePicture.startsWith('http') 
-                      ? selectedConversationData.profilePicture 
-                      : `${STATIC_BASE_URL}${selectedConversationData.profilePicture}`
-                    }
-                    alt={selectedConversationData.username}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-secondary-600 font-semibold">
-                    {selectedConversationData.firstName[0]}{selectedConversationData.lastName[0]}
-                  </div>
-                )}
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-secondary-900">
-                  {selectedConversationData.firstName} {selectedConversationData.lastName}
-                </h3>
-                <p className="text-xs text-secondary-500">
-                  {selectedConversationData.isOnline ? 'Online' : 'Offline'}
-                </p>
-              </div>
+            {/* Chat header with back button for mobile */}
+            <div className="p-4 border-b border-border bg-card flex items-center gap-3">
+              <button
+                onClick={handleCloseConversation}
+                className="md:hidden p-2 -ml-2 hover:bg-accent/10 rounded-lg transition-colors"
+              >
+                <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              {(() => {
+                const isBlocked = selectedConversationData?.isBlocked || isBlockedByThem;
+                return (
+                  <>
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center">
+                      {isBlocked ? (
+                        <span className="text-lg font-semibold text-muted-foreground">M</span>
+                      ) : selectedConversationData.profilePicture ? (
+                        <img
+                          src={selectedConversationData.profilePicture.startsWith('http')
+                            ? selectedConversationData.profilePicture
+                            : `${STATIC_BASE_URL}${selectedConversationData.profilePicture}`}
+                          alt={selectedConversationData.username}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-secondary-600 font-semibold">
+                          {selectedConversationData.firstName?.[0]}{selectedConversationData.lastName?.[0]}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-foreground truncate">
+                        {isBlocked ? 'Matcha User' : `${selectedConversationData.firstName} ${selectedConversationData.lastName}`}
+                      </h3>
+                      {!isBlocked && (
+                        <p className="text-xs text-muted-foreground">
+                          {selectedConversationData.isOnline ? 'Online' : 'Offline'}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             {/* Messages */}
@@ -342,9 +368,9 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
               <MessageList
                 messages={messages}
                 currentUserId={currentUserId}
-                otherUserProfilePicture={selectedConversationData?.profilePicture}
+                otherUserProfilePicture={(selectedConversationData?.isBlocked || isBlockedByThem) ? undefined : selectedConversationData?.profilePicture}
                 isTyping={isTyping}
-                typingUsername={typingUser}
+                typingUsername={(selectedConversationData?.isBlocked || isBlockedByThem) ? (isTyping ? 'Matcha User' : '') : typingUser}
               />
             )}
 
@@ -353,19 +379,19 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
               onSendMessage={handleSendMessage}
               onTyping={handleTyping}
               onStopTyping={handleStopTyping}
-              disabled={!socket}
+              disabled={!socket || isBlockedByThem || !!selectedConversationData?.isBlocked}
             />
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center p-4">
             <div className="text-center">
               <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-secondary-800 mb-2">Select a Conversation</h3>
-              <p className="text-sm text-secondary-600">
+              <h3 className="text-lg font-semibold text-foreground mb-2">Select a Conversation</h3>
+              <p className="text-sm text-muted-foreground">
                 Choose a conversation from the sidebar to start messaging
               </p>
             </div>

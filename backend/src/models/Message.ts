@@ -86,30 +86,37 @@ export class MessageModel {
         lm.content as last_message,
         lm.sender_id as last_message_sender_id,
         lm.created_at as last_message_at,
-        COALESCE(uc.unread_count, 0) as unread_count
+        COALESCE(uc.unread_count, 0) as unread_count,
+        (b.id IS NOT NULL) as is_blocked
       FROM latest_messages lm
       JOIN users u ON u.id = lm.other_user_id
       LEFT JOIN profile_pictures pp ON pp.profile_id = (
         SELECT id FROM profiles WHERE user_id = u.id
       ) AND pp.is_profile_pic = TRUE
       LEFT JOIN unread_counts uc ON uc.sender_id = lm.other_user_id
+      LEFT JOIN blocks b ON (b.blocker_id = $1 AND b.blocked_id = lm.other_user_id)
+        OR (b.blocker_id = lm.other_user_id AND b.blocked_id = $1)
       ORDER BY lm.created_at DESC
     `;
-    
+
     const result = await pool.query(query, [userId]);
-    return result.rows.map((row: any) => ({
-      userId: row.other_user_id,
-      username: row.username,
-      firstName: row.first_name,
-      lastName: row.last_name,
-      isOnline: row.is_online,
-      lastSeen: row.last_seen,
-      profilePicture: row.profile_picture,
-      lastMessage: row.last_message,
-      lastMessageSenderId: row.last_message_sender_id,
-      lastMessageAt: row.last_message_at,
-      unreadCount: parseInt(row.unread_count) || 0
-    }));
+    return result.rows.map((row: any) => {
+      const isBlocked = !!row.is_blocked;
+      return {
+        userId: row.other_user_id,
+        username: isBlocked ? 'matcha_user' : row.username,
+        firstName: isBlocked ? 'Matcha' : row.first_name,
+        lastName: isBlocked ? 'User' : row.last_name,
+        isOnline: isBlocked ? false : row.is_online,
+        lastSeen: isBlocked ? undefined : row.last_seen,
+        profilePicture: isBlocked ? undefined : row.profile_picture,
+        lastMessage: row.last_message,
+        lastMessageSenderId: row.last_message_sender_id,
+        lastMessageAt: row.last_message_at,
+        unreadCount: parseInt(row.unread_count) || 0,
+        isBlocked: isBlocked ? true : undefined
+      };
+    });
   }
 
   // Mark messages as read

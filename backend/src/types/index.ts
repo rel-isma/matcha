@@ -272,6 +272,8 @@ export interface Conversation {
   lastMessageSenderId?: string;
   lastMessageAt?: Date;
   unreadCount: number;
+  /** True when the current user has blocked or is blocked by the other user */
+  isBlocked?: boolean;
 }
 
 export interface SendMessageInput {

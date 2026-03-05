@@ -283,6 +283,8 @@ export interface Conversation {
   lastMessageSenderId?: string;
   lastMessageAt?: string;
   unreadCount: number;
+  /** True when the current user has blocked this conversation partner */
+  isBlocked?: boolean;
 }
 
 export interface SendMessageInput {

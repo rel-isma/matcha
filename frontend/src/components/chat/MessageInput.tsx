@@ -73,21 +73,21 @@ export default function MessageInput({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border-t border-secondary-200 bg-white">
-      <div className="flex items-end gap-3">
+    <form onSubmit={handleSubmit} className="p-4 border-t border-border bg-card">
+      <div className="flex items-start justify-center gap-3">
         <div className="flex-1 relative">
           <textarea
             ref={textareaRef}
             value={message}
             onChange={handleChange}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder="Type a message..."
             disabled={disabled}
             rows={1}
-            className="w-full px-4 py-3 pr-12 border border-secondary-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none disabled:bg-secondary-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-3 pr-12 border border-input rounded-2xl focus:outline-none focus:ring-2 resize-none disabled:bg-muted disabled:cursor-not-allowed bg-background text-foreground placeholder:text-muted-foreground"
             style={{ minHeight: '48px', maxHeight: '120px' }}
           />
-          <div className="absolute right-2 bottom-2 text-xs text-secondary-400">
+          <div className="absolute right-2 bottom-2 text-xs text-muted-foreground">
             {message.length}/1000
           </div>
         </div>
@@ -95,7 +95,7 @@ export default function MessageInput({
         <button
           type="submit"
           disabled={!message.trim() || disabled || message.length > 1000}
-          className="flex-shrink-0 w-12 h-12 bg-primary-600 hover:bg-primary-700 disabled:bg-secondary-300 disabled:cursor-not-allowed text-white rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          className=" rotate-90 flex-shrink-0 w-12 h-12 bg-primary hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed text-primary-foreground rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -103,7 +103,7 @@ export default function MessageInput({
         </button>
       </div>
       
-      <p className="text-xs text-secondary-500 mt-2">
+      <p className="text-xs text-muted-foreground mt-2">
         Press Enter to send, Shift+Enter for new line
       </p>
     </form>
