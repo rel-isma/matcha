@@ -100,11 +100,12 @@ export interface ProfileWithDetails extends Profile {
 }
 
 // Notification types
-export type NotificationType = 
-  | 'like_received' 
-  | 'profile_view' 
-  | 'match' 
-  | 'unlike';
+export type NotificationType =
+  | 'like_received'
+  | 'profile_view'
+  | 'match'
+  | 'unlike'
+  | 'message';
 
 export interface Notification {
   id: string;

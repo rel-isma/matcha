@@ -58,7 +58,7 @@ export default function NavBar() {
           <MessageCircle className={`w-6 h-6 ${active ? 'text-accent' : 'text-muted-foreground'}`} />
           {/* Message notification badge */}
           {chatUnreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-[#F39C12] text-white text-xs rounded-full h-4 w-4 flex items-center justify-center leading-none font-medium shadow-lg">
+            <span className="absolute -top-1 -right-1 bg-destructive text-white text-xs rounded-full h-4 w-4 flex items-center justify-center leading-none font-medium">
               {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
             </span>
           )}

@@ -1,5 +1,5 @@
 import pool from '../config/database';
-import { Notification, CreateNotificationInput } from '../types';
+import { Notification, CreateNotificationInput, NotificationType } from '../types';
 
 export class NotificationModel {
   static async create(notificationData: CreateNotificationInput): Promise<Notification> {
@@ -101,6 +101,41 @@ export class NotificationModel {
     `;
     
     const result = await pool.query(query, [notificationId]);
+    return result.rows[0] || null;
+  }
+
+  static async findUnreadByTypeForUser(
+    userId: string,
+    fromUserId: string,
+    type: NotificationType
+  ): Promise<Notification | null> {
+    const query = `
+      SELECT 
+        n.id, 
+        n.user_id as "userId", 
+        n.type, 
+        n.message, 
+        n.link, 
+        n.from_user_id as "fromUserId",
+        n.is_read as "isRead", 
+        n.created_at as "createdAt",
+        u.username as "fromUsername",
+        u.first_name as "fromFirstName",
+        u.last_name as "fromLastName",
+        pp.url as "fromUserAvatar"
+      FROM notifications n
+      LEFT JOIN users u ON n.from_user_id = u.id
+      LEFT JOIN profiles p ON u.id = p.user_id
+      LEFT JOIN profile_pictures pp ON p.id = pp.profile_id AND pp.is_profile_pic = true
+      WHERE n.user_id = $1
+        AND n.from_user_id = $2
+        AND n.type = $3
+        AND n.is_read = false
+      ORDER BY n.created_at DESC
+      LIMIT 1
+    `;
+
+    const result = await pool.query(query, [userId, fromUserId, type]);
     return result.rows[0] || null;
   }
 

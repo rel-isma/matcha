@@ -5,6 +5,7 @@ import { useSocket } from './SocketContext';
 import { useAuth } from './AuthContext';
 import { Notification } from '@/types';
 import axios from 'axios';
+import { API_BASE_URL } from '@/lib/constants';
 
 interface NotificationContextType {
   notifications: Notification[];
@@ -28,11 +29,9 @@ interface NotificationProviderProps {
   children: ReactNode;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
-// Create axios instance with cookie credentials (same as api.ts)
+// Create axios instance with cookie credentials (same base URL as other API clients)
 const notificationApi = axios.create({
-  baseURL: API_URL,
+  baseURL: API_BASE_URL,
   withCredentials: true, // Include cookies in requests
   headers: {
     'Content-Type': 'application/json',
