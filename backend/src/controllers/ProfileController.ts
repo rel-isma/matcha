@@ -3,6 +3,7 @@ import { validationResult } from 'express-validator';
 import { cleanClientIp, ipapiLookup } from '../utils/ip';
 import { ProfileModel } from '../models/Profile';
 import { UserModel } from '../models/User';
+import { MessageModel } from '../models/Message';
 import { NotificationService } from '../services/NotificationService';
 import { ApiResponse, CreateProfileInput, UpdateProfileInput, BrowseFilters, SearchFilters } from '../types';
 import { reverseGeocode, isCoordinateFormat, extractCoordinatesFromString } from '../utils/geocoding';
@@ -1372,6 +1373,17 @@ export class ProfileController {
         });
       }
 
+      // Prevent likes when either user has blocked the other
+      const hasBlockedTarget = await ProfileModel.isUserBlocked(userId, targetUserId);
+      const isBlockedByTarget = await ProfileModel.isUserBlocked(targetUserId, userId);
+
+      if (hasBlockedTarget || isBlockedByTarget) {
+        return res.status(403).json({
+          success: false,
+          message: 'You cannot like this user because a block is in place.'
+        });
+      }
+
       const result = await ProfileModel.likeUser(userId, targetUserId);
 
       // Get the liker's username for notifications
@@ -1470,6 +1482,14 @@ export class ProfileController {
       }
 
       const block = await ProfileModel.blockUser(userId, targetUserId);
+
+      // Mark any unread messages from the blocked user as "read" for the blocker
+      // so they no longer count towards unread chat badges
+      try {
+        await MessageModel.markAsRead(userId, targetUserId);
+      } catch (markReadError) {
+        console.error('Error marking messages as read after block:', markReadError);
+      }
 
       return res.json({
         success: true,

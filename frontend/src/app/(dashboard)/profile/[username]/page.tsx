@@ -14,6 +14,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, STATIC_BASE_URL } from '../../../../lib/constants';
 import { profileApi } from '@/lib/profileApi';
+import { useChatUnread } from '@/hooks/useChatUnread';
 import { getLastSeenText } from '@/lib/utils';
 import { PublicProfile } from '@/types';
 
@@ -28,6 +29,7 @@ export default function UserProfilePage() {
   const [showImageModal, setShowImageModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showBlockModal, setShowBlockModal] = useState(false);
+  const { refreshCount: refreshChatUnread } = useChatUnread();
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [isLiked, setIsLiked] = useState(false);
@@ -137,6 +139,10 @@ export default function UserProfilePage() {
         setIsLiked(false);
         setIsConnected(false);
         toast.success(`${profile.firstName} has been blocked successfully.`);
+        // Refresh chat unread badge to reflect cleared messages from this user
+        refreshChatUnread().catch((err) =>
+          console.error('Failed to refresh chat unread count after block:', err)
+        );
         router.push('/browse');
       } else {
         toast.error(response.message || 'Failed to block user');

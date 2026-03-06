@@ -40,8 +40,8 @@ export default function ConversationList({
         {conversations.map((conversation) => {
           const isSelected = selectedConversation === conversation.userId;
           const isLastMessageFromMe = conversation.lastMessageSenderId === currentUserId;
-          const hasUnread = conversation.unreadCount > 0;
           const isBlocked = !!conversation.isBlocked;
+          const hasUnread = conversation.unreadCount > 0 && !isBlocked;
 
           return (
             <button
