@@ -91,6 +91,31 @@ export class NotificationService {
     );
   }
 
+  static async notifyNewMessage(
+    recipientId: string,
+    senderId: string,
+    senderUsername: string
+  ): Promise<Notification> {
+    // Avoid spamming: keep at most one unread "message" notification per sender/recipient
+    const existing = await NotificationModel.findUnreadByTypeForUser(
+      recipientId,
+      senderId,
+      'message'
+    );
+
+    if (existing) {
+      return existing;
+    }
+
+    return this.createNotification(
+      recipientId,
+      'message',
+      `${senderUsername} sent you a new message`,
+      `/chat?user=${encodeURIComponent(senderUsername)}`,
+      senderId
+    );
+  }
+
   static async getUserNotifications(userId: string, limit: number = 10, offset: number = 0): Promise<{
     notifications: Notification[];
     total: number;

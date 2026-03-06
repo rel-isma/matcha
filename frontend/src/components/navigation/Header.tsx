@@ -80,7 +80,7 @@ export default function Header() {
                 <MessageCircle className="w-4 h-4" />
                 Chat
                 {chatUnreadCount > 0 && (
-                  <span className="absolute -top-1 -right-3 bg-[#F39C12] text-white text-xs rounded-full h-4 w-4 flex items-center justify-center leading-none font-medium shadow-lg">
+                  <span className="absolute -top-3 -right-3 bg-accent text-white text-xs rounded-full h-5 w-5 flex items-center justify-center leading-none font-medium">
                     {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
                   </span>
                 )}

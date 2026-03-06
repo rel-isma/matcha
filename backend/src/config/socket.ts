@@ -3,6 +3,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { verifyToken } from '../utils/auth';
 import { UserModel } from '../models/User';
 import { MessageModel } from '../models/Message';
+import { NotificationService } from '../services/NotificationService';
 
 export function initializeSocket(httpServer: HTTPServer): SocketIOServer {
   const io = new SocketIOServer(httpServer, {
@@ -152,11 +153,18 @@ export function initializeSocket(httpServer: HTTPServer): SocketIOServer {
         const roomId = getRoomId(userId, recipientId);
         socket.to(roomId).emit('chat:message', message);
 
-        // Also send to recipient's personal room for notifications
+        // Also send to recipient's personal room for chat-specific notifications
         io.to(recipientId).emit('chat:new-message', {
           ...message,
           senderUsername: username
         });
+
+        // And create a general notification entry (one unread per sender/recipient)
+        try {
+          await NotificationService.notifyNewMessage(recipientId, userId, username);
+        } catch (notifyError) {
+          console.error('Error creating message notification:', notifyError);
+        }
       } catch (error) {
         console.error('Error sending message:', error);
         socket.emit('chat:error', { message: 'Failed to send message' });

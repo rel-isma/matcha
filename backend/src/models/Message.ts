@@ -69,11 +69,19 @@ export class MessageModel {
       ),
       unread_counts AS (
         SELECT 
-          sender_id,
+          m.sender_id,
           COUNT(*) as unread_count
-        FROM messages
-        WHERE recipient_id = $1 AND is_read = FALSE
-        GROUP BY sender_id
+        FROM messages m
+        WHERE m.recipient_id = $1 
+          AND m.is_read = FALSE
+          AND EXISTS (
+            SELECT 1 
+            FROM connections c
+            WHERE 
+              (c.user_one = $1 AND c.user_two = m.sender_id)
+              OR (c.user_one = m.sender_id AND c.user_two = $1)
+          )
+        GROUP BY m.sender_id
       )
       SELECT 
         lm.other_user_id,
@@ -102,6 +110,8 @@ export class MessageModel {
     const result = await pool.query(query, [userId]);
     return result.rows.map((row: any) => {
       const isBlocked = !!row.is_blocked;
+      const unreadCount = parseInt(row.unread_count) || 0;
+
       return {
         userId: row.other_user_id,
         username: isBlocked ? 'matcha_user' : row.username,
@@ -113,7 +123,8 @@ export class MessageModel {
         lastMessage: row.last_message,
         lastMessageSenderId: row.last_message_sender_id,
         lastMessageAt: row.last_message_at,
-        unreadCount: parseInt(row.unread_count) || 0,
+        // Do not show unread badges for blocked conversations
+        unreadCount: isBlocked ? 0 : unreadCount,
         isBlocked: isBlocked ? true : undefined
       };
     });
@@ -130,14 +141,26 @@ export class MessageModel {
     await pool.query(query, [recipientId, senderId]);
   }
 
-  // Get unread message count for a user
+  // Get unread message count for a user (excluding blocked or disconnected relationships)
   static async getUnreadCount(userId: string): Promise<number> {
     const query = `
       SELECT COUNT(*) as count
-      FROM messages
-      WHERE recipient_id = $1 AND is_read = FALSE
+      FROM messages m
+      LEFT JOIN blocks b ON
+        (b.blocker_id = $1 AND b.blocked_id = m.sender_id)
+        OR (b.blocker_id = m.sender_id AND b.blocked_id = $1)
+      WHERE m.recipient_id = $1
+        AND m.is_read = FALSE
+        AND b.id IS NULL
+        AND EXISTS (
+          SELECT 1 
+          FROM connections c
+          WHERE 
+            (c.user_one = $1 AND c.user_two = m.sender_id)
+            OR (c.user_one = m.sender_id AND c.user_two = $1)
+        )
     `;
-    
+
     const result = await pool.query(query, [userId]);
     return parseInt(result.rows[0].count) || 0;
   }
