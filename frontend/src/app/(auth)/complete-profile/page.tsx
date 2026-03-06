@@ -174,10 +174,14 @@ export default function CompleteProfilePage() {
         throw new Error('Failed to update profile');
       }
 
-      const picturePromises = formData.pictures.map(file => uploadPicture(file));
-      const pictureResults = await Promise.all(picturePromises);
-      if (pictureResults.some(result => !result)) {
-        throw new Error('Failed to upload some pictures');
+      // Upload pictures sequentially to avoid race conditions with primary picture assignment
+      const pictureResults = [];
+      for (const file of formData.pictures) {
+        const result = await uploadPicture(file);
+        if (!result) {
+          throw new Error('Failed to upload a picture');
+        }
+        pictureResults.push(result);
       }
 
       const interestsSuccess = await addInterests(formData.interests);

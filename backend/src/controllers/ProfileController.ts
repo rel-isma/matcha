@@ -726,6 +726,9 @@ export class ProfileController {
       
       await ProfileModel.recordProfileView(userId, profile.userId, clientIp, userAgent);
 
+      // Update fame rating for the viewed user (fire-and-forget, non-blocking)
+      ProfileModel.updateFameRating(profile.userId).catch(() => {});
+
       // Send profile view notification ONLY if this is a new view (not within 10 minutes)
       // Check if we should send notification (same logic as recordProfileView)
       const shouldNotify = await ProfileController.shouldSendViewNotification(userId, profile.userId);
@@ -1374,6 +1377,9 @@ export class ProfileController {
 
       const result = await ProfileModel.likeUser(userId, targetUserId);
 
+      // Update fame rating of the user who received the like
+      await ProfileModel.updateFameRating(targetUserId);
+
       // Get the liker's username for notifications
       const liker = await UserModel.findById(userId);
       
@@ -1424,6 +1430,9 @@ export class ProfileController {
       }
 
       await ProfileModel.unlikeUser(userId, targetUserId);
+
+      // Update fame rating of the user who lost the like
+      await ProfileModel.updateFameRating(targetUserId);
 
       // Send unlike notification
       const unliker = await UserModel.findById(userId);

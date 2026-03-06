@@ -203,9 +203,10 @@ export class ProfileModel {
         );
       }
 
-      // Update completeness after adding interests
+      // Update completeness then fame rating after adding interests
       if (userId) {
         await this.updateCompleteness(userId);
+        await this.updateFameRating(userId);
       }
 
       await client.query('COMMIT');
@@ -231,9 +232,10 @@ export class ProfileModel {
       const query = 'DELETE FROM profile_interests WHERE profile_id = $1 AND interest_id = $2';
       await client.query(query, [profileId, interestId]);
 
-      // Update completeness after removing interest
+      // Update completeness then fame rating after removing interest
       if (userId) {
         await this.updateCompleteness(userId);
+        await this.updateFameRating(userId);
       }
 
       await client.query('COMMIT');
@@ -279,9 +281,10 @@ export class ProfileModel {
       `;
       const result = await client.query(query, [profileId, url, isProfilePic, position]);
 
-      // Update completeness after adding picture
+      // Update completeness then fame rating after adding picture
       if (userId) {
         await this.updateCompleteness(userId);
+        await this.updateFameRating(userId);
       }
 
       await client.query('COMMIT');
@@ -308,9 +311,10 @@ export class ProfileModel {
       const query = 'DELETE FROM profile_pictures WHERE id = $1 AND profile_id = $2';
       await client.query(query, [pictureId, profileId]);
 
-      // Update completeness after deleting picture
+      // Update completeness then fame rating after deleting picture
       if (userId) {
         await this.updateCompleteness(userId);
+        await this.updateFameRating(userId);
       }
 
       await client.query('COMMIT');
@@ -1089,6 +1093,10 @@ export class ProfileModel {
   }
 
   // Fame rating calculation
+  // Formula (0-100 scale):
+  //   completeness_score : completeness * 0.4           → max 40 pts (full profile)
+  //   likes_score        : LEAST(40, 10*ln(1+likes))    → max 40 pts (logarithmic, ~54 likes for max)
+  //   views_score        : LEAST(20, views_30d / 5.0)   → max 20 pts (100 views for max)
   static async updateFameRating(userId: string): Promise<number> {
     const query = `
       WITH fame_stats AS (
@@ -1104,11 +1112,11 @@ export class ProfileModel {
         GROUP BY p.user_id, p.completeness
       )
       UPDATE profiles 
-      SET fame_rating = FLOOR(
-        2 * ln(1 + fame_stats.likes_received) + 
-        0.5 * (fame_stats.views_last_30_days / 10.0) + 
-        fame_stats.completeness
-      ),
+      SET fame_rating = LEAST(100, FLOOR(
+        (fame_stats.completeness * 0.4) +
+        LEAST(40, 10 * ln(1 + fame_stats.likes_received)) +
+        LEAST(20, fame_stats.views_last_30_days / 5.0)
+      )),
       updated_at = CURRENT_TIMESTAMP
       FROM fame_stats 
       WHERE profiles.user_id = fame_stats.user_id

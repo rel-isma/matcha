@@ -1,7 +1,7 @@
 # Matcha Dating App - Simple Makefile
 # Simple but useful commands for development
 
-.PHONY: help all build up down logs shell-backend shell-frontend shell-db db-init fclean
+.PHONY: help all build up down logs shell-backend shell-frontend shell-db db-init clean fclean
 
 # Docker Compose file
 DOCKER_COMPOSE = docker compose -f docker-compose.dev.yml
@@ -75,11 +75,14 @@ db-init: ## Initialize database with schema
 	@$(DOCKER_COMPOSE) stop postgres
 	@echo "✅ Database initialized successfully!"
 
+clean: ## Stop and remove containers, networks, and volumes
+	@echo "🧹 Cleaning up containers and volumes..."
+	@$(DOCKER_COMPOSE) down -v --remove-orphans
+	@echo "✅ Cleanup finished (images preserved)!"
+
 fclean: ## Complete cleanup - remove everything
 	@echo "🧹 Complete cleanup - removing everything..."
 	@echo "⚠️  This will remove all containers, images, volumes, and networks!"
-	@echo "Press Enter to continue or Ctrl+C to cancel..."
-	@read dummy
 	@$(DOCKER_COMPOSE) down -v --remove-orphans --rmi all
 	@docker system prune -af --volumes
 	@docker network prune -f
@@ -117,8 +120,6 @@ restart-db: ## Restart only database container
 db-reset: ## Reset database - clear all data and reinitialize
 	@echo "🗄️  Resetting database..."
 	@echo "⚠️  This will delete ALL data in the database!"
-	@echo "Press Enter to continue or Ctrl+C to cancel..."
-	@read dummy
 	@$(DOCKER_COMPOSE) stop postgres
 	@$(DOCKER_COMPOSE) rm -f postgres
 	@docker volume rm matcha_postgres_data_dev 2>/dev/null || true
