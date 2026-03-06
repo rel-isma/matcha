@@ -35,7 +35,6 @@ export default function UserProfilePage() {
   const [hasLikedMe, setHasLikedMe] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [reportLoading, setReportLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('Information');
   
   const username = params.username as string;
@@ -151,17 +150,23 @@ export default function UserProfilePage() {
 
 
   const handleReport = async () => {
-    if (!user || reportLoading || !profile) return;
+    if (!user || !profile || !reportReason.trim() || reportReason.trim().length < 10) return;
 
-    setReportLoading(true);
     try {
-      // For now, just show success - implement actual API call later
-      toast.success(`${profile.firstName} has been reported`);
+      setActionLoading('report');
+      const response = await profileApi.reportUser(profile.userId, reportReason.trim());
+      if (response.success) {
+        setShowReportModal(false);
+        setReportReason('');
+        toast.success(`${profile.firstName} has been reported. Thank you for keeping our community safe.`);
+      } else {
+        toast.error(response.message || 'Failed to report user');
+      }
     } catch (error) {
       console.error('Report error:', error);
       toast.error('Failed to report user');
     } finally {
-      setReportLoading(false);
+      setActionLoading(null);
     }
   };
 

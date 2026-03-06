@@ -35,7 +35,6 @@ export default function ProfilePage() {
         if (response.success && response.data) {
           setLikesReceived(response.data);
         }
-        console.log('Likes received:', response);
       } catch (error) {
         console.error('Failed to fetch likes received:', error);
       } finally {
@@ -51,7 +50,6 @@ export default function ProfilePage() {
           setProfileViews(response.data.views);
           setViewsTotal(response.data.total);
         }
-        console.log('Profile views:', response);
       } catch (error) {
         console.error('Failed to fetch profile views:', error);
       } finally {
@@ -71,8 +69,6 @@ export default function ProfilePage() {
       console.error('Logout failed:', error);
     }
   };
-
-  console.log('Profile data:', profile);
 
   if (loading) {
     return (

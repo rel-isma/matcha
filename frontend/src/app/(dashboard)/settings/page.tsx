@@ -259,7 +259,6 @@ export default function SettingsPage() {
       // Update profile information if changed
       if (profileChanged) {
         const profileResponse = await updateProfile(profileFormData);
-        console.log('Profile update response:', profileFormData);
         
         if (!profileResponse) {
           setErrors({ personal: 'Failed to update profile information' });
@@ -1296,7 +1295,7 @@ export default function SettingsPage() {
             <Card className="shadow-xl border-2 border-border bg-card">
               <CardHeader className="pb-4 sm:pb-6">
                 <CardTitle className="text-xl sm:text-2xl font-bold text-accent flex items-center gap-2">
-                  <MapPin size={24} />
+                  <Heart size={24} />
                   Interests
                 </CardTitle>
               </CardHeader>

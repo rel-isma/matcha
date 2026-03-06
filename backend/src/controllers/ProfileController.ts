@@ -213,8 +213,8 @@ export class ProfileController {
         });
       }
 
-      // Check if user doesn't have GPS location and set IP location
-      if (!profile.latitude || !profile.longitude || profile.locationSource !== 'gps') {
+      // Only fall back to IP location if user has no location at all
+      if (!profile.latitude || !profile.longitude) {
         try {
           const clientIp = cleanClientIp(req);
           
@@ -621,8 +621,6 @@ export class ProfileController {
 
       // Check and update profile completion status
       await ProfileController.checkAndUpdateProfileCompletion(userId);
-
-      const updatedProfile = await ProfileModel.getProfileByUserId(userId);
 
       return res.json({
         success: true,
@@ -1048,165 +1046,6 @@ export class ProfileController {
       return res.json({
         success: true,
         message: 'Profiles retrieved successfully',
-        data: {
-          profiles,
-          pagination: {
-            page: filters.page || 1,
-            limit: filters.limit || 20,
-            hasMore: profiles.length === (filters.limit || 20)
-          }
-        }
-      });
-    } catch (error) {
-      console.error('Search profiles error:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
-      });
-    }
-  }
-
-  /**
-   * @swagger
-   * /profile/search:
-   *   get:
-   *     summary: Search profiles manually with filters
-   *     tags: [Profile]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - in: query
-   *         name: minAge
-   *         schema:
-   *           type: integer
-   *           minimum: 18
-   *         description: Minimum age filter
-   *       - in: query
-   *         name: maxAge
-   *         schema:
-   *           type: integer
-   *           maximum: 100
-   *         description: Maximum age filter
-   *       - in: query
-   *         name: minFame
-   *         schema:
-   *           type: number
-   *         description: Minimum fame rating
-   *       - in: query
-   *         name: maxFame
-   *         schema:
-   *           type: number
-   *         description: Maximum fame rating
-   *       - in: query
-   *         name: tags
-   *         schema:
-   *           type: string
-   *         description: Comma-separated interest tags
-   *       - in: query
-   *         name: city
-   *         schema:
-   *           type: string
-   *         description: City name filter
-   *       - in: query
-   *         name: sortBy
-   *         schema:
-   *           type: string
-   *           enum: [age, location, fame, tags]
-   *         description: Sort field
-   *       - in: query
-   *         name: sortOrder
-   *         schema:
-   *           type: string
-   *           enum: [asc, desc]
-   *         description: Sort order
-   *       - in: query
-   *         name: page
-   *         schema:
-   *           type: integer
-   *           minimum: 1
-   *         description: Page number
-   *       - in: query
-   *         name: limit
-   *         schema:
-   *           type: integer
-   *           minimum: 1
-   *           maximum: 50
-   *         description: Results per page
-   *     responses:
-   *       200:
-   *         description: Search results retrieved successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 success:
-   *                   type: boolean
-   *                 message:
-   *                   type: string
-   *                 data:
-   *                   type: object
-   *                   properties:
-   *                     profiles:
-   *                       type: array
-   *                       items:
-   *                         $ref: '#/components/schemas/Profile'
-   *                     pagination:
-   *                       type: object
-   *                       properties:
-   *                         page:
-   *                           type: integer
-   *                         limit:
-   *                           type: integer
-   *                         hasMore:
-   *                           type: boolean
-   *       401:
-   *         description: Unauthorized
-   */
-  // Search profiles manually
-  static async searchProfiles(req: Request, res: Response) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: 'Validation errors',
-          errors: errors.array()
-        });
-      }
-
-      const userId = req.user?.userId;
-      
-      if (!userId) {
-        return res.status(401).json({
-          success: false,
-          message: 'Unauthorized'
-        });
-      }
-
-      // Parse query parameters into filters
-      const filters: SearchFilters = {
-        minAge: req.query.minAge ? parseInt(req.query.minAge as string) : undefined,
-        maxAge: req.query.maxAge ? parseInt(req.query.maxAge as string) : undefined,
-        minFame: req.query.minFame ? parseInt(req.query.minFame as string) : undefined,
-        maxFame: req.query.maxFame ? parseInt(req.query.maxFame as string) : undefined,
-        tags: req.query.tags ? (req.query.tags as string).split(',').map(tag => tag.trim()) : undefined,
-        city: req.query.city as string,
-        sortBy: req.query.sortBy as any,
-        sortOrder: req.query.sortOrder as 'asc' | 'desc',
-        page: req.query.page ? parseInt(req.query.page as string) : 1,
-        limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
-      };
-
-      // Calculate offset from page
-      filters.offset = ((filters.page || 1) - 1) * (filters.limit || 20);
-
-      const profiles = await ProfileModel.searchProfiles(userId, filters);
-
-      return res.json({
-        success: true,
-        message: 'Search results retrieved successfully',
         data: {
           profiles,
           pagination: {
