@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@heroui/react": "^2.8.8",
-    "@internationalized/date": "^3.10.1"
-  }
-}
