@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 // Handle multiple frontend URLs, use the primary one for emails
 const FRONTEND_URLS = process.env.FRONTEND_URL ? 
   process.env.FRONTEND_URL.split(',').map(url => url.trim()) : 
-  ['http://localhost:3000', 'http://10.30.246.128:3000'];
+  ['http://localhost:3000'];
 const PRIMARY_FRONTEND_URL = FRONTEND_URLS[0];
 
 const transporter = nodemailer.createTransport({

@@ -11,7 +11,7 @@ const INTRA_CLIENT_ID = process.env.INTRA_CLIENT_ID;
 const INTRA_CLIENT_SECRET = process.env.INTRA_CLIENT_SECRET;
 const FRONTEND_URLS = process.env.FRONTEND_URL ? 
   process.env.FRONTEND_URL.split(',').map(url => url.trim()) : 
-  ['http://localhost:3000', 'http://10.30.246.128:3000'];
+  ['http://localhost:3000'];
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
 
 // Get the primary frontend URL (first one in the list)

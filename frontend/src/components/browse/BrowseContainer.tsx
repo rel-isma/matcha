@@ -61,7 +61,11 @@ export const BrowseContainer: React.FC = () => {
       }
 
       if (isAppend) {
-        setProfiles(prev => [...prev, ...result.data!.profiles]);
+        setProfiles(prev => {
+          const existingIds = new Set(prev.map(p => p.id));
+          const newProfiles = result.data!.profiles.filter(p => !existingIds.has(p.id));
+          return [...prev, ...newProfiles];
+        });
       } else {
         setProfiles(result.data!.profiles);
       }

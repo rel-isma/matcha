@@ -7,25 +7,11 @@ const router = Router();
 // Get frontend URLs from environment
 const FRONTEND_URLS = process.env.FRONTEND_URL ? 
   process.env.FRONTEND_URL.split(',').map(url => url.trim()) : 
-  ['http://localhost:3000', 'http://10.30.246.128:3000'];
+  ['http://localhost:3000'];
 
 // Function to get the appropriate frontend URL based on the request
-const getFrontendUrl = (req: Request): string => {
-  const host = req.get('host');
-  const referer = req.get('referer');
-  
-  // Check if request came from private IP
-  if (referer && referer.includes('10.30.246.128')) {
-    return 'http://10.30.246.128:3000';
-  }
-  
-  // Check if host suggests private IP
-  if (host && host.includes('10.30.246.128')) {
-    return 'http://10.30.246.128:3000';
-  }
-  
-  // Default to localhost
-  return 'http://localhost:3000';
+const getFrontendUrl = (_req: Request): string => {
+  return FRONTEND_URLS[0] || 'http://localhost:3000';
 };
 
 /**

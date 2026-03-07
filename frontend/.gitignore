@@ -1,0 +1,23 @@
+node_modules/
+.next/
+out/
+.swc/
+.vercel
+next-env.d.ts
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Uploads
+public/uploads/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
