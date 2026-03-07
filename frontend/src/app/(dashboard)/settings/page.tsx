@@ -1176,6 +1176,7 @@ export default function SettingsPage() {
                               alt={`Photo ${index + 1}`}
                               fill
                               className="object-cover"
+                              unoptimized
                               onError={(e) => {
                                 console.error('Image load error:', picture.url);
                                 e.currentTarget.src = '/placeholder.svg';

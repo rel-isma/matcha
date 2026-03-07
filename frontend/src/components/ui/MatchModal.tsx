@@ -77,10 +77,11 @@ export const MatchModal: React.FC<MatchModalProps> = ({
               <div className="relative w-20 h-20 rounded-2xl overflow-hidden shadow-lg bg-white border-4 border-white">
                 {currentUserPicture ? (
                   <Image
-                    src={`${STATIC_BASE_URL}${currentUserPicture}`}
+                    src={currentUserPicture.startsWith('http') ? currentUserPicture : `${STATIC_BASE_URL}${currentUserPicture}`}
                     alt={currentUserName || 'You'}
                     fill
                     className="object-cover"
+                    unoptimized
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-orange-200 to-amber-200 flex items-center justify-center">
@@ -99,10 +100,11 @@ export const MatchModal: React.FC<MatchModalProps> = ({
               <div className="relative w-20 h-20 rounded-2xl overflow-hidden shadow-lg bg-white border-4 border-white">
                 {matchedUserPicture ? (
                   <Image
-                    src={`${STATIC_BASE_URL}${matchedUserPicture}`}
+                    src={matchedUserPicture.startsWith('http') ? matchedUserPicture : `${STATIC_BASE_URL}${matchedUserPicture}`}
                     alt={matchedUserName || 'Match'}
                     fill
                     className="object-cover"
+                    unoptimized
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-orange-200 to-amber-200 flex items-center justify-center">

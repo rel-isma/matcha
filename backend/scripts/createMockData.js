@@ -80,33 +80,15 @@ const cities = [
   { name: 'Amsterdam', lat: 52.3676, lng: 4.9041, country: 'Netherlands' }
 ];
 
-// Profile picture URLs (placeholder/sample images)
-const profilePictures = {
-  male: [
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400',
-    'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400',
-    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400',
-    'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400',
-    'https://images.unsplash.com/photo-1519648023493-d82b5f8d7b8a?w=400',
-    'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400',
-    'https://images.unsplash.com/photo-1566492031773-4f4e44671d66?w=400',
-    'https://images.unsplash.com/photo-1521119989659-a83eee488004?w=400'
-  ],
-  female: [
-    'https://images.unsplash.com/photo-1494790108755-2616c2414088?w=400',
-    'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400',
-    'https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?w=400',
-    'https://images.unsplash.com/photo-1513956589380-bad6acb9b9d4?w=400',
-    'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400',
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400',
-    'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400',
-    'https://images.unsplash.com/photo-1488716820095-cbe80883c496?w=400',
-    'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=400',
-    'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400'
-  ]
-};
+// Profile picture URLs - randomuser.me portraits are reliable and gender-specific
+// Males: indices 1-99, Females: indices 1-99
+function getMalePictureUrl(index) {
+  return `https://randomuser.me/api/portraits/men/${(index % 99) + 1}.jpg`;
+}
+
+function getFemalePictureUrl(index) {
+  return `https://randomuser.me/api/portraits/women/${(index % 99) + 1}.jpg`;
+}
 
 // Utility functions
 function getRandomElement(array) {
@@ -168,16 +150,14 @@ async function createMockData() {
     
     const hashedPassword = await bcrypt.hash('Password123!', 12);
     
-    // Create 50 male profiles
+    // Create 250 male profiles
     console.log('👨 Creating male profiles...');
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 250; i++) {
       const firstName = getRandomElement(maleFirstNames);
       const lastName = getRandomElement(lastNames);
       const usernameBase = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
-      // Ensure username is max 17 chars + 3 digit suffix = 20 chars max
-      const username = usernameBase.length > 17 
-        ? `${usernameBase.substring(0, 17)}${Math.floor(Math.random() * 999)}`
-        : `${usernameBase}${Math.floor(Math.random() * 999)}`;
+      // Use index to guarantee uniqueness across 250 profiles
+      const username = `${usernameBase.substring(0, 14)}m${i.toString().padStart(3, '0')}`;
       const email = `${username}@example.com`;
       const city = getRandomElement(cities);
       const location = addLocationVariation(city.lat, city.lng);
@@ -232,30 +212,28 @@ async function createMockData() {
       
       // Add profile pictures (1-4 pictures)
       const pictureCount = Math.floor(Math.random() * 4) + 1;
-      const userPictures = getRandomElements(profilePictures.male, pictureCount);
       
-      for (let j = 0; j < userPictures.length; j++) {
+      for (let j = 0; j < pictureCount; j++) {
+        const pictureUrl = getMalePictureUrl(i * 4 + j);
         await client.query(`
           INSERT INTO profile_pictures (profile_id, url, is_profile_pic, position)
           VALUES ($1, $2, $3, $4)
-        `, [profileId, userPictures[j], j === 0, j]);
+        `, [profileId, pictureUrl, j === 0, j]);
       }
       
-      if ((i + 1) % 10 === 0) {
-        console.log(`   Created ${i + 1}/50 male profiles`);
+      if ((i + 1) % 50 === 0) {
+        console.log(`   Created ${i + 1}/250 male profiles`);
       }
     }
     
-    // Create 50 female profiles
+    // Create 250 female profiles
     console.log('👩 Creating female profiles...');
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 250; i++) {
       const firstName = getRandomElement(femaleFirstNames);
       const lastName = getRandomElement(lastNames);
       const usernameBase = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
-      // Ensure username is max 17 chars + 3 digit suffix = 20 chars max
-      const username = usernameBase.length > 17 
-        ? `${usernameBase.substring(0, 17)}${Math.floor(Math.random() * 999)}`
-        : `${usernameBase}${Math.floor(Math.random() * 999)}`;
+      // Use index to guarantee uniqueness across 250 profiles
+      const username = `${usernameBase.substring(0, 14)}f${i.toString().padStart(3, '0')}`;
       const email = `${username}@example.com`;
       const city = getRandomElement(cities);
       const location = addLocationVariation(city.lat, city.lng);
@@ -310,17 +288,17 @@ async function createMockData() {
       
       // Add profile pictures (1-4 pictures)
       const pictureCount = Math.floor(Math.random() * 4) + 1;
-      const userPictures = getRandomElements(profilePictures.female, pictureCount);
       
-      for (let j = 0; j < userPictures.length; j++) {
+      for (let j = 0; j < pictureCount; j++) {
+        const pictureUrl = getFemalePictureUrl(i * 4 + j);
         await client.query(`
           INSERT INTO profile_pictures (profile_id, url, is_profile_pic, position)
           VALUES ($1, $2, $3, $4)
-        `, [profileId, userPictures[j], j === 0, j]);
+        `, [profileId, pictureUrl, j === 0, j]);
       }
       
-      if ((i + 1) % 10 === 0) {
-        console.log(`   Created ${i + 1}/50 female profiles`);
+      if ((i + 1) % 50 === 0) {
+        console.log(`   Created ${i + 1}/250 female profiles`);
       }
     }
     
@@ -412,8 +390,8 @@ async function createMockData() {
     
     console.log('✅ Mock data creation completed successfully!');
     console.log('📊 Created:');
-    console.log(`   - 100 users (50 male, 50 female)`);
-    console.log(`   - 100 complete profiles`);
+    console.log(`   - 500 users (250 male, 250 female)`);
+    console.log(`   - 500 complete profiles`);
     console.log(`   - ${interests.length} interests`);
     console.log(`   - Random profile pictures`);
     console.log(`   - Realistic likes and connections`);

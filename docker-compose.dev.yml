@@ -62,25 +62,25 @@ services:
         condition: service_healthy
 
   # Frontend (Next.js Development with hot reload)
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #     target: development
-  #   container_name: matcha-frontend-dev
-  #   ports:
-  #     - "${FRONTEND_PORT}:3000"
-  #   env_file:
-  #     - ./frontend/.env.local
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #     - /app/.next
-  #   networks:
-  #     - matcha-network
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - backend
+  frontend: 
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: matcha-frontend-dev
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    env_file:
+      - ./frontend/.env.local
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - matcha-network
+    restart: unless-stopped
+    depends_on:
+      - backend
 
 volumes:
   postgres_data_dev:

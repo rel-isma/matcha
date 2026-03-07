@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, STATIC_BASE_URL } from '../../../../lib/constants';
 import { profileApi } from '@/lib/profileApi';
 import { useChatUnread } from '@/hooks/useChatUnread';
+import { MatchModal } from '@/components/ui/MatchModal';
 import { getLastSeenText } from '@/lib/utils';
 import { PublicProfile } from '@/types';
 
@@ -779,136 +780,19 @@ export default function UserProfilePage() {
       </AnimatePresence>
 
       {/* Match Celebration Modal */}
-      <AnimatePresence>
-        {showMatchModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-            onClick={() => setShowMatchModal(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="bg-card rounded-2xl p-8 max-w-md w-full text-center border border-border"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Celebration Header */}
-              <div className="mb-6">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                  className="w-20 h-20 bg-pink-500 rounded-full flex items-center justify-center mx-auto mb-4"
-                >
-                  <HeartHandshake className="text-white" size={40} />
-                </motion.div>
-                
-                <motion.h2
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-3xl font-bold text-foreground mb-2"
-                >
-                  🎉 It&apos;s a Match!
-                </motion.h2>
-                
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-muted-foreground text-lg"
-                >
-                  You and <span className="font-semibold text-foreground">{profile.firstName}</span> liked each other!
-                </motion.p>
-              </div>
-
-              {/* Profile Images */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="flex justify-center items-center gap-4 mb-6"
-              >
-                {/* Current User - You'd need to get this from user context */}
-                <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-border/40 bg-muted">
-                  <div className="flex items-center justify-center h-full">
-                    <User size={24} className="text-muted-foreground" />
-                  </div>
-                </div>
-                
-                {/* Heart Icon */}
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.6, type: "spring", stiffness: 300 }}
-                >
-                  <Heart className="text-destructive fill-current" size={24} />
-                </motion.div>
-                
-                {/* Other User */}
-                <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-border/40 bg-muted">
-                  {profilePicture ? (
-                    <Image
-                      src={profilePicture}
-                      alt={`${profile.firstName}'s profile`}
-                      width={64}
-                      height={64}
-                      className="w-full h-full object-cover"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <User size={24} className="text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-
-              {/* Message */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="bg-slate-700/50 border border-border rounded-xl p-4 mb-6"
-              >
-                <p className="text-foreground text-sm font-medium">
-                  Start a conversation and get to know each other better!
-                </p>
-              </motion.div>
-
-              {/* Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="flex flex-col gap-3"
-              >
-                <Button
-                  onClick={() => {
-                    setShowMatchModal(false);
-                    handleStartChat();
-                  }}
-                  className="w-full bg-accent hover:bg-primary-600 text-white py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  <MessageCircle size={18} className="mr-2" />
-                  Start Chatting
-                </Button>
-                
-                <Button
-                  onClick={() => setShowMatchModal(false)}
-                  variant="outline"
-                  className="w-full border-2 border-border text-muted-foreground hover:bg-muted py-3 rounded-full font-semibold"
-                >
-                  Continue Browsing
-                </Button>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <MatchModal
+        isOpen={showMatchModal}
+        onClose={() => setShowMatchModal(false)}
+        currentUserPicture={user?.profilePicture}
+        currentUserName={user?.firstName}
+        matchedUserPicture={getProfilePicture() ?? undefined}
+        matchedUserName={profile?.firstName}
+        onStartChat={() => {
+          setShowMatchModal(false);
+          handleStartChat();
+        }}
+        onKeepBrowsing={() => setShowMatchModal(false)}
+      />
 
       {/* Block Confirmation Modal */}
       <AnimatePresence>

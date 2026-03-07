@@ -26,7 +26,7 @@ up: ## Start all services (without building)
 	@echo "🚀 Starting Matcha application..."
 	@$(DOCKER_COMPOSE) up -d
 	@echo "✅ Application is running!"
-	@echo "🌐 go to /frontend & run  npm install & npm run dev"
+	@echo "🌐 Frontend: http://localhost:3000"
 	@echo "🔥 Backend API: http://localhost:5000"
 	@echo "🗄️  Database Admin: http://localhost:8080"
 
@@ -128,9 +128,9 @@ db-reset: ## Reset database - clear all data and reinitialize
 	@sleep 15
 	@echo "✅ Database reset complete!"
 
-mock-data: ## Create 100 mock profiles for testing (50 male, 50 female)
+mock-data: ## Create 500 mock profiles for testing (250 male, 250 female)
 	@echo "🚀 Creating mock data for testing..."
-	@echo "📝 This will create 100 realistic profiles with:"
+	@echo "📝 This will create 500 realistic profiles with:"
 	@echo "   • Complete user accounts (verified)"
 	@echo "   • Profile pictures and bios"
 	@echo "   • Interests and preferences"

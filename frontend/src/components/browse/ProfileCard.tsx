@@ -35,6 +35,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="400px"
+            unoptimized
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-secondary-400 flex items-center justify-center">
