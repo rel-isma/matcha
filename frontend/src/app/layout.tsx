@@ -21,6 +21,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'),
   title: "Matcha - Find Your Perfect Match",
   description: "Connect with like-minded people and find your perfect match on Matcha, the modern dating app.",
   keywords: "dating, match, relationship, love, connect",
@@ -43,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${poppins.variable} ${openSans.variable} ${montserrat.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${poppins.variable} ${openSans.variable} ${montserrat.variable}`}>
       <body className="font-body bg-cream text-secondary-800 antialiased">
         <HeroUIProvider>
           <ThemeProvider>

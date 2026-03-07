@@ -130,10 +130,9 @@ app.use('*', (req, res) => {
 const initializeDatabase = async () => {
   try {
     const client = await pool.connect();
-    console.log('✅ Connected to PostgreSQL database');
     client.release();
   } catch (error) {
-    console.error('❌ Failed to connect to PostgreSQL database:', error);
+    console.error('Failed to connect to PostgreSQL database:', error);
     process.exit(1);
   }
 };
@@ -144,11 +143,11 @@ const startServer = async () => {
     await initializeDatabase();
     
     httpServer.listen(PORT, () => {
-      console.log(`🚀 Server is running on port ${PORT}`);
-      console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
-      console.log(`🌐 API Base URL: http://localhost:${PORT}/api`);
-      console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
-      console.log(`🔌 WebSocket Server: Ready for connections`);
+      console.log(`Server is running on port ${PORT}`);
+      console.log(`API Documentation: http://localhost:${PORT}/api-docs`);
+      console.log(`API Base URL: http://localhost:${PORT}/api`);
+      console.log(`Health Check: http://localhost:${PORT}/api/health`);
+      console.log(`WebSocket Server: Ready for connections`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
@@ -158,14 +157,14 @@ const startServer = async () => {
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('\n🛑 Shutting down server gracefully...');
+  console.log('\nShutting down server gracefully...');
   io.close();
   await pool.end();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  console.log('\n🛑 Shutting down server gracefully...');
+  console.log('\nShutting down server gracefully...');
   io.close();
   await pool.end();
   process.exit(0);

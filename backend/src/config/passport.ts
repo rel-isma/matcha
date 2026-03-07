@@ -39,8 +39,6 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        console.log('Google OAuth Profile:', profile);
-
         // Extract user information from Google profile
         const googleId = profile.id;
         const email = profile.emails?.[0]?.value;
@@ -56,9 +54,6 @@ passport.use(
         let user = await UserModel.findByEmail(email);
 
         if (user) {
-          // User exists, log them in
-          console.log('Existing user found:', user.email);
-          
           // Generate JWT tokens
           const tokenPayload = {
             userId: user.id,
@@ -95,8 +90,6 @@ passport.use(
             lastName,
             password: 'GOOGLE_OAUTH_USER', // This won't be used since we use createGoogleUser
           });
-
-          console.log('New Google user created:', newUser.email);
 
           // Generate JWT tokens
           const tokenPayload = {
@@ -151,7 +144,6 @@ passport.use('intra42',
         }
 
         const intraProfile = await response.json();
-        console.log('42 Intra OAuth Profile:', intraProfile);
 
         // Extract user information from 42 Intra profile
         const intraId = intraProfile.id?.toString();
@@ -168,9 +160,6 @@ passport.use('intra42',
         let user = await UserModel.findByEmail(email);
 
         if (user) {
-          // User exists, log them in
-          console.log('Existing user found:', user.email);
-          
           // Generate JWT tokens
           const tokenPayload = {
             userId: user.id,
@@ -207,8 +196,6 @@ passport.use('intra42',
             lastName,
             password: 'INTRA42_OAUTH_USER', // This won't be used since we use createIntra42User
           });
-
-          console.log('New 42 Intra user created:', newUser.email);
 
           // Generate JWT tokens
           const tokenPayload = {

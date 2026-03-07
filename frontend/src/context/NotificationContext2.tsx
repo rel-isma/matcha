@@ -74,7 +74,6 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
         setTotalPages(pagination.totalPages);
         setTotal(pagination.total);
         
-        console.log('Fetched notifications:', newNotifications);
         
         // Calculate unread count from all loaded notifications
         const allNotifications = reset ? newNotifications : [...notifications, ...newNotifications];
@@ -99,12 +98,15 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
 
       if (response.data.success) {
         const { notifications: newNotifications, pagination } = response.data.data;
-        
-        setNotifications(prev => [...prev, ...newNotifications]);
+        // Deduplicate by id so we never have duplicate keys (e.g. same notif from socket + pagination)
+        setNotifications(prev => {
+          const existingIds = new Set(prev.map(n => n.id));
+          const toAdd = newNotifications.filter((n: Notification) => !existingIds.has(n.id));
+          return [...prev, ...toAdd];
+        });
         setCurrentPage(nextPage);
         setHasMore(pagination.hasMore);
         
-        console.log('Loaded more notifications:', newNotifications);
       }
     } catch (error) {
       console.error('Failed to load more notifications:', error);
@@ -174,11 +176,11 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
     if (!socket) return;
 
     const handleNewNotification = (notification: Notification) => {
-      setNotifications((prev) => [notification, ...prev]);
-      setUnreadCount((prev) => prev + 1);
-      
-      // You can show a toast notification here
-      console.log('New notification received:', notification);
+      setNotifications((prev) => {
+        if (prev.some((n) => n.id === notification.id)) return prev;
+        setUnreadCount((c) => c + 1);
+        return [notification, ...prev];
+      });
     };
 
     socket.on('notification', handleNewNotification);

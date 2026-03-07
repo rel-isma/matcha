@@ -11,7 +11,6 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ isLogin = true 
   const handleGoogleSignIn = () => {
     // Redirect to backend Google OAuth route
     const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
-    console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
     window.location.href = `${backendUrl}/api/auth/google`;
   };
 

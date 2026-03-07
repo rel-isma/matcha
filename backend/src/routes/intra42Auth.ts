@@ -68,13 +68,10 @@ const processedCodes = new Set<string>();
  */
 router.get('/42/callback',
   (req: Request, res: Response, next: Function) => {
-    console.log('42 Intra OAuth callback received');
-    console.log('Query params:', req.query);
     
     // Check if this code has already been processed
     const code = req.query.code as string;
     if (code && processedCodes.has(code)) {
-      console.log('Code already processed, skipping...');
       // Get frontend URL from state or default
       let frontendUrl = 'http://localhost:3000';
       try {
@@ -135,18 +132,13 @@ router.get('/42/callback',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
 
-      console.log('42 Intra OAuth success for user:', user.email);
-
       // Check if profile is completed and redirect accordingly
       if (!user.isProfileCompleted) {
-        console.log('Profile not completed, redirecting to complete-profile');
         res.redirect(`${frontendUrl}/complete-profile`);
       } else {
-        console.log('Profile completed, redirecting to browse');
         res.redirect(`${frontendUrl}/browse`);
       }
     } catch (error) {
-      console.error('42 Intra OAuth callback error:', error);
       
       // Get frontend URL for error redirect
       let frontendUrl = 'http://localhost:3000';

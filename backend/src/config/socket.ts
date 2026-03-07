@@ -60,8 +60,6 @@ export function initializeSocket(httpServer: HTTPServer): SocketIOServer {
     const userId = socket.data.userId;
     const username = socket.data.username;
 
-    console.log(`User connected: ${username} (${userId})`);
-
     // Join user's personal room for receiving notifications
     socket.join(userId);
 
@@ -73,9 +71,7 @@ export function initializeSocket(httpServer: HTTPServer): SocketIOServer {
     }
 
     // Handle disconnection
-    socket.on('disconnect', async () => {
-      console.log(`User disconnected: ${username} (${userId})`);
-      
+    socket.on('disconnect', async () => {      
       try {
         await updateOnlineStatus(userId, false);
       } catch (error) {
@@ -106,13 +102,11 @@ export function initializeSocket(httpServer: HTTPServer): SocketIOServer {
     socket.on('chat:join', (otherUserId: string) => {
       const roomId = getRoomId(userId, otherUserId);
       socket.join(roomId);
-      console.log(`User ${username} joined chat room: ${roomId}`);
     });
 
     socket.on('chat:leave', (otherUserId: string) => {
       const roomId = getRoomId(userId, otherUserId);
       socket.leave(roomId);
-      console.log(`User ${username} left chat room: ${roomId}`);
     });
 
     socket.on('chat:message', async (data: { recipientId: string; content: string }) => {

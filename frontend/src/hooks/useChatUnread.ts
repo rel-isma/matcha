@@ -52,7 +52,6 @@ export const useChatUnread = () => {
   useEffect(() => {
     if (!socket || !user || !isConnected || hasJoinedRoom.current) return;
 
-    console.log('Joining chat room for user:', user.id);
     socket.emit('chat:join', user.id);
     hasJoinedRoom.current = true;
   }, [socket, user, isConnected]);
@@ -60,7 +59,6 @@ export const useChatUnread = () => {
   // Listen for conversation selection events to know which conversation is open
   useEffect(() => {
     const unsubscribe = chatEvents.subscribe(CHAT_EVENTS.CONVERSATION_SELECTED, (userId) => {
-      console.log('Conversation selected:', userId);
       setCurrentConversationId(userId as string);
     });
 
@@ -71,19 +69,15 @@ export const useChatUnread = () => {
   useEffect(() => {
     if (!socket || !user) return;
 
-    console.log('useChatUnread: Setting up socket listener', { socketId: socket.id, userId: user.id });
-
     // The backend sends 'chat:new-message' to recipient's personal room
     const handleNewMessage = (message: { senderId: string; recipientId: string }) => {
-      console.log('useChatUnread: Received chat:new-message event', { message, currentUserId: user.id, currentConversationId });
       
       // Only increment if the message is NOT from the currently open conversation
       // This prevents incrementing when both users have the conversation open
       if (message.senderId !== currentConversationId) {
-        console.log('useChatUnread: Incrementing unread count');
         setUnreadCount((prev) => prev + 1);
       } else {
-        console.log('useChatUnread: Not incrementing - conversation is open');
+        
       }
     };
 
@@ -99,7 +93,6 @@ export const useChatUnread = () => {
     const unsubscribeMessagesRead = chatEvents.subscribe(CHAT_EVENTS.MESSAGES_READ, (data) => {
       if (typeof data === 'number' && data > 0) {
         // Decrement by the specific count of messages read
-        console.log('Marking messages as read, count:', data);
         setUnreadCount((prev) => Math.max(0, prev - data));
       } else if (typeof data === 'string' && data) {
         // Legacy: single senderId

@@ -12,7 +12,6 @@ const Intra42SignInButton: React.FC<Intra42SignInButtonProps> = ({ isLogin = tru
   const handleIntra42SignIn = () => {
     // Redirect to backend 42 Intra OAuth route
     const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
-    console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
     window.location.href = `${backendUrl}/api/auth/42`;
   };
 

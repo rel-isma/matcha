@@ -196,24 +196,23 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
 
     // Handle new messages
     const handleNewMessage = (message: Message) => {
-      console.log('ChatContainer received message:', message, 'selectedConversation:', selectedConversation);
       
       // Update messages if in active conversation
-      if (selectedConversation && 
-          (message.senderId === selectedConversation || message.recipientId === selectedConversation)) {
-        console.log('Adding message to chat');
-        setMessages(prev => [...prev, message]);
-        
-        // Mark as read if we're viewing the conversation
-        if (message.senderId === selectedConversation) {
-          socket.emit('chat:mark-read', selectedConversation);
+      if (selectedConversation) {
+        if (message.senderId === selectedConversation || message.recipientId === selectedConversation) {
+          setMessages(prev => [...prev, message]);
+          
+          // Mark as read if we're viewing the conversation
+          if (message.senderId === selectedConversation) {
+            socket.emit('chat:mark-read', selectedConversation);
+          }
+        } else {
+          // Message is for a different conversation - just refresh the list
+          console.log('Message received for different conversation');
         }
       } else {
-        console.log('Message not added - condition failed', {
-          selectedConversation,
-          messageSenderId: message.senderId,
-          messageRecipientId: message.recipientId
-        });
+        // No conversation open - message will be handled via NEW_MESSAGE event for the badge
+        console.log('Message received while not in chat');
       }
 
       // If message is from someone other than current user, notify the navbar

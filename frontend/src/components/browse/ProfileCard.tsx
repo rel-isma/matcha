@@ -20,7 +20,6 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   onViewProfile
 }) => {
   const profilePicture = profile.pictures.find(p => p.isProfilePic) || profile.pictures[0];
-  console.log('profile:', profile); 
   return (
     <div className="relative w-full h-full max-w-sm mx-auto bg-card rounded-3xl shadow-2xl overflow-hidden aspect-[3/4] group">
       {/* Photo Container - Full card */}

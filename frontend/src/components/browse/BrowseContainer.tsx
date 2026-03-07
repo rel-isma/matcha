@@ -56,7 +56,6 @@ export const BrowseContainer: React.FC = () => {
         limit: pagination.limit,
       });
 
-      console.log('Fetch profiles result:', result);
       if (!result.success) {
         throw new Error(result.message || 'Failed to fetch profiles');
       }

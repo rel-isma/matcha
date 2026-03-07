@@ -8,7 +8,7 @@
 /* Custom base styles */
 @layer base {
   html {
-    @apply scroll-smooth;
+    /* scroll-smooth moved to html data attribute in layout.tsx for Next.js 15 compatibility */
   }
   
   body {

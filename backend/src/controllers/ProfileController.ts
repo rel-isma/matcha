@@ -1515,17 +1515,13 @@ export class ProfileController {
       if (profile.neighborhood && isCoordinateFormat(profile.neighborhood)) {
         const coordinates = extractCoordinatesFromString(profile.neighborhood);
         
-        if (coordinates) {
-          console.log(`Fixing neighborhood for user ${userId}: ${profile.neighborhood}`);
-          
+        if (coordinates) {          
           // Convert coordinates to city name
           const cityName = await reverseGeocode(coordinates.latitude, coordinates.longitude);
           
           // Update the profile with the new city name
           await ProfileModel.updateProfile(userId, { neighborhood: cityName });
-          
-          console.log(`Updated neighborhood to: ${cityName}`);
-          
+                    
           res.status(200).json({
             success: true,
             message: 'Neighborhood updated successfully',

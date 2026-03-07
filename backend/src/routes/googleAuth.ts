@@ -68,13 +68,10 @@ const processedCodes = new Set<string>();
  */
 router.get('/google/callback',
   (req: Request, res: Response, next: Function) => {
-    console.log('Google OAuth callback received');
-    console.log('Query params:', req.query);
     
     // Check if this code has already been processed
     const code = req.query.code as string;
     if (code && processedCodes.has(code)) {
-      console.log('Code already processed, skipping...');
       // Get frontend URL from state or default
       let frontendUrl = 'http://localhost:3000';
       try {
@@ -114,7 +111,6 @@ router.get('/google/callback',
       const authResult = req.user as any;
       
       if (!authResult || !authResult.user || !authResult.tokens) {
-        console.error('Google OAuth failed: No user data received');
         return res.redirect(`${frontendUrl}/login?error=oauth_failed`);
       }
 
@@ -135,18 +131,14 @@ router.get('/google/callback',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
 
-      console.log('Google OAuth success for user:', user.email);
 
       // Check if profile is completed and redirect accordingly
       if (!user.isProfileCompleted) {
-        console.log('Profile not completed, redirecting to complete-profile');
         res.redirect(`${frontendUrl}/complete-profile`);
       } else {
-        console.log('Profile completed, redirecting to browse');
         res.redirect(`${frontendUrl}/browse`);
       }
     } catch (error) {
-      console.error('Google OAuth callback error:', error);
       
       // Get frontend URL for error redirect
       let frontendUrl = 'http://localhost:3000';

@@ -26,7 +26,6 @@ export function cleanClientIp(req: Request): string {
 export async function ipapiLookup(cleanIp: string): Promise<IPLocationData> {
     
   if (isLocalIP(cleanIp)) {
-    console.log(`Looking up location for IP: ${cleanIp}`);
     return {
       latitude: 48.8566,
       longitude: 2.3522,
@@ -56,9 +55,6 @@ export async function ipapiLookup(cleanIp: string): Promise<IPLocationData> {
     }
     
     const j = await res.json();
-    console.log('ipapi response:', j);
-
-    
     if (!j || !j.latitude || !j.longitude) {
       throw new Error('no-coords in response');
     }

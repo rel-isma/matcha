@@ -37,6 +37,7 @@ export default function DashboardLayout({
                 alt="Matcha Logo" 
                 width={80} 
                 height={80}
+                style={{ width: 'auto', height: 'auto' }}
                 unoptimized
                 priority
               />

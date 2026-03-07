@@ -37,18 +37,15 @@ export const useProfile = (): UseProfileReturn => {
         
         // Check if neighborhood needs fixing (contains coordinates)
         if (result.data.neighborhood && result.data.neighborhood.includes('(') && result.data.neighborhood.includes(',')) {
-          console.log('Detected coordinate-based neighborhood, attempting to fix...');
           
           // Attempt to fix neighborhood in the background
           const fixResult = await profileApi.fixNeighborhoods();
           
-          if (fixResult.success && fixResult.data?.newNeighborhood) {
-            console.log(`Neighborhood updated from "${fixResult.data.oldNeighborhood}" to "${fixResult.data.newNeighborhood}"`);
-            
+          if (fixResult.success && fixResult.data?.newNeighborhood) {            
             // Update local state with new neighborhood
             setProfile(prev => prev ? {
               ...prev,
-              neighborhood: fixResult.data.newNeighborhood!
+              neighborhood: fixResult?.data?.newNeighborhood!
             } : null);
             
             toast.success('Location updated to readable city name');
@@ -129,7 +126,6 @@ export const useProfile = (): UseProfileReturn => {
   // Add interests
   const addInterests = async (interests: string[]): Promise<boolean> => {
     try {
-      console.log('Add interests :', interests);
       const result = await profileApi.addInterests(interests);
       
       if (result.success) {

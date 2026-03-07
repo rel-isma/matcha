@@ -60,7 +60,6 @@ export const SearchContainer: React.FC = () => {
         limit: pagination.limit,
       });
 
-      console.log('Search profiles result:', result);
       if (!result.success) {
         throw new Error(result.message || 'Failed to search profiles');
       }

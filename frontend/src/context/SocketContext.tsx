@@ -55,12 +55,10 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
     });
 
     socketInstance.on('connect', () => {
-      console.log('Socket connected');
       setIsConnected(true);
     });
 
     socketInstance.on('disconnect', () => {
-      console.log('Socket disconnected');
       setIsConnected(false);
     });
 
