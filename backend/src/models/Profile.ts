@@ -606,7 +606,7 @@ export class ProfileModel {
           case 'age':
             orderBy = `ORDER BY p.date_of_birth ${filters.sortOrder === 'asc' ? 'DESC' : 'ASC'}`;
             break;
-          case 'distance':
+          case 'location':
             if (distanceSelect) {
               orderBy = `ORDER BY distance ${filters.sortOrder || 'ASC'}`;
             } else {

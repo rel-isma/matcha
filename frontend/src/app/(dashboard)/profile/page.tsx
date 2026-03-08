@@ -148,6 +148,7 @@ export default function ProfilePage() {
                         height={160}
                         className="w-full h-full object-cover"
                         unoptimized
+                        priority
                         onError={() => {
                           // ignore image load error
                         }}

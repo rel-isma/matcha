@@ -298,6 +298,7 @@ export default function UserProfilePage() {
                     height={160}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     unoptimized
+                    priority
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
