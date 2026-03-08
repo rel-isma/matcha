@@ -231,12 +231,12 @@ async function createMockData() {
   try {
     await client.query('BEGIN');
 
-    console.log('🚀 Starting mock data creation...');
+    console.log('Starting mock data creation...');
     const testResult = await client.query('SELECT NOW() as current_time');
-    console.log('✅ Database connected at:', testResult.rows[0].current_time);
+    console.log('Database connected at:', testResult.rows[0].current_time);
 
     // ── Interests ─────────────────────────────────────────────────────────
-    console.log('📝 Creating interests...');
+    console.log('Creating interests...');
     for (const interest of interests) {
       await client.query(
         'INSERT INTO interests (name) VALUES ($1) ON CONFLICT (name) DO NOTHING',
@@ -247,7 +247,7 @@ async function createMockData() {
     const hashedPassword = await bcrypt.hash('Password123!', 12);
 
     // ── Male profiles ─────────────────────────────────────────────────────
-    console.log('👨 Creating male profiles...');
+    console.log('Creating male profiles...');
     for (let i = 0; i < TOTAL_PER_GENDER; i++) {
       await createProfile(client, {
         index: i,
@@ -259,7 +259,7 @@ async function createMockData() {
     }
 
     // ── Female profiles ───────────────────────────────────────────────────
-    console.log('👩 Creating female profiles...');
+    console.log('Creating female profiles...');
     for (let i = 0; i < TOTAL_PER_GENDER; i++) {
       await createProfile(client, {
         index: i,
@@ -271,7 +271,7 @@ async function createMockData() {
     }
 
     // ── Interactions ──────────────────────────────────────────────────────
-    console.log('💖 Creating interactions...');
+    console.log('Creating interactions...');
     const { rows: allUserRows } = await client.query(
       "SELECT id FROM users WHERE email LIKE '%@example.com'"
     );
@@ -317,7 +317,7 @@ async function createMockData() {
     }
 
     // ── Fame ratings ──────────────────────────────────────────────────────
-    console.log('⭐ Updating fame ratings...');
+    console.log('Updating fame ratings...');
     for (const userId of allUserIds) {
       await client.query(`
         WITH fame_stats AS (
@@ -345,18 +345,18 @@ async function createMockData() {
 
     await client.query('COMMIT');
 
-    console.log('\n✅ Mock data creation completed!');
-    console.log('📊 Summary:');
+    console.log('\nMock data creation completed!');
+    console.log('Summary:');
     console.log(`   • ${TOTAL_PER_GENDER * 2} users  (${TOTAL_PER_GENDER} male, ${TOTAL_PER_GENDER} female)`);
     console.log(`   • ${interests.length} interests`);
     console.log('   • Each profile has 1–4 UNIQUE portrait photos (no duplicates)');
     console.log('   • Realistic likes, connections and profile views');
-    console.log('\n🔑 All users → password: Password123!');
-    console.log('📧 Email format: [username]@example.com');
+    console.log('\nAll users → password: Password123!');
+    console.log('Email format: [username]@example.com');
 
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('❌ Error creating mock data:', error);
+    console.error('Error creating mock data:', error);
     throw error;
   } finally {
     client.release();

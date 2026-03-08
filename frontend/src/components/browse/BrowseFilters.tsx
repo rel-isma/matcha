@@ -53,8 +53,8 @@ export const BrowseFilters: React.FC<BrowseFiltersProps> = ({
 
   const resetFilters = () => {
     const defaultFilters = {
-      sortBy: 'common_tags' as const,
-      sortOrder: 'desc' as const
+      sortBy: 'location' as const,
+      sortOrder: 'asc' as const
     };
     setLocalFilters(defaultFilters);
     onFiltersChange(defaultFilters);

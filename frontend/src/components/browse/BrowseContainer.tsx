@@ -24,8 +24,8 @@ export const BrowseContainer: React.FC = () => {
     matchedProfile?: ProfileCardData;
   }>({ isOpen: false });
   const [filters, setFilters] = useState<BrowseFiltersData>({
-    sortBy: 'common_tags',
-    sortOrder: 'desc'
+    sortBy: 'location',
+    sortOrder: 'asc'
   });
   const [pagination, setPagination] = useState({
     page: 1,
