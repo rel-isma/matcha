@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode, useCallback } from 'react';
 import { useSocket } from './SocketContext';
 import { useAuth } from './AuthContext';
 import { Notification } from '@/types';
@@ -40,7 +40,6 @@ const notificationApi = axios.create({
 
 export const NotificationProvider = ({ children }: NotificationProviderProps) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -73,19 +72,13 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
         setHasMore(pagination.hasMore);
         setTotalPages(pagination.totalPages);
         setTotal(pagination.total);
-        
-        
-        // Calculate unread count from all loaded notifications
-        const allNotifications = reset ? newNotifications : [...notifications, ...newNotifications];
-        const unread = allNotifications.filter((n: Notification) => !n.isRead).length;
-        setUnreadCount(unread);
       }
     } catch {
       // ignore
     } finally {
       setIsLoading(false);
     }
-  }, [user, currentPage, notifications]);
+  }, [user, currentPage]);
 
   const loadMoreNotifications = useCallback(async () => {
     if (!user || isLoadingMore || !hasMore) return;
@@ -122,7 +115,6 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       setNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
       );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch {
       // ignore
     }
@@ -135,7 +127,6 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       setNotifications((prev) =>
         prev.map((n) => ({ ...n, isRead: true }))
       );
-      setUnreadCount(0);
     } catch {
       // ignore
     }
@@ -146,12 +137,6 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       await notificationApi.delete(`/notifications/${notificationId}`);
 
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-      
-      // Update unread count if the deleted notification was unread
-      const deletedNotif = notifications.find((n) => n.id === notificationId);
-      if (deletedNotif && !deletedNotif.isRead) {
-        setUnreadCount((prev) => Math.max(0, prev - 1));
-      }
     } catch {
       // ignore
     }
@@ -163,7 +148,6 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       fetchNotifications(true);
     } else {
       setNotifications([]);
-      setUnreadCount(0);
       setCurrentPage(1);
       setHasMore(true);
       setTotalPages(0);
@@ -178,7 +162,6 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
     const handleNewNotification = (notification: Notification) => {
       setNotifications((prev) => {
         if (prev.some((n) => n.id === notification.id)) return prev;
-        setUnreadCount((c) => c + 1);
         return [notification, ...prev];
       });
     };
@@ -189,6 +172,12 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       socket.off('notification', handleNewNotification);
     };
   }, [socket]);
+
+  // Single source of truth: derive unread count from notifications (avoids double-count with socket + fetch)
+  const unreadCount = useMemo(
+    () => notifications.filter((n) => !n.isRead).length,
+    [notifications]
+  );
 
   const value: NotificationContextType = {
     notifications,

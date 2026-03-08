@@ -145,12 +145,12 @@ export default function ResetPasswordPage() {
       <div className="mb-8">
         {/* Matcha Logo */}
         <div className="mb-6 flex justify-center">
-          <Image 
-            src="/logo/logoAbig.svg" 
-            alt="Matcha" 
-            width={120}
-            height={40}
-            style={{ width: 'auto', height: '2.5rem' }}
+          <Image
+            src="/logo/logoAbig.svg"
+            alt="Matcha"
+            width={0}
+            height={0}
+            className="w-32 h-8"
             unoptimized
             priority
           />

@@ -616,7 +616,7 @@ export class ProfileModel {
           case 'fame_rating':
             orderBy = `ORDER BY p.fame_rating ${filters.sortOrder || 'DESC'}`;
             break;
-          case 'common_interests':
+          case 'common_tags':
             orderBy = `ORDER BY COALESCE(interests_match.common_interests_count, 0) ${filters.sortOrder || 'DESC'}, p.fame_rating DESC`;
             break;
           default:

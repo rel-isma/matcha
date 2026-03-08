@@ -13,9 +13,9 @@ export default function LoadingPage() {
             <Image 
               src="/logo/logoSmall.svg" 
               alt="Matcha Logo" 
-              width={80} 
-              height={80}
-              style={{ width: 'auto', height: 'auto' }}
+              width={0}
+              height={0}
+              className="w-20 h-20"
               unoptimized
               priority
             />

@@ -8,7 +8,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { useChatUnread } from '@/hooks/useChatUnread';
-import { MessageCircle } from 'lucide-react';
 
 export default function Header() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -77,7 +76,6 @@ export default function Header() {
               className="text-muted-foreground hover:text-accent font-medium transition-colors duration-200 relative"
             >
               <span className="flex items-center gap-2">
-                <MessageCircle className="w-4 h-4" />
                 Chat
                 {chatUnreadCount > 0 && (
                   <span className="absolute -top-3 -right-3 bg-accent text-white text-xs rounded-full h-5 w-5 flex items-center justify-center leading-none font-medium">

@@ -12,9 +12,9 @@ export default function LoginPage() {
           <Image 
             src="/logo/logoAbig.svg" 
             alt="Matcha" 
-            width={120}
-            height={32}
-            style={{ width: 'auto', height: '2rem' }}
+            width={0}
+            height={0}
+            className="w-32 h-8"
             unoptimized
             priority
           />
