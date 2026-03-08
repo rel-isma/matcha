@@ -44,7 +44,7 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
         return response.data;
       }
     } catch (err) {
-      console.error('Error loading conversations:', err);
+      // ignore
     }
     return [];
   }, []);
@@ -77,7 +77,6 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
         setError(response.message || 'Failed to load messages');
       }
     } catch (err) {
-      console.error('Error loading messages:', err);
       setError('Failed to load messages');
     } finally {
       setLoading(false);
@@ -181,7 +180,6 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
           toast.error(response.message || 'Could not find user to chat with');
         }
       } catch (error) {
-        console.error('Error fetching user profile:', error);
         toast.error('Failed to start conversation');
       }
       setInitialLoadDone(true);
@@ -208,11 +206,9 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
           }
         } else {
           // Message is for a different conversation - just refresh the list
-          console.log('Message received for different conversation');
         }
       } else {
         // No conversation open - message will be handled via NEW_MESSAGE event for the badge
-        console.log('Message received while not in chat');
       }
 
       // If message is from someone other than current user, notify the navbar

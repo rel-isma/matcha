@@ -62,8 +62,7 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
       setIsConnected(false);
     });
 
-    socketInstance.on('connect_error', (error) => {
-      console.error('Socket connection error:', error);
+    socketInstance.on('connect_error', () => {
       setIsConnected(false);
     });
 

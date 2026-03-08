@@ -79,7 +79,6 @@ export const SearchContainer: React.FC = () => {
       setHasSearched(true);
 
     } catch (error) {
-      console.error('Search profiles error:', error);
       if (error instanceof Error && error.message === 'Profile not completed') {
         // Redirect to profile completion
         router.push('/complete-profile');
@@ -103,8 +102,8 @@ export const SearchContainer: React.FC = () => {
           'Nature', 'Yoga', 'Writing', 'Meditation', 'Wine', 'Coffee'
         ];
         setAvailableInterests(commonInterests);
-      } catch (error) {
-        console.error('Failed to fetch interests:', error);
+      } catch {
+        // ignore
       }
     };
 
@@ -182,7 +181,6 @@ export const SearchContainer: React.FC = () => {
       }
 
     } catch (error) {
-      console.error('Like error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to like profile');
     }
   };
@@ -206,7 +204,6 @@ export const SearchContainer: React.FC = () => {
       toast.success('Like removed');
 
     } catch (error) {
-      console.error('Unlike error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to unlike profile');
     }
   };
@@ -313,13 +310,14 @@ export const SearchContainer: React.FC = () => {
 
             {/* Profile Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-              {profiles.map((profile) => (
+              {profiles.map((profile, index) => (
                 <ProfileCard
                   key={profile.id}
                   profile={profile}
                   onLike={handleLike}
                   onUnlike={handleUnlike}
                   onViewProfile={handleViewProfile}
+                  priority={index === 0}
                 />
               ))}
             </div>

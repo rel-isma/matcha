@@ -95,8 +95,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (result.success && result.data) {
         setUser(result.data.user);
       }
-    } catch (error) {
-      console.error('Failed to update user:', error);
+    } catch {
+      // ignore
     }
   };
 

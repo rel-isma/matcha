@@ -127,8 +127,8 @@ export default function ForgotPasswordPage() {
             src="/logo/logoAbig.svg" 
             alt="Matcha" 
             width={120}
-            height={40}
-            className="h-8 w-auto"
+            height={32}
+            style={{ width: 'auto', height: '2rem' }}
             unoptimized
             priority
           />

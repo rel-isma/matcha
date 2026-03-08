@@ -32,7 +32,6 @@ export default function ProfileViewsTest() {
       }
     } catch (err) {
       setError('Network error occurred');
-      console.error('Profile views test error:', err);
     } finally {
       setLoading(false);
     }

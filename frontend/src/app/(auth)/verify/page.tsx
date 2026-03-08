@@ -105,7 +105,8 @@ export default function VerifyPage() {
             alt="Matcha" 
             width={120}
             height={40}
-            className="h-10 w-auto mb-8"
+            style={{ width: 'auto', height: '2.5rem' }}
+            className="mb-8"
             unoptimized
             priority
           />

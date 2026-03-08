@@ -13,8 +13,8 @@ export default function RegisterPage() {
             src="/logo/logoAbig.svg" 
             alt="Matcha" 
             width={120}
-            height={40}
-            className="h-7 sm:h-8 w-auto"
+            height={32}
+            style={{ width: 'auto', height: '2rem' }}
             unoptimized
             priority
           />

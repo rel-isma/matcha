@@ -67,7 +67,6 @@ export default function UserProfilePage() {
       }
     } catch (error) {
       setError('Failed to load profile');
-      console.error('Error fetching profile:', error);
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +115,6 @@ export default function UserProfilePage() {
         }
       }
     } catch (error) {
-      console.error('Error handling like:', error);
       toast.error('An error occurred while processing your request');
     } finally {
       setActionLoading(null);
@@ -140,15 +138,14 @@ export default function UserProfilePage() {
         setIsConnected(false);
         toast.success(`${profile.firstName} has been blocked successfully.`);
         // Refresh chat unread badge to reflect cleared messages from this user
-        refreshChatUnread().catch((err) =>
-          console.error('Failed to refresh chat unread count after block:', err)
-        );
+        refreshChatUnread().catch(() => {
+          // ignore
+        });
         router.push('/browse');
       } else {
         toast.error(response.message || 'Failed to block user');
       }
     } catch (error) {
-      console.error('Error blocking user:', error);
       toast.error('An error occurred while blocking user');
     } finally {
       setActionLoading(null);
@@ -170,7 +167,6 @@ export default function UserProfilePage() {
         toast.error(response.message || 'Failed to report user');
       }
     } catch (error) {
-      console.error('Report error:', error);
       toast.error('Failed to report user');
     } finally {
       setActionLoading(null);

@@ -35,10 +35,10 @@ export default function ProfilePage() {
         if (response.success && response.data) {
           setLikesReceived(response.data);
         }
-      } catch (error) {
-        console.error('Failed to fetch likes received:', error);
+      } catch {
+        // ignore
       } finally {
-        setLikesLoading(false);
+          setLikesLoading(false);
       }
     };
 
@@ -50,10 +50,10 @@ export default function ProfilePage() {
           setProfileViews(response.data.views);
           setViewsTotal(response.data.total);
         }
-      } catch (error) {
-        console.error('Failed to fetch profile views:', error);
+      } catch {
+        // ignore
       } finally {
-        setViewsLoading(false);
+          setViewsLoading(false);
       }
     };
 
@@ -65,8 +65,8 @@ export default function ProfilePage() {
     try {
       await logout();
       router.push('/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
+    } catch {
+      // ignore
     }
   };
 
@@ -149,7 +149,7 @@ export default function ProfilePage() {
                         className="w-full h-full object-cover"
                         unoptimized
                         onError={() => {
-                          console.error('Profile picture load error:', profilePicture);
+                          // ignore image load error
                         }}
                       />
                     ) : (
@@ -459,7 +459,7 @@ export default function ProfilePage() {
                             className="w-full h-full object-cover"
                             unoptimized
                             onError={() => {
-                              console.error('Gallery image load error:', picture.url);
+                              // ignore image load error
                             }}
                           />
                         </motion.div>

@@ -34,8 +34,8 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       await logout();
-    } catch (error) {
-      console.error('Logout failed:', error);
+    } catch {
+      // ignore
     }
   };
 
@@ -51,7 +51,7 @@ export default function Header() {
                 alt="Matcha"
                 width={120}
                 height={32}
-                className="h-8 w-auto"
+                style={{ width: 'auto', height: '2rem' }}
                 unoptimized
                 priority
               />
@@ -109,7 +109,7 @@ export default function Header() {
                       className="w-full h-full object-cover"
                       unoptimized
                       onError={() => {
-                        console.error('Profile picture load error');
+                        // ignore image load error
                       }}
                     />
                   ) : (

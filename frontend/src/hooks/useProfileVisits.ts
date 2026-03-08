@@ -29,9 +29,8 @@ export const useProfileVisits = () => {
       
       // For now, return empty array
       setVisits([]);
-    } catch (error) {
+    } catch {
       setError('Failed to fetch profile visits');
-      console.error('Error fetching profile visits:', error);
     } finally {
       setLoading(false);
     }

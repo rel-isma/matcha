@@ -1178,7 +1178,6 @@ export default function SettingsPage() {
                               className="object-cover"
                               unoptimized
                               onError={(e) => {
-                                console.error('Image load error:', picture.url);
                                 e.currentTarget.src = '/placeholder.svg';
                               }}
                             />

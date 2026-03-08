@@ -147,8 +147,7 @@ export function GPSPicker({
             neighborhood = place.name
           }
         }
-      } catch (geoError) {
-        console.warn('Failed to get city name from coordinates:', geoError)
+      } catch {
         // Continue without city name - coordinates are more important
       }
 

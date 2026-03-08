@@ -77,7 +77,6 @@ export const BrowseContainer: React.FC = () => {
       }));
 
     } catch (error) {
-      console.error('Fetch profiles error:', error);
       if (error instanceof Error && error.message === 'Profile not completed') {
         // Redirect to profile completion
         router.push('/complete-profile');
@@ -106,8 +105,8 @@ export const BrowseContainer: React.FC = () => {
           'Art', 'Gaming', 'Fitness', 'Dancing', 'Hiking', 'Technology', 'Fashion'
         ];
         setAvailableInterests(commonInterests);
-      } catch (error) {
-        console.error('Failed to fetch interests:', error);
+      } catch {
+        // ignore
       }
     };
 
@@ -167,7 +166,6 @@ export const BrowseContainer: React.FC = () => {
       }
 
     } catch (error) {
-      console.error('Like error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to like profile');
     }
   };
@@ -191,7 +189,6 @@ export const BrowseContainer: React.FC = () => {
       toast.success('Like removed');
 
     } catch (error) {
-      console.error('Unlike error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to unlike profile');
     }
   };
@@ -260,13 +257,14 @@ export const BrowseContainer: React.FC = () => {
 
             {/* Profile Grid - Responsive: Fewer columns for larger cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-              {profiles.map((profile) => (
+              {profiles.map((profile, index) => (
                 <ProfileCard
                   key={profile.id}
                   profile={profile}
                   onLike={handleLike}
                   onUnlike={handleUnlike}
                   onViewProfile={handleViewProfile}
+                  priority={index === 0}
                 />
               ))}
             </div>

@@ -150,7 +150,7 @@ export default function ResetPasswordPage() {
             alt="Matcha" 
             width={120}
             height={40}
-            className="h-8 w-auto"
+            style={{ width: 'auto', height: '2.5rem' }}
             unoptimized
             priority
           />

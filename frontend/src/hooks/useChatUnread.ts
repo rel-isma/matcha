@@ -36,8 +36,8 @@ export const useChatUnread = () => {
       if (response.success && response.data) {
         setUnreadCount(response.data.count);
       }
-    } catch (error) {
-      console.error('Failed to fetch unread count:', error);
+    } catch {
+      // ignore
     } finally {
       setIsLoading(false);
     }
@@ -116,8 +116,8 @@ export const useChatUnread = () => {
     try {
       await chatApi.markAsRead(senderId);
       setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Failed to mark messages as read:', error);
+    } catch {
+      // ignore
     }
   };
 
@@ -125,8 +125,8 @@ export const useChatUnread = () => {
   const markAllAsRead = async () => {
     try {
       setUnreadCount(0);
-    } catch (error) {
-      console.error('Failed to mark all messages as read:', error);
+    } catch {
+      // ignore
     }
   };
 

@@ -37,8 +37,8 @@ export default function NavBar() {
     try {
       await logout();
       setIsProfileMenuOpen(false);
-    } catch (error) {
-      console.error('Logout failed:', error);
+    } catch {
+      // ignore
     }
   };
 
@@ -102,7 +102,7 @@ export default function NavBar() {
               className="w-full h-full object-cover"
               unoptimized
               onError={() => {
-                console.error('Profile picture load error');
+                // ignore image load error
               }}
             />
           ) : (

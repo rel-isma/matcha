@@ -80,8 +80,8 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
         const unread = allNotifications.filter((n: Notification) => !n.isRead).length;
         setUnreadCount(unread);
       }
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
+    } catch {
+      // ignore
     } finally {
       setIsLoading(false);
     }
@@ -108,8 +108,8 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
         setHasMore(pagination.hasMore);
         
       }
-    } catch (error) {
-      console.error('Failed to load more notifications:', error);
+    } catch {
+      // ignore
     } finally {
       setIsLoadingMore(false);
     }
@@ -123,8 +123,8 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
         prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+    } catch {
+      // ignore
     }
   };
 
@@ -136,8 +136,8 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
         prev.map((n) => ({ ...n, isRead: true }))
       );
       setUnreadCount(0);
-    } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
+    } catch {
+      // ignore
     }
   };
 
@@ -152,8 +152,8 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       if (deletedNotif && !deletedNotif.isRead) {
         setUnreadCount((prev) => Math.max(0, prev - 1));
       }
-    } catch (error) {
-      console.error('Failed to delete notification:', error);
+    } catch {
+      // ignore
     }
   };
 

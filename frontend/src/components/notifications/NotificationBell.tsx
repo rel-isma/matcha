@@ -264,8 +264,10 @@ interface NotificationItemProps {
 }
 
 const NotificationItem = ({ notification, onClick, onDelete, icon }: NotificationItemProps) => {
-  const avatarUrl = notification.fromUserAvatar 
-    ? `${STATIC_BASE_URL}${notification.fromUserAvatar}`
+  const avatarUrl = notification.fromUserAvatar
+    ? (notification.fromUserAvatar.startsWith('http')
+        ? notification.fromUserAvatar
+        : `${STATIC_BASE_URL}${notification.fromUserAvatar}`)
     : null;
 
   return (

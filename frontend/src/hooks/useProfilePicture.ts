@@ -21,8 +21,8 @@ export const useProfilePicture = () => {
             : `${STATIC_BASE_URL}${mainPicture?.url}`;
           setProfilePicture(pictureUrl);
         }
-      } catch (error) {
-        console.error('Failed to fetch profile picture:', error);
+      } catch {
+        // ignore
       } finally {
         setLoading(false);
       }

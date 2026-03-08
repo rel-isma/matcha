@@ -11,13 +11,15 @@ interface ProfileCardProps {
   onLike: (userId: string) => void;
   onUnlike: (userId: string) => void;
   onViewProfile: (username: string) => void;
+  priority?: boolean;
 }
 
 export const ProfileCard: React.FC<ProfileCardProps> = ({
   profile,
   onLike,
   onUnlike,
-  onViewProfile
+  onViewProfile,
+  priority = false,
 }) => {
   const profilePicture = profile.pictures.find(p => p.isProfilePic) || profile.pictures[0];
   return (
@@ -35,6 +37,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="400px"
             unoptimized
+            priority={priority}
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-secondary-400 flex items-center justify-center">
