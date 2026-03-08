@@ -215,11 +215,17 @@ export default function ProfilePage() {
                       variant="outline"
                       onClick={() => {
                         if (navigator.share) {
-                          navigator.share({
-                            title: `${user?.firstName} ${user?.lastName}'s Profile`,
-                            text: `Check out ${user?.firstName}'s dating profile!`,
-                            url: window.location.href,
-                          });
+                          navigator
+                            .share({
+                              title: `${user?.firstName} ${user?.lastName}'s Profile`,
+                              text: `Check out ${user?.firstName}'s dating profile!`,
+                              url: window.location.href,
+                            })
+                            .catch((err) => {
+                              if (err.name !== 'AbortError') {
+                                console.error('Share failed:', err);
+                              }
+                            });
                         } else {
                           navigator.clipboard.writeText(window.location.href);
                         }

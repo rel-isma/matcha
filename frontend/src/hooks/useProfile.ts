@@ -41,11 +41,12 @@ export const useProfile = (): UseProfileReturn => {
           // Attempt to fix neighborhood in the background
           const fixResult = await profileApi.fixNeighborhoods();
           
-          if (fixResult.success && fixResult.data?.newNeighborhood) {            
+          if (fixResult.success && fixResult.data?.newNeighborhood) {
+            const newNeighborhood = fixResult.data.newNeighborhood;
             // Update local state with new neighborhood
             setProfile(prev => prev ? {
               ...prev,
-              neighborhood: fixResult?.data?.newNeighborhood!
+              neighborhood: newNeighborhood
             } : null);
             
             toast.success('Location updated to readable city name');

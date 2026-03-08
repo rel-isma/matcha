@@ -52,7 +52,7 @@ class AuthApiClient {
   async register(userData: RegisterFormData): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.post(API_ENDPOINTS.AUTH.REGISTER, userData);
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -66,7 +66,7 @@ class AuthApiClient {
   async login(credentials: LoginFormData): Promise<ApiResponse<{ user: User }>> {
     try {
       const response = await api.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
-      return response as ApiResponse<{ user: User }>;
+      return response as unknown as ApiResponse<{ user: User }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -80,7 +80,7 @@ class AuthApiClient {
   async logout(): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.post(API_ENDPOINTS.AUTH.LOGOUT);
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -94,7 +94,7 @@ class AuthApiClient {
   async verifyEmail(token: string): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.post(API_ENDPOINTS.AUTH.VERIFY, { token });
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -108,7 +108,7 @@ class AuthApiClient {
   async refreshToken(): Promise<ApiResponse<{ user: User }>> {
     try {
       const response = await api.post(API_ENDPOINTS.AUTH.REFRESH);
-      return response as ApiResponse<{ user: User }>;
+      return response as unknown as ApiResponse<{ user: User }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -122,7 +122,7 @@ class AuthApiClient {
   async getCurrentUser(): Promise<ApiResponse<{ user: User }>> {
     try {
       const response = await api.get(API_ENDPOINTS.AUTH.ME);
-      return response as ApiResponse<{ user: User }>;
+      return response as unknown as ApiResponse<{ user: User }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -136,7 +136,7 @@ class AuthApiClient {
   async forgotPassword(email: string): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -150,7 +150,7 @@ class AuthApiClient {
   async resetPassword(token: string, password: string): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, { token, password });
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -164,7 +164,7 @@ class AuthApiClient {
   async resendVerification(email: string): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.post(API_ENDPOINTS.AUTH.RESEND_VERIFICATION, { email });
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -178,7 +178,7 @@ class AuthApiClient {
   async updateUser(userData: { firstName: string; lastName: string; email: string }): Promise<ApiResponse<{ user: User }>> {
     try {
       const response = await api.put(API_ENDPOINTS.AUTH.ME, userData);
-      return response as ApiResponse<{ user: User }>;
+      return response as unknown as ApiResponse<{ user: User }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -192,7 +192,7 @@ class AuthApiClient {
   async changePassword(passwordData: { currentPassword: string; newPassword: string }): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.put(`${API_ENDPOINTS.AUTH.ME}/password`, passwordData);
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -211,7 +211,7 @@ class ChatApiClient {
   async getConversations(): Promise<ApiResponse<Conversation[]>> {
     try {
       const response = await api.get('/chat/conversations');
-      return response as ApiResponse<Conversation[]>;
+      return response as unknown as ApiResponse<Conversation[]>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -227,7 +227,7 @@ class ChatApiClient {
       const response = await api.get(`/chat/messages/${otherUserId}`, {
         params: { limit, offset }
       });
-      return response as ApiResponse<Message[]>;
+      return response as unknown as ApiResponse<Message[]>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -241,7 +241,7 @@ class ChatApiClient {
   async sendMessage(data: SendMessageInput): Promise<ApiResponse<Message>> {
     try {
       const response = await api.post('/chat/messages', data);
-      return response as ApiResponse<Message>;
+      return response as unknown as ApiResponse<Message>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -255,7 +255,7 @@ class ChatApiClient {
   async markAsRead(senderId: string): Promise<ApiResponse> {
     try {
       const response = await api.put('/chat/messages/read', { senderId });
-      return response as ApiResponse;
+      return response as unknown as ApiResponse;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -269,7 +269,7 @@ class ChatApiClient {
   async getUnreadCount(): Promise<ApiResponse<{ count: number }>> {
     try {
       const response = await api.get('/chat/unread-count');
-      return response as ApiResponse<{ count: number }>;
+      return response as unknown as ApiResponse<{ count: number }>;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {
@@ -283,7 +283,7 @@ class ChatApiClient {
   async deleteMessage(messageId: string): Promise<ApiResponse> {
     try {
       const response = await api.delete(`/chat/messages/${messageId}`);
-      return response as ApiResponse;
+      return response as unknown as ApiResponse;
     } catch (error: unknown) {
       const authError = error as AuthApiError;
       return {

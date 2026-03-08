@@ -45,7 +45,7 @@ class ProfileApiClient {
   async getMyProfile(): Promise<ApiResponse<ProfileWithDetails>> {
     try {
       const response = await api.get(API_ENDPOINTS.PROFILE.ME);
-      return response as ApiResponse<ProfileWithDetails>;
+      return response as unknown as ApiResponse<ProfileWithDetails>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -59,7 +59,7 @@ class ProfileApiClient {
   async updateMyProfile(profileData: UpdateProfileInput): Promise<ApiResponse<ProfileWithDetails>> {
     try {
       const response = await api.put(API_ENDPOINTS.PROFILE.ME, profileData);
-      return response as ApiResponse<ProfileWithDetails>;
+      return response as unknown as ApiResponse<ProfileWithDetails>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -83,7 +83,7 @@ class ProfileApiClient {
   }>> {
     try {
       const response = await api.post(API_ENDPOINTS.PROFILE.LOCATION, locationData);
-      return response as ApiResponse<{
+      return response as unknown as ApiResponse<{
         latitude: number;
         longitude: number;
         locationSource: string;
@@ -109,7 +109,7 @@ class ProfileApiClient {
           'Content-Type': 'multipart/form-data',
         },
       });
-      return response as ApiResponse<{ picture: ProfilePicture }>;
+      return response as unknown as ApiResponse<{ picture: ProfilePicture }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -123,7 +123,7 @@ class ProfileApiClient {
   async deletePicture(pictureId: string): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.delete(API_ENDPOINTS.PROFILE.PICTURE_DELETE(pictureId));
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -137,7 +137,7 @@ class ProfileApiClient {
   async addInterests(interests: string[]): Promise<ApiResponse<{ interests: Interest[] }>> {
     try {
       const response = await api.post(API_ENDPOINTS.PROFILE.INTERESTS, { interests });
-      return response as ApiResponse<{ interests: Interest[] }>;
+      return response as unknown as ApiResponse<{ interests: Interest[] }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -151,7 +151,7 @@ class ProfileApiClient {
   async removeInterest(interestId: string): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.delete(API_ENDPOINTS.PROFILE.INTEREST_DELETE(interestId));
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -165,7 +165,7 @@ class ProfileApiClient {
   async getPublicProfile(username: string): Promise<ApiResponse<{ profile: PublicProfile }>> {
     try {
       const response = await api.get(API_ENDPOINTS.PROFILE.USER(username));
-      return response as ApiResponse<{ profile: PublicProfile }>;
+      return response as unknown as ApiResponse<{ profile: PublicProfile }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -179,7 +179,7 @@ class ProfileApiClient {
   async likeUser(userId: string): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.post(API_ENDPOINTS.PROFILE.LIKE(userId));
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -193,7 +193,7 @@ class ProfileApiClient {
   async unlikeUser(userId: string): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.delete(API_ENDPOINTS.PROFILE.UNLIKE(userId));
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -207,7 +207,7 @@ class ProfileApiClient {
   async getLikesReceived(): Promise<ApiResponse<LikeWithUser[]>> {
     try {
       const response = await api.get(API_ENDPOINTS.PROFILE.LIKES_RECEIVED);
-      return response as ApiResponse<LikeWithUser[]>;
+      return response as unknown as ApiResponse<LikeWithUser[]>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -241,7 +241,7 @@ class ProfileApiClient {
       params.append('limit', limit.toString());
       
       const response = await api.get(`${API_ENDPOINTS.PROFILE.VIEWS}?${params.toString()}`);
-      return response as ApiResponse<{
+      return response as unknown as ApiResponse<{
         views: Array<{
           id: string;
           viewerId?: string;
@@ -271,7 +271,7 @@ class ProfileApiClient {
   async blockUser(userId: string): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.post(API_ENDPOINTS.PROFILE.BLOCK(userId));
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -293,7 +293,7 @@ class ProfileApiClient {
   }>>> {
     try {
       const response = await api.get(API_ENDPOINTS.PROFILE.BLOCKED);
-      return response as ApiResponse<Array<{
+      return response as unknown as ApiResponse<Array<{
         id: string;
         userId: string;
         username: string;
@@ -315,7 +315,7 @@ class ProfileApiClient {
   async unblockUser(userId: string): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.delete(API_ENDPOINTS.PROFILE.UNBLOCK(userId));
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -329,7 +329,7 @@ class ProfileApiClient {
   async reportUser(userId: string, reason: string): Promise<ApiResponse<{ message: string }>> {
     try {
       const response = await api.post(API_ENDPOINTS.PROFILE.REPORT(userId), { reason });
-      return response as ApiResponse<{ message: string }>;
+      return response as unknown as ApiResponse<{ message: string }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -343,7 +343,7 @@ class ProfileApiClient {
   async fixNeighborhoods(): Promise<ApiResponse<{ oldNeighborhood?: string; newNeighborhood?: string; currentNeighborhood?: string }>> {
     try {
       const response = await api.patch('/profile/fix-neighborhoods');
-      return response as ApiResponse<{ oldNeighborhood?: string; newNeighborhood?: string; currentNeighborhood?: string }>;
+      return response as unknown as ApiResponse<{ oldNeighborhood?: string; newNeighborhood?: string; currentNeighborhood?: string }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -413,7 +413,27 @@ class ProfileApiClient {
       if (filters.limit) params.append('limit', filters.limit.toString());
 
       const response = await api.get(`${API_ENDPOINTS.PROFILE.BROWSE}?${params.toString()}`);
-      return response;
+      return response as unknown as ApiResponse<{
+        profiles: Array<{
+          id: string;
+          userId: string;
+          username: string;
+          firstName: string;
+          lastName: string;
+          age?: number;
+          gender?: string;
+          bio?: string;
+          fameRating: number;
+          neighborhood?: string;
+          distance?: number;
+          commonInterests?: number;
+          interests: Array<{ id: number; name: string }>;
+          pictures: Array<{ id: string; url: string; isProfilePic: boolean; position: number }>;
+          isLiked?: boolean;
+          hasLikedBack?: boolean;
+        }>;
+        pagination: { page: number; limit: number; hasMore: boolean };
+      }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {
@@ -483,7 +503,27 @@ class ProfileApiClient {
       if (filters.limit) params.append('limit', filters.limit.toString());
 
       const response = await api.get(`${API_ENDPOINTS.PROFILE.SEARCH}?${params.toString()}`);
-      return response;
+      return response as unknown as ApiResponse<{
+        profiles: Array<{
+          id: string;
+          userId: string;
+          username: string;
+          firstName: string;
+          lastName: string;
+          age?: number;
+          gender?: string;
+          bio?: string;
+          fameRating: number;
+          neighborhood?: string;
+          distance?: number;
+          commonInterests?: number;
+          interests: Array<{ id: number; name: string }>;
+          pictures: Array<{ id: string; url: string; isProfilePic: boolean; position: number }>;
+          isLiked?: boolean;
+          hasLikedBack?: boolean;
+        }>;
+        pagination: { page: number; limit: number; hasMore: boolean };
+      }>;
     } catch (error: unknown) {
       const profileError = error as ProfileApiError;
       return {

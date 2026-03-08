@@ -32,6 +32,8 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
   const [isBlockedByThem, setIsBlockedByThem] = useState(false);
   /** Prevents running initialUsername logic (and showing toast) multiple times when effect re-runs */
   const processedInitialUsername = useRef<string | null>(null);
+  /** Ref to latest handleSelectConversation so initial-load effect doesn't depend on it (avoids loop when conversations update) */
+  const handleSelectConversationRef = useRef<(userId: string, conversationData?: Conversation) => void>(() => {});
 
   const { socket } = useSocket();
 
@@ -65,7 +67,15 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
         ).length;
 
         await chatApi.markAsRead(otherUserId);
+        // Notify sender in real time (HTTP only updates DB; socket notifies the other client)
+        if (socket) {
+          socket.emit('chat:mark-read', otherUserId);
+        }
         chatEvents.emit(CHAT_EVENTS.MESSAGES_READ, unreadCount);
+        // Update conversation list so this conversation's badge shows 0 unread
+        setConversations((prev) =>
+          prev.map((c) => (c.userId === otherUserId ? { ...c, unreadCount: 0 } : c))
+        );
       } else {
         const blockedMessage =
           response.message === 'You have been blocked' ||
@@ -81,7 +91,7 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [socket]);
 
   // Handle conversation selection.
   // Optional second arg: when we have the conversation already (e.g. from initial load),
@@ -99,6 +109,11 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
       }
     }
   }, [conversations, loadMessages, socket]);
+
+  // Keep ref updated so initial-load effect can call without being in its deps
+  useEffect(() => {
+    handleSelectConversationRef.current = handleSelectConversation;
+  }, [handleSelectConversation]);
 
   // Handle closing conversation (for mobile)
   const handleCloseConversation = useCallback(() => {
@@ -134,7 +149,7 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
       );
 
       if (targetConversation) {
-        handleSelectConversation(targetConversation.userId, targetConversation);
+        handleSelectConversationRef.current(targetConversation.userId, targetConversation);
         setInitialLoadDone(true);
         return;
       }
@@ -186,7 +201,10 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
     };
 
     initializeChat();
-  }, [loadConversations, initialUsername, initialLoadDone, handleSelectConversation, socket]);
+    // Intentionally omit handleSelectConversation and initialLoadDone to avoid loop:
+    // - handleSelectConversation changes when conversations change (after loadConversations), we use ref instead
+    // - initialLoadDone is only set here; re-running when it becomes true would call loadConversations again
+  }, [loadConversations, initialUsername, socket]);
 
   // Socket event handlers
   useEffect(() => {
@@ -234,11 +252,15 @@ export default function ChatContainer({ currentUserId, currentUsername, initialU
       }
     };
 
-    const handleMessagesRead = () => {
-      // Update read status for sent messages
-      setMessages(prev => prev.map(msg => 
-        msg.senderId === currentUserId ? { ...msg, isRead: true } : msg
-      ));
+    const handleMessagesRead = (data?: { readerId?: string }) => {
+      // Only update if the read receipt is for the conversation we're viewing
+      const readerId = data?.readerId;
+      if (readerId != null && readerId !== selectedConversation) return;
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.senderId === currentUserId ? { ...msg, isRead: true } : msg
+        )
+      );
     };
 
     socket.on('chat:message', handleNewMessage);

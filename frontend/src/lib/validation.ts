@@ -238,19 +238,27 @@ export const validateProfileForm = (data: ProfileFormData): ValidationResult => 
   };
 };
 
-// Search form validation
-export const validateSearchFilters = (filters: Record<string, any>): ValidationResult => {
+// Search form validation (filter shape used by search UI)
+interface SearchFiltersInput {
+  ageMin?: number;
+  ageMax?: number;
+  fameMin?: number;
+  fameMax?: number;
+  distance?: number;
+}
+
+export const validateSearchFilters = (filters: SearchFiltersInput): ValidationResult => {
   const errors: Record<string, string> = {};
   
-  if (filters.ageMin && filters.ageMax && filters.ageMin > filters.ageMax) {
+  if (filters.ageMin != null && filters.ageMax != null && filters.ageMin > filters.ageMax) {
     errors.age = 'Minimum age cannot be greater than maximum age';
   }
   
-  if (filters.fameMin && filters.fameMax && filters.fameMin > filters.fameMax) {
+  if (filters.fameMin != null && filters.fameMax != null && filters.fameMin > filters.fameMax) {
     errors.fame = 'Minimum fame cannot be greater than maximum fame';
   }
   
-  if (filters.distance && (filters.distance < 1 || filters.distance > 500)) {
+  if (filters.distance != null && (filters.distance < 1 || filters.distance > 500)) {
     errors.distance = 'Distance must be between 1 and 500 km';
   }
   

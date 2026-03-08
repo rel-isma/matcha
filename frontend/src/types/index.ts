@@ -1,4 +1,5 @@
 // Types for authentication and API responses
+import type { ChangeEvent, FocusEvent, ReactNode } from 'react';
 
 // User type from backend
 export interface User {
@@ -190,7 +191,7 @@ export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginFormData) => Promise<{ success: boolean; message?: string; data?: any }>;
+  login: (credentials: LoginFormData) => Promise<{ success: boolean; message?: string; data?: { user: User } }>;
   register: (userData: RegisterFormData) => Promise<{ success: boolean; message?: string }>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
@@ -218,7 +219,7 @@ export interface ButtonProps {
   size?: 'sm' | 'default' | 'lg' | 'icon';
   loading?: boolean;
   className?: string;
-  children?: any;
+  children?: ReactNode;
   onClick?: () => void;
   disabled?: boolean;
   type?: 'button' | 'submit' | 'reset';
@@ -227,13 +228,13 @@ export interface ButtonProps {
 export interface InputProps {
   label?: string;
   error?: string;
-  icon?: any;
+  icon?: ReactNode;
   className?: string;
   type?: string;
   placeholder?: string;
   value?: string;
-  onChange?: (e: any) => void;
-  onBlur?: (e: any) => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   disabled?: boolean;
   required?: boolean;
 }
@@ -242,7 +243,7 @@ export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
-  children: any;
+  children: ReactNode;
   size?: 'sm' | 'default' | 'lg' | 'xl' | 'full';
   showCloseButton?: boolean;
 }

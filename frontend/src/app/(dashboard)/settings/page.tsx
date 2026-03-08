@@ -336,7 +336,7 @@ export default function SettingsPage() {
     const validFiles = Array.from(files).filter((file) => {
       const f = file as File;
       // Check file type
-      if (!PHOTO_LIMITS.ALLOWED_TYPES.includes(f.type as any)) {
+      if (!(PHOTO_LIMITS.ALLOWED_TYPES as readonly string[]).includes(f.type)) {
         toast.error(`${f.name} is not a supported image format`);
         return false;
       }
@@ -875,8 +875,8 @@ export default function SettingsPage() {
                       </label>
                       <DateInput
                         aria-label="Date of birth"
-                        value={profileFormData.dateOfBirth ? parseDate(profileFormData.dateOfBirth) : null}
-                        onChange={(value) =>
+                        value={(profileFormData.dateOfBirth ? parseDate(profileFormData.dateOfBirth) : null) as unknown as React.ComponentProps<typeof DateInput>['value']}
+                        onChange={(value: { toString(): string } | null) =>
                           setProfileFormData(prev => ({
                             ...prev,
                             dateOfBirth: value ? value.toString() : ''
@@ -891,8 +891,7 @@ export default function SettingsPage() {
                           inputWrapper: 'bg-input rounded-lg border border-border hover:border-accent/60 focus-within:border-accent',
                           input: 'text-foreground',
                           label: 'text-foreground',
-                          segment: 'text-foreground',
-                          selectorIcon: 'text-muted-foreground'
+                          segment: 'text-foreground'
                         }}
                       />
                       {profileFormData.dateOfBirth && !errors.dateOfBirth && (

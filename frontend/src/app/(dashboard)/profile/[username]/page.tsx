@@ -11,6 +11,7 @@ import {
   ChevronLeft, ChevronRight, X, Award
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useProfilePicture } from '@/hooks/useProfilePicture';
 import { Button } from '@/components/ui/Button';
 import { GENDER_OPTIONS, SEXUAL_PREFERENCE_OPTIONS, STATIC_BASE_URL } from '../../../../lib/constants';
 import { profileApi } from '@/lib/profileApi';
@@ -23,6 +24,7 @@ export default function UserProfilePage() {
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
+  const { profilePicture: currentUserPicture } = useProfilePicture();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -780,7 +782,7 @@ export default function UserProfilePage() {
       <MatchModal
         isOpen={showMatchModal}
         onClose={() => setShowMatchModal(false)}
-        currentUserPicture={user?.profilePicture}
+        currentUserPicture={currentUserPicture ?? undefined}
         currentUserName={user?.firstName}
         matchedUserPicture={getProfilePicture() ?? undefined}
         matchedUserName={profile?.firstName}

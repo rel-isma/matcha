@@ -12,7 +12,7 @@ export const useProfilePicture = () => {
     const fetchProfilePicture = async () => {
       try {
         const result = await profileApi.getMyProfile();
-        if (result.success && result?.data?.pictures?.length > 0) {
+        if (result.success && result?.data?.pictures && result.data.pictures.length > 0) {
           // Get the main profile picture (first one or the one marked as profile pic)
           const mainPicture = result?.data?.pictures.find(pic => pic.isProfilePic) || result?.data?.pictures[0];
           // Handle both external URLs (starting with http) and local uploads
